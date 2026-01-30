@@ -39,25 +39,8 @@
         </footer>
     </div>
 
-    <script type="module">
-        // Firebase configuration - REPLACE WITH YOUR FIREBASE CONFIG
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
             e.preventDefault();
 
             const phone = document.getElementById('phone').value.trim();
@@ -74,20 +57,26 @@
                 return;
             }
 
-            try {
-                await push(ref(database, 'carriers'), {
-                    phone: phone,
-                    description: description,
-                    pin: pin,
-                    timestamp: Date.now()
-                });
+            // Get existing carriers from localStorage
+            let carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
 
-                alert('Амжилттай бүртгэгдлээ!');
-                document.getElementById('signupForm').reset();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
-            }
+            // Add new carrier
+            carriers.push({
+                id: Date.now().toString(),
+                phone: phone,
+                description: description,
+                pin: pin,
+                timestamp: Date.now()
+            });
+
+            // Save to localStorage
+            localStorage.setItem('carriers', JSON.stringify(carriers));
+
+            // Trigger storage event for other tabs
+            window.dispatchEvent(new Event('storage'));
+
+            alert('Амжилттай бүртгэгдлээ!');
+            document.getElementById('signupForm').reset();
         });
     </script>
 </body>
