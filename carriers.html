@@ -24,24 +24,46 @@
         </footer>
     </div>
 
-    <script>
-        function loadCarriers() {
-            const container = document.getElementById('carriersContainer');
-            const carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-            if (carriers.length === 0) {
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+            authDomain: "huwsgul-hurgelt.firebaseapp.com",
+            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "huwsgul-hurgelt",
+            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+            messagingSenderId: "457877716370",
+            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const carriersRef = ref(database, 'carriers');
+
+        // Listen for realtime updates from Firebase
+        onValue(carriersRef, (snapshot) => {
+            const container = document.getElementById('carriersContainer');
+            container.innerHTML = '';
+
+            if (!snapshot.exists()) {
                 container.innerHTML = '<p class="no-data">Одоогоор хүргэгч бүртгэгдээгүй байна.</p>';
                 return;
             }
 
-            container.innerHTML = '';
-            carriers.forEach(carrier => {
-                const card = createCarrierCard(carrier);
+            const carriers = snapshot.val();
+            Object.keys(carriers).forEach(key => {
+                const carrier = carriers[key];
+                const card = createCarrierCard(key, carrier);
                 container.appendChild(card);
             });
-        }
+        });
 
-        function createCarrierCard(carrier) {
+        function createCarrierCard(id, carrier) {
             const card = document.createElement('div');
             card.className = 'carrier-card';
             card.innerHTML = `
@@ -50,14 +72,15 @@
                     <div class="carrier-description">${carrier.description}</div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-small btn-edit" onclick="editCarrier('${carrier.id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}')">Засах</button>
-                    <button class="btn-small btn-delete" onclick="deleteCarrier('${carrier.id}', '${carrier.pin}')">Устгах</button>
+                    <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}')">Засах</button>
+                    <button class="btn-small btn-delete" onclick="deleteCarrier('${id}', '${carrier.pin}')">Устгах</button>
                 </div>
             `;
             return card;
         }
 
-        window.editCarrier = function(id, correctPin, currentPhone, currentDescription) {
+        // Make functions global for onclick
+        window.editCarrier = async function(id, correctPin, currentPhone, currentDescription) {
             const enteredPin = prompt('PIN код оруулна уу:');
             if (!enteredPin) return;
 
@@ -72,20 +95,19 @@
             const newDescription = prompt('Шинэ тайлбар:', currentDescription);
             if (!newDescription) return;
 
-            let carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
-            const index = carriers.findIndex(c => c.id === id);
-            
-            if (index !== -1) {
-                carriers[index].phone = newPhone;
-                carriers[index].description = newDescription;
-                localStorage.setItem('carriers', JSON.stringify(carriers));
-                window.dispatchEvent(new Event('storage'));
-                loadCarriers();
+            try {
+                await update(ref(database, `carriers/${id}`), {
+                    phone: newPhone,
+                    description: newDescription
+                });
                 alert('Амжилттай засагдлаа!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
             }
         };
 
-        window.deleteCarrier = function(id, correctPin) {
+        window.deleteCarrier = async function(id, correctPin) {
             const enteredPin = prompt('PIN код оруулна уу:');
             if (!enteredPin) return;
 
@@ -96,22 +118,14 @@
 
             if (!confirm('Үнэхээр устгах уу?')) return;
 
-            let carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
-            carriers = carriers.filter(c => c.id !== id);
-            localStorage.setItem('carriers', JSON.stringify(carriers));
-            window.dispatchEvent(new Event('storage'));
-            loadCarriers();
-            alert('Амжилттай устгагдлаа!');
+            try {
+                await remove(ref(database, `carriers/${id}`));
+                alert('Амжилттай устгагдлаа!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+            }
         };
-
-        // Listen for storage changes (realtime updates across tabs)
-        window.addEventListener('storage', loadCarriers);
-        
-        // Custom event for same-tab updates
-        window.addEventListener('storage', loadCarriers);
-
-        // Load carriers on page load
-        loadCarriers();
     </script>
 </body>
 </html>
