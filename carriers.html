@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хүргэгчид - Хөвсгөл Хүргэлт</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <a href="index.html" class="back-link">← Буцах</a>
+            <h1>Бүртгэлтэй хүргэгчид</h1>
+        </header>
+
+        <main>
+            <div id="carriersContainer" class="carriers-grid">
+                <p class="loading">Уншиж байна...</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Сургуулийн төсөл • Prototype</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        // Firebase configuration - REPLACE WITH YOUR FIREBASE CONFIG
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const carriersRef = ref(database, 'carriers');
+
+        // Listen for realtime updates
+        onValue(carriersRef, (snapshot) => {
+            const container = document.getElementById('carriersContainer');
+            container.innerHTML = '';
+
+            if (!snapshot.exists()) {
+                container.innerHTML = '<p class="no-data">Одоогоор хүргэгч бүртгэгдээгүй байна.</p>';
+                return;
+            }
+
+            const carriers = snapshot.val();
+            Object.keys(carriers).forEach(key => {
+                const carrier = carriers[key];
+                const card = createCarrierCard(key, carrier);
+                container.appendChild(card);
+            });
+        });
+
+        function createCarrierCard(id, carrier) {
+            const card = document.createElement('div');
+            card.className = 'carrier-card';
+            card.innerHTML = `
+                <div class="card-content">
+                    <div class="carrier-phone">📱 ${carrier.phone}</div>
+                    <div class="carrier-description">${carrier.description}</div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}')">Засах</button>
+                    <button class="btn-small btn-delete" onclick="deleteCarrier('${id}', '${carrier.pin}')">Устгах</button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Make functions global for onclick
+        window.editCarrier = async function(id, correctPin, currentPhone, currentDescription) {
+            const enteredPin = prompt('PIN код оруулна уу:');
+            if (!enteredPin) return;
+
+            if (enteredPin !== correctPin) {
+                alert('Буруу PIN код!');
+                return;
+            }
+
+            const newPhone = prompt('Шинэ утасны дугаар:', currentPhone);
+            if (!newPhone) return;
+
+            const newDescription = prompt('Шинэ тайлбар:', currentDescription);
+            if (!newDescription) return;
+
+            try {
+                await update(ref(database, `carriers/${id}`), {
+                    phone: newPhone,
+                    description: newDescription
+                });
+                alert('Амжилттай засагдлаа!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+            }
+        };
+
+        window.deleteCarrier = async function(id, correctPin) {
+            const enteredPin = prompt('PIN код оруулна уу:');
+            if (!enteredPin) return;
+
+            if (enteredPin !== correctPin) {
+                alert('Буруу PIN код!');
+                return;
+            }
+
+            if (!confirm('Үнэхээр устгах уу?')) return;
+
+            try {
+                await remove(ref(database, `carriers/${id}`));
+                alert('Амжилттай устгагдлаа!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+            }
+        };
+    </script>
+</body>
+</html>
