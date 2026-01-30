@@ -39,8 +39,27 @@
         </footer>
     </div>
 
-    <script>
-        document.getElementById('signupForm').addEventListener('submit', (e) => {
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+            authDomain: "huwsgul-hurgelt.firebaseapp.com",
+            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "huwsgul-hurgelt",
+            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+            messagingSenderId: "457877716370",
+            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const phone = document.getElementById('phone').value.trim();
@@ -57,26 +76,20 @@
                 return;
             }
 
-            // Get existing carriers from localStorage
-            let carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
+            try {
+                await push(ref(database, 'carriers'), {
+                    phone: phone,
+                    description: description,
+                    pin: pin,
+                    timestamp: Date.now()
+                });
 
-            // Add new carrier
-            carriers.push({
-                id: Date.now().toString(),
-                phone: phone,
-                description: description,
-                pin: pin,
-                timestamp: Date.now()
-            });
-
-            // Save to localStorage
-            localStorage.setItem('carriers', JSON.stringify(carriers));
-
-            // Trigger storage event for other tabs
-            window.dispatchEvent(new Event('storage'));
-
-            alert('Амжилттай бүртгэгдлээ!');
-            document.getElementById('signupForm').reset();
+                alert('Амжилттай бүртгэгдлээ!');
+                document.getElementById('signupForm').reset();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+            }
         });
     </script>
 </body>
