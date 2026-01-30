@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хүргэгч бүртгэл - Хөвсгөл Хүргэлт</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <a href="index.html" class="back-link">← Буцах</a>
+            <h1>Хүргэгч бүртгэл</h1>
+        </header>
+
+        <main class="form-container">
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="phone">Утасны дугаар</label>
+                    <input type="tel" id="phone" placeholder="99001122" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Юу хүргэж чадах вэ?</label>
+                    <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="pin">PIN код (засах, устгахад хэрэглэгдэнэ)</label>
+                    <input type="password" id="pin" placeholder="4 оронтой тоо" maxlength="4" pattern="\d{4}" required>
+                </div>
+
+                <button type="submit" class="btn btn-submit">Бүртгүүлэх</button>
+            </form>
+        </main>
+
+        <footer>
+            <p>Сургуулийн төсөл • Prototype</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        // Firebase configuration - REPLACE WITH YOUR FIREBASE CONFIG
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const phone = document.getElementById('phone').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+
+            if (!phone || !description || !pin) {
+                alert('Бүх талбарыг бөглөнө үү!');
+                return;
+            }
+
+            if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+                alert('PIN код 4 оронтой тоо байх ёстой!');
+                return;
+            }
+
+            try {
+                await push(ref(database, 'carriers'), {
+                    phone: phone,
+                    description: description,
+                    pin: pin,
+                    timestamp: Date.now()
+                });
+
+                alert('Амжилттай бүртгэгдлээ!');
+                document.getElementById('signupForm').reset();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+            }
+        });
+    </script>
+</body>
+</html>
