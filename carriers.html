@@ -24,44 +24,24 @@
         </footer>
     </div>
 
-    <script type="module">
-        // Firebase configuration - REPLACE WITH YOUR FIREBASE CONFIG
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        const carriersRef = ref(database, 'carriers');
-
-        // Listen for realtime updates
-        onValue(carriersRef, (snapshot) => {
+    <script>
+        function loadCarriers() {
             const container = document.getElementById('carriersContainer');
-            container.innerHTML = '';
+            const carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
 
-            if (!snapshot.exists()) {
+            if (carriers.length === 0) {
                 container.innerHTML = '<p class="no-data">Одоогоор хүргэгч бүртгэгдээгүй байна.</p>';
                 return;
             }
 
-            const carriers = snapshot.val();
-            Object.keys(carriers).forEach(key => {
-                const carrier = carriers[key];
-                const card = createCarrierCard(key, carrier);
+            container.innerHTML = '';
+            carriers.forEach(carrier => {
+                const card = createCarrierCard(carrier);
                 container.appendChild(card);
             });
-        });
+        }
 
-        function createCarrierCard(id, carrier) {
+        function createCarrierCard(carrier) {
             const card = document.createElement('div');
             card.className = 'carrier-card';
             card.innerHTML = `
@@ -70,15 +50,14 @@
                     <div class="carrier-description">${carrier.description}</div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}')">Засах</button>
-                    <button class="btn-small btn-delete" onclick="deleteCarrier('${id}', '${carrier.pin}')">Устгах</button>
+                    <button class="btn-small btn-edit" onclick="editCarrier('${carrier.id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}')">Засах</button>
+                    <button class="btn-small btn-delete" onclick="deleteCarrier('${carrier.id}', '${carrier.pin}')">Устгах</button>
                 </div>
             `;
             return card;
         }
 
-        // Make functions global for onclick
-        window.editCarrier = async function(id, correctPin, currentPhone, currentDescription) {
+        window.editCarrier = function(id, correctPin, currentPhone, currentDescription) {
             const enteredPin = prompt('PIN код оруулна уу:');
             if (!enteredPin) return;
 
@@ -93,19 +72,20 @@
             const newDescription = prompt('Шинэ тайлбар:', currentDescription);
             if (!newDescription) return;
 
-            try {
-                await update(ref(database, `carriers/${id}`), {
-                    phone: newPhone,
-                    description: newDescription
-                });
+            let carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
+            const index = carriers.findIndex(c => c.id === id);
+            
+            if (index !== -1) {
+                carriers[index].phone = newPhone;
+                carriers[index].description = newDescription;
+                localStorage.setItem('carriers', JSON.stringify(carriers));
+                window.dispatchEvent(new Event('storage'));
+                loadCarriers();
                 alert('Амжилттай засагдлаа!');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
             }
         };
 
-        window.deleteCarrier = async function(id, correctPin) {
+        window.deleteCarrier = function(id, correctPin) {
             const enteredPin = prompt('PIN код оруулна уу:');
             if (!enteredPin) return;
 
@@ -116,14 +96,22 @@
 
             if (!confirm('Үнэхээр устгах уу?')) return;
 
-            try {
-                await remove(ref(database, `carriers/${id}`));
-                alert('Амжилттай устгагдлаа!');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
-            }
+            let carriers = JSON.parse(localStorage.getItem('carriers') || '[]');
+            carriers = carriers.filter(c => c.id !== id);
+            localStorage.setItem('carriers', JSON.stringify(carriers));
+            window.dispatchEvent(new Event('storage'));
+            loadCarriers();
+            alert('Амжилттай устгагдлаа!');
         };
+
+        // Listen for storage changes (realtime updates across tabs)
+        window.addEventListener('storage', loadCarriers);
+        
+        // Custom event for same-tab updates
+        window.addEventListener('storage', loadCarriers);
+
+        // Load carriers on page load
+        loadCarriers();
     </script>
 </body>
 </html>
