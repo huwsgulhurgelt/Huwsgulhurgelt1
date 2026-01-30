@@ -4,51 +4,16 @@ A simple delivery connection platform for Huvsgul area.
 
 ## 🚀 Quick Setup
 
-### 1. Firebase Setup
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project
-3. Click on "Realtime Database" and create a database
-4. Set rules to:
-```json
-{
-  "rules": {
-    "carriers": {
-      ".read": true,
-      ".write": true
-    }
-  }
-}
-```
-5. Go to Project Settings → General → Your apps
-6. Click "Web" and register your app
-7. Copy the Firebase config object
-
-### 2. Update Firebase Config
-
-Replace the Firebase configuration in **both** `signup.html` and `carriers.html`:
-
-```javascript
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
-```
-
-### 3. Deploy to Vercel
+### Deploy to Vercel
 
 1. Push your code to GitHub
 2. Go to [Vercel](https://vercel.com)
 3. Click "New Project"
 4. Import your GitHub repository
-5. Click "Deploy"
+5. Framework Preset: Choose **"Other"**
+6. Click "Deploy"
 
-That's it! Your site will be live.
+That's it! Your site will be live immediately - no additional setup needed!
 
 ## 📁 File Structure
 
@@ -64,16 +29,21 @@ That's it! Your site will be live.
 
 - ✅ Carrier registration with phone & description
 - ✅ PIN-protected edit/delete
-- ✅ Real-time updates
+- ✅ Real-time updates across tabs
 - ✅ Mobile responsive design
 - ✅ Clean, modern UI
+- ✅ No database setup required - uses browser localStorage
 
 ## 🛠️ Tech Stack
 
 - HTML5
 - CSS3
 - Vanilla JavaScript
-- Firebase Realtime Database
+- localStorage (browser storage)
+
+## 📝 Note
+
+Data is stored locally in the browser. Each device/browser will have its own data. For shared data across devices, you would need to implement a backend database like Firebase.
 
 ---
 
