@@ -13,7 +13,7 @@ A simple delivery connection platform for Huvsgul area.
 5. Framework Preset: Choose **"Other"**
 6. Click "Deploy"
 
-That's it! Your site will be live immediately - no additional setup needed!
+That's it! Your site will be live and everyone can see all posts from any device!
 
 ## 📁 File Structure
 
@@ -29,21 +29,21 @@ That's it! Your site will be live immediately - no additional setup needed!
 
 - ✅ Carrier registration with phone & description
 - ✅ PIN-protected edit/delete
-- ✅ Real-time updates across tabs
+- ✅ Real-time updates across ALL devices
 - ✅ Mobile responsive design
 - ✅ Clean, modern UI
-- ✅ No database setup required - uses browser localStorage
+- ✅ Firebase Realtime Database - everyone sees the same data!
 
 ## 🛠️ Tech Stack
 
 - HTML5
 - CSS3
 - Vanilla JavaScript
-- localStorage (browser storage)
+- Firebase Realtime Database
 
-## 📝 Note
+## 🔥 Firebase Setup
 
-Data is stored locally in the browser. Each device/browser will have its own data. For shared data across devices, you would need to implement a backend database like Firebase.
+Firebase is already configured! The database is set up and ready to use. All posts will be visible to everyone from any device.
 
 ---
 
