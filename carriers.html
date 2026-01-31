@@ -7,6 +7,26 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Parallax Background -->
+    <div class="parallax-bg">
+        <div class="parallax-layer layer-1" data-speed="0.2">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-2" data-speed="0.5">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-3" data-speed="1">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+    </div>
+
     <div class="container">
         <header class="page-header">
             <a href="index.html" class="back-link">← Буцах</a>
@@ -23,6 +43,20 @@
             <p>Сургуулийн төсөл • Prototype</p>
         </footer>
     </div>
+
+    <script>
+        // Parallax scroll effect
+        window.addEventListener('scroll', () => {
+            const layers = document.querySelectorAll('.parallax-layer');
+            const scrolled = window.pageYOffset;
+
+            layers.forEach(layer => {
+                const speed = layer.dataset.speed;
+                const yPos = -(scrolled * speed);
+                layer.style.transform = `translateY(${yPos}px)`;
+            });
+        });
+    </script>
 
     <script type="module">
         // Import Firebase
@@ -74,9 +108,9 @@
             
             card.innerHTML = `
                 <div class="card-content">
-                    <div class="carrier-phone"> ${carrier.phone}</div>
+                    <div class="carrier-phone">📱 ${carrier.phone}</div>
                     <div class="carrier-description">${carrier.description}</div>
-                    <div class="carrier-days"> ${daysDisplay}</div>
+                    <div class="carrier-days">📅 ${daysDisplay}</div>
                 </div>
                 <div class="card-actions">
                     <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}', '${JSON.stringify(carrier.days || [])}')">Засах</button>
