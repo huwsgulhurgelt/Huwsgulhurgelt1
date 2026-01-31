@@ -66,13 +66,20 @@
         function createCarrierCard(id, carrier) {
             const card = document.createElement('div');
             card.className = 'carrier-card';
+            
+            // Format days for display
+            const daysDisplay = carrier.days && carrier.days.length > 0 
+                ? carrier.days.join(', ') 
+                : 'Бүх өдөр';
+            
             card.innerHTML = `
                 <div class="card-content">
                     <div class="carrier-phone">📱 ${carrier.phone}</div>
                     <div class="carrier-description">${carrier.description}</div>
+                    <div class="carrier-days">📅 ${daysDisplay}</div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}')">Засах</button>
+                    <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}', '${JSON.stringify(carrier.days || [])}')">Засах</button>
                     <button class="btn-small btn-delete" onclick="deleteCarrier('${id}', '${carrier.pin}')">Устгах</button>
                 </div>
             `;
@@ -80,7 +87,7 @@
         }
 
         // Make functions global for onclick
-        window.editCarrier = async function(id, correctPin, currentPhone, currentDescription) {
+        window.editCarrier = async function(id, correctPin, currentPhone, currentDescription, currentDaysJson) {
             const enteredPin = prompt('PIN код оруулна уу:');
             if (!enteredPin) return;
 
@@ -95,10 +102,33 @@
             const newDescription = prompt('Шинэ тайлбар:', currentDescription);
             if (!newDescription) return;
 
+            // Parse current days
+            let currentDays = [];
+            try {
+                currentDays = JSON.parse(currentDaysJson);
+            } catch (e) {
+                currentDays = [];
+            }
+
+            // Create a simple days selection dialog
+            const allDays = ['Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба', 'Ням'];
+            const daysMessage = `Боломжтой өдрүүдээ сонгоно уу (тусгаарлагчаар: таслал)\nЖишээ: Даваа, Мягмар, Баасан\n\nОдоогийн: ${currentDays.join(', ')}`;
+            const newDaysInput = prompt(daysMessage, currentDays.join(', '));
+            
+            if (newDaysInput === null) return;
+            
+            const newDays = newDaysInput.split(',').map(d => d.trim()).filter(d => d.length > 0);
+            
+            if (newDays.length === 0) {
+                alert('Наад зах нь нэг өдөр сонгоно уу!');
+                return;
+            }
+
             try {
                 await update(ref(database, `carriers/${id}`), {
                     phone: newPhone,
-                    description: newDescription
+                    description: newDescription,
+                    days: newDays
                 });
                 alert('Амжилттай засагдлаа!');
             } catch (error) {
