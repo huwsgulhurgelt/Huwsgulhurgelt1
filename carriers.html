@@ -74,9 +74,9 @@
             
             card.innerHTML = `
                 <div class="card-content">
-                    <div class="carrier-phone">📱 ${carrier.phone}</div>
+                    <div class="carrier-phone"> ${carrier.phone}</div>
                     <div class="carrier-description">${carrier.description}</div>
-                    <div class="carrier-days">📅 ${daysDisplay}</div>
+                    <div class="carrier-days"> ${daysDisplay}</div>
                 </div>
                 <div class="card-actions">
                     <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}', '${JSON.stringify(carrier.days || [])}')">Засах</button>
