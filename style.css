@@ -39,6 +39,9 @@ body {
     position: absolute;
     border-radius: 50%;
     opacity: 0.6;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
 
 /* Layer 1 - Farthest (smallest, slowest) */
@@ -47,10 +50,30 @@ body {
     height: 40px;
 }
 
-.layer-1 .ball:nth-child(1) { background: #A8E6CF; top: 10%; left: 15%; }
-.layer-1 .ball:nth-child(2) { background: #FFD3B6; top: 60%; left: 75%; }
-.layer-1 .ball:nth-child(3) { background: #FFAAA5; top: 30%; left: 45%; }
-.layer-1 .ball:nth-child(4) { background: #FF8B94; top: 80%; left: 25%; }
+.layer-1 .ball:nth-child(1) { 
+    background: #A8E6CF; 
+    top: 10%; 
+    left: 15%;
+    animation: float1 20s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(2) { 
+    background: #FFD3B6; 
+    top: 60%; 
+    left: 75%;
+    animation: float2 25s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(3) { 
+    background: #FFAAA5; 
+    top: 30%; 
+    left: 45%;
+    animation: float3 22s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(4) { 
+    background: #FF8B94; 
+    top: 80%; 
+    left: 25%;
+    animation: float4 28s ease-in-out infinite;
+}
 
 /* Layer 2 - Middle */
 .layer-2 .ball {
@@ -59,9 +82,24 @@ body {
     opacity: 0.5;
 }
 
-.layer-2 .ball:nth-child(1) { background: #85E3FF; top: 20%; left: 70%; }
-.layer-2 .ball:nth-child(2) { background: #B4F8C8; top: 50%; left: 20%; }
-.layer-2 .ball:nth-child(3) { background: #FBE7C6; top: 75%; left: 60%; }
+.layer-2 .ball:nth-child(1) { 
+    background: #85E3FF; 
+    top: 20%; 
+    left: 70%;
+    animation: float5 15s ease-in-out infinite;
+}
+.layer-2 .ball:nth-child(2) { 
+    background: #B4F8C8; 
+    top: 50%; 
+    left: 20%;
+    animation: float6 18s ease-in-out infinite;
+}
+.layer-2 .ball:nth-child(3) { 
+    background: #FBE7C6; 
+    top: 75%; 
+    left: 60%;
+    animation: float7 16s ease-in-out infinite;
+}
 
 /* Layer 3 - Closest (biggest, fastest, blurred) */
 .layer-3 .ball {
@@ -71,9 +109,75 @@ body {
     filter: blur(8px);
 }
 
-.layer-3 .ball:nth-child(1) { background: #A0C4FF; top: 15%; left: 5%; }
-.layer-3 .ball:nth-child(2) { background: #9BF6FF; top: 65%; left: 80%; }
-.layer-3 .ball:nth-child(3) { background: #CAFFBF; top: 40%; left: 50%; }
+.layer-3 .ball:nth-child(1) { 
+    background: #A0C4FF; 
+    top: 15%; 
+    left: 5%;
+    animation: float8 10s ease-in-out infinite;
+}
+.layer-3 .ball:nth-child(2) { 
+    background: #9BF6FF; 
+    top: 65%; 
+    left: 80%;
+    animation: float9 12s ease-in-out infinite;
+}
+.layer-3 .ball:nth-child(3) { 
+    background: #CAFFBF; 
+    top: 40%; 
+    left: 50%;
+    animation: float10 11s ease-in-out infinite;
+}
+
+/* Floating animations - each ball moves in different directions */
+@keyframes float1 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, -40px); }
+}
+
+@keyframes float2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-40px, 30px); }
+}
+
+@keyframes float3 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(25px, 45px); }
+}
+
+@keyframes float4 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-35px, -25px); }
+}
+
+@keyframes float5 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(50px, -60px); }
+}
+
+@keyframes float6 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-55px, 50px); }
+}
+
+@keyframes float7 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(45px, 55px); }
+}
+
+@keyframes float8 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(70px, -80px); }
+}
+
+@keyframes float9 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-75px, 70px); }
+}
+
+@keyframes float10 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(60px, 85px); }
+}
 
 .container {
     max-width: 800px;
