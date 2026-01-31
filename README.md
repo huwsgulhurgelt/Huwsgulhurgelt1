@@ -1,6 +1,6 @@
-# Хөвсгөл Хүргэлт - School Delivery Prototype
+# Мөрөн Хүргэлт - School Delivery Prototype
 
-A simple delivery connection platform for Huvsgul area.
+A simple delivery connection platform for Murun area.
 
 ## 🚀 Quick Setup
 
