@@ -7,6 +7,26 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Parallax Background -->
+    <div class="parallax-bg">
+        <div class="parallax-layer layer-1" data-speed="0.2">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-2" data-speed="0.5">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-3" data-speed="1">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+    </div>
+
     <div class="container">
         <header class="hero">
             <h1>Хөвсгөл Хүргэлт</h1>
@@ -28,5 +48,19 @@
             <p>Сургуулийн төсөл • Prototype</p>
         </footer>
     </div>
+
+    <script>
+        // Parallax scroll effect
+        window.addEventListener('scroll', () => {
+            const layers = document.querySelectorAll('.parallax-layer');
+            const scrolled = window.pageYOffset;
+
+            layers.forEach(layer => {
+                const speed = layer.dataset.speed;
+                const yPos = -(scrolled * speed);
+                layer.style.transform = `translateY(${yPos}px)`;
+            });
+        });
+    </script>
 </body>
 </html>
