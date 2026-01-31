@@ -30,6 +30,40 @@
                     <input type="password" id="pin" placeholder="4 оронтой тоо" maxlength="4" pattern="\d{4}" required>
                 </div>
 
+                <div class="form-group">
+                    <label>Хүргэлт хийх боломжтой өдрүүд</label>
+                    <div class="days-selector">
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="days" value="Даваа" checked>
+                            <span>Даваа</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="days" value="Мягмар" checked>
+                            <span>Мягмар</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="days" value="Лхагва" checked>
+                            <span>Лхагва</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="days" value="Пүрэв" checked>
+                            <span>Пүрэв</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="days" value="Баасан" checked>
+                            <span>Баасан</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="days" value="Бямба" checked>
+                            <span>Бямба</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="days" value="Ням" checked>
+                            <span>Ням</span>
+                        </label>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-submit">Бүртгүүлэх</button>
             </form>
         </main>
@@ -66,6 +100,10 @@
             const description = document.getElementById('description').value.trim();
             const pin = document.getElementById('pin').value.trim();
 
+            // Get selected days
+            const dayCheckboxes = document.querySelectorAll('input[name="days"]:checked');
+            const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
+
             if (!phone || !description || !pin) {
                 alert('Бүх талбарыг бөглөнө үү!');
                 return;
@@ -76,16 +114,24 @@
                 return;
             }
 
+            if (selectedDays.length === 0) {
+                alert('Наад зах нь нэг өдөр сонгоно уу!');
+                return;
+            }
+
             try {
                 await push(ref(database, 'carriers'), {
                     phone: phone,
                     description: description,
+                    days: selectedDays,
                     pin: pin,
                     timestamp: Date.now()
                 });
 
                 alert('Амжилттай бүртгэгдлээ!');
                 document.getElementById('signupForm').reset();
+                // Re-check all checkboxes after reset
+                document.querySelectorAll('input[name="days"]').forEach(cb => cb.checked = true);
             } catch (error) {
                 console.error('Error:', error);
                 alert('Алдаа гарлаа. Дахин оролдоно уу.');
