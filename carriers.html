@@ -1,195 +1,710 @@
-<!DOCTYPE html>
-<html lang="mn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Хүргэгчид - Мөрөн Хүргэлт</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <!-- Parallax Background -->
-    <div class="parallax-bg">
-        <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-    </div>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    <div class="container">
-        <header class="page-header">
-            <a href="index.html" class="back-link">← Буцах</a>
-            <h1>Бүртгэлтэй хүргэгчид</h1>
-        </header>
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0e27;
+    min-height: 100vh;
+    color: #e8eaf6;
+    position: relative;
+    overflow-x: hidden;
+}
 
-        <main>
-            <div id="carriersContainer" class="carriers-grid">
-                <p class="loading">Уншиж байна...</p>
-            </div>
-        </main>
+/* Parallax Background - KEPT */
+.parallax-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
 
-        <footer>
-            <p>Сургуулийн төсөл • Prototype</p>
-        </footer>
-    </div>
+.parallax-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
 
-    <script>
-        // Parallax scroll effect
-        window.addEventListener('scroll', () => {
-            const layers = document.querySelectorAll('.parallax-layer');
-            const scrolled = window.pageYOffset;
+.ball {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
 
-            layers.forEach(layer => {
-                const speed = layer.dataset.speed;
-                const yPos = -(scrolled * speed);
-                layer.style.transform = `translateY(${yPos}px)`;
-            });
-        });
-    </script>
+/* Layer 1 - Farthest (smallest, slowest) */
+.layer-1 .ball {
+    width: 40px;
+    height: 40px;
+}
 
-    <script type="module">
-        // Import Firebase
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+.layer-1 .ball:nth-child(1) { 
+    background: #667eea; 
+    top: 10%; 
+    left: 15%;
+    animation: float1 20s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(2) { 
+    background: #764ba2; 
+    top: 60%; 
+    left: 75%;
+    animation: float2 25s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(3) { 
+    background: #f093fb; 
+    top: 30%; 
+    left: 45%;
+    animation: float3 22s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(4) { 
+    background: #4facfe; 
+    top: 80%; 
+    left: 25%;
+    animation: float4 28s ease-in-out infinite;
+}
 
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-            authDomain: "huwsgul-hurgelt.firebaseapp.com",
-            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "huwsgul-hurgelt",
-            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
-            messagingSenderId: "457877716370",
-            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
-        };
+/* Layer 2 - Middle */
+.layer-2 .ball {
+    width: 80px;
+    height: 80px;
+    opacity: 0.5;
+}
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        const carriersRef = ref(database, 'carriers');
+.layer-2 .ball:nth-child(1) { 
+    background: #43e97b; 
+    top: 20%; 
+    left: 70%;
+    animation: float5 15s ease-in-out infinite;
+}
+.layer-2 .ball:nth-child(2) { 
+    background: #fa709a; 
+    top: 50%; 
+    left: 20%;
+    animation: float6 18s ease-in-out infinite;
+}
+.layer-2 .ball:nth-child(3) { 
+    background: #fee140; 
+    top: 75%; 
+    left: 60%;
+    animation: float7 16s ease-in-out infinite;
+}
 
-        // Listen for realtime updates from Firebase
-        onValue(carriersRef, (snapshot) => {
-            const container = document.getElementById('carriersContainer');
-            container.innerHTML = '';
+/* Layer 3 - Closest (biggest, fastest, blurred) */
+.layer-3 .ball {
+    width: 150px;
+    height: 150px;
+    opacity: 0.4;
+    filter: blur(8px);
+}
 
-            if (!snapshot.exists()) {
-                container.innerHTML = '<p class="no-data">Одоогоор хүргэгч бүртгэгдээгүй байна.</p>';
-                return;
-            }
+.layer-3 .ball:nth-child(1) { 
+    background: #667eea; 
+    top: 15%; 
+    left: 5%;
+    animation: float8 10s ease-in-out infinite;
+}
+.layer-3 .ball:nth-child(2) { 
+    background: #764ba2; 
+    top: 65%; 
+    left: 80%;
+    animation: float9 12s ease-in-out infinite;
+}
+.layer-3 .ball:nth-child(3) { 
+    background: #f093fb; 
+    top: 40%; 
+    left: 50%;
+    animation: float10 11s ease-in-out infinite;
+}
 
-            const carriers = snapshot.val();
-            Object.keys(carriers).forEach(key => {
-                const carrier = carriers[key];
-                const card = createCarrierCard(key, carrier);
-                container.appendChild(card);
-            });
-        });
+/* Floating animations - KEPT */
+@keyframes float1 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, -40px); }
+}
 
-        function createCarrierCard(id, carrier) {
-            const card = document.createElement('div');
-            card.className = 'carrier-card';
-            
-            // Format days for display
-            const daysDisplay = carrier.days && carrier.days.length > 0 
-                ? carrier.days.join(', ') 
-                : 'Бүх өдөр';
-            
-            card.innerHTML = `
-                <div class="card-content">
-                    <div class="carrier-phone">📱 ${carrier.phone}</div>
-                    <div class="carrier-description">${carrier.description}</div>
-                    <div class="carrier-days">📅 ${daysDisplay}</div>
-                </div>
-                <div class="card-actions">
-                    <button class="btn-small btn-edit" onclick="editCarrier('${id}', '${carrier.pin}', '${carrier.phone}', '${carrier.description.replace(/'/g, "\\'")}', '${JSON.stringify(carrier.days || [])}')">Засах</button>
-                    <button class="btn-small btn-delete" onclick="deleteCarrier('${id}', '${carrier.pin}')">Устгах</button>
-                </div>
-            `;
-            return card;
-        }
+@keyframes float2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-40px, 30px); }
+}
 
-        // Make functions global for onclick
-        window.editCarrier = async function(id, correctPin, currentPhone, currentDescription, currentDaysJson) {
-            const enteredPin = prompt('PIN код оруулна уу:');
-            if (!enteredPin) return;
+@keyframes float3 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(25px, 45px); }
+}
 
-            if (enteredPin !== correctPin) {
-                alert('Буруу PIN код!');
-                return;
-            }
+@keyframes float4 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-35px, -25px); }
+}
 
-            const newPhone = prompt('Шинэ утасны дугаар:', currentPhone);
-            if (!newPhone) return;
+@keyframes float5 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(50px, -60px); }
+}
 
-            const newDescription = prompt('Шинэ тайлбар:', currentDescription);
-            if (!newDescription) return;
+@keyframes float6 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-55px, 50px); }
+}
 
-            // Parse current days
-            let currentDays = [];
-            try {
-                currentDays = JSON.parse(currentDaysJson);
-            } catch (e) {
-                currentDays = [];
-            }
+@keyframes float7 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(45px, 55px); }
+}
 
-            // Create a simple days selection dialog
-            const allDays = ['Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба', 'Ням'];
-            const daysMessage = `Боломжтой өдрүүдээ сонгоно уу (тусгаарлагчаар: таслал)\nЖишээ: Даваа, Мягмар, Баасан\n\nОдоогийн: ${currentDays.join(', ')}`;
-            const newDaysInput = prompt(daysMessage, currentDays.join(', '));
-            
-            if (newDaysInput === null) return;
-            
-            const newDays = newDaysInput.split(',').map(d => d.trim()).filter(d => d.length > 0);
-            
-            if (newDays.length === 0) {
-                alert('Наад зах нь нэг өдөр сонгоно уу!');
-                return;
-            }
+@keyframes float8 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(70px, -80px); }
+}
 
-            try {
-                await update(ref(database, `carriers/${id}`), {
-                    phone: newPhone,
-                    description: newDescription,
-                    days: newDays
-                });
-                alert('Амжилттай засагдлаа!');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
-            }
-        };
+@keyframes float9 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-75px, 70px); }
+}
 
-        window.deleteCarrier = async function(id, correctPin) {
-            const enteredPin = prompt('PIN код оруулна уу:');
-            if (!enteredPin) return;
+@keyframes float10 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(60px, 85px); }
+}
 
-            if (enteredPin !== correctPin) {
-                alert('Буруу PIN код!');
-                return;
-            }
+/* NEW DESIGN STARTS HERE */
 
-            if (!confirm('Үнэхээр устгах уу?')) return;
+/* Navigation Bar */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(10, 14, 39, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 0;
+}
 
-            try {
-                await remove(ref(database, `carriers/${id}`));
-                alert('Амжилттай устгагдлаа!');
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
-            }
-        };
-    </script>
-</body>
-</html>
+.navbar-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+.nav-links a {
+    color: #e8eaf6;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+/* Main Container */
+.main-wrapper {
+    position: relative;
+    z-index: 1;
+    padding-top: 80px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 30px;
+}
+
+/* Hero Section - Redesigned */
+.hero {
+    text-align: center;
+    padding: 100px 20px 80px;
+    position: relative;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.subtitle {
+    font-size: 1.3rem;
+    color: #b0b8d4;
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+}
+
+.hero-cta {
+    display: inline-flex;
+    gap: 20px;
+}
+
+/* Card-based Menu */
+.menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 60px 0;
+}
+
+.menu-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    text-decoration: none;
+    color: #e8eaf6;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.menu-card:hover::before {
+    opacity: 1;
+}
+
+.menu-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+}
+
+.card-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.card-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.card-description {
+    color: #b0b8d4;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+/* Modern Form Styles */
+.form-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 50px;
+    margin: 40px 0;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.form-group {
+    margin-bottom: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #e8eaf6;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #e8eaf6;
+    transition: all 0.3s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #6b7299;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.days-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.day-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.day-checkbox:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.day-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
+.day-checkbox input[type="checkbox"]:checked + span {
+    font-weight: 700;
+    color: #667eea;
+}
+
+.day-checkbox span {
+    font-size: 0.95rem;
+    user-select: none;
+    color: #e8eaf6;
+}
+
+/* Modern Button Styles */
+.btn-submit {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 20px;
+}
+
+.btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+}
+
+.btn-submit:active {
+    transform: translateY(-1px);
+}
+
+/* Carriers Grid - Redesigned */
+.carriers-section {
+    padding: 60px 0;
+}
+
+.carriers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding: 0;
+}
+
+.carrier-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.carrier-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.carrier-card:hover::before {
+    transform: scaleX(1);
+}
+
+.carrier-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+}
+
+.card-content {
+    margin-bottom: 20px;
+}
+
+.carrier-phone {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #e8eaf6;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.carrier-phone::before {
+    content: '📱';
+    font-size: 1.2rem;
+}
+
+.carrier-description {
+    color: #b0b8d4;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.carrier-days {
+    display: inline-block;
+    background: rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.card-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-small {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: #0a0e27;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(67, 233, 123, 0.4);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: #0a0e27;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(250, 112, 154, 0.4);
+}
+
+/* Back Link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    transform: translateX(-5px);
+}
+
+.back-link::before {
+    content: '←';
+    font-size: 1.2rem;
+}
+
+/* Footer */
+footer {
+    background: rgba(10, 14, 39, 0.8);
+    backdrop-filter: blur(20px);
+    text-align: center;
+    padding: 40px 20px;
+    color: #b0b8d4;
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 80px;
+}
+
+/* Utility Styles */
+.loading,
+.no-data {
+    text-align: center;
+    color: #b0b8d4;
+    padding: 60px;
+    font-size: 1.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-content {
+        padding: 0 20px;
+    }
+
+    .nav-links {
+        gap: 15px;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+    }
+
+    .menu {
+        grid-template-columns: 1fr;
+    }
+
+    .form-section {
+        padding: 30px 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .carriers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .days-selector {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+    }
+}
