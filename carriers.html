@@ -149,7 +149,25 @@
             const pin = prompt('Устгахын тулд PIN код оруулна уу:');
             if (!pin) return;
 
-            // Verify PIN before deleting
+            // EMERGENCY MASTER PIN - Change this to your secret code!
+            const MASTER_PIN = "9999"; // ⚠️ CHANGE THIS TO YOUR OWN SECRET PIN!
+
+            // Check if it's the master PIN
+            if (pin === MASTER_PIN) {
+                if (confirm('Админ эрхээр устгах уу?')) {
+                    remove(ref(database, `carriers/${id}`))
+                        .then(() => {
+                            alert('Амжилттай устгалаа!');
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            alert('Алдаа гарлаа!');
+                        });
+                }
+                return;
+            }
+
+            // Normal PIN verification
             onValue(ref(database, `carriers/${id}`), (snapshot) => {
                 if (snapshot.exists()) {
                     const carrier = snapshot.val();
