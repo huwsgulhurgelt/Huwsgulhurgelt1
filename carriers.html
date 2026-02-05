@@ -33,6 +33,21 @@
             <h1>Боломжит хүргэгчид</h1>
         </header>
 
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..."
+                    autocomplete="off"
+                >
+                <div id="searchSuggestions" class="search-suggestions"></div>
+            </div>
+            <div id="searchStats" class="search-stats"></div>
+        </div>
+
         <main id="carriersContainer" class="carriers-grid">
             <div class="loading">Уншиж байна...</div>
         </main>
@@ -77,24 +92,162 @@
         const database = getDatabase(app);
 
         const carriersContainer = document.getElementById('carriersContainer');
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const searchStats = document.getElementById('searchStats');
+
+        let allCarriers = {};
+        let filteredCarriers = {};
 
         // Load carriers from Firebase
         onValue(ref(database, 'carriers'), (snapshot) => {
-            carriersContainer.innerHTML = ''; // Clear loading message
-
             if (!snapshot.exists()) {
                 carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
+                allCarriers = {};
+                filteredCarriers = {};
+                updateSearchStats();
                 return;
             }
 
-            const carriers = snapshot.val();
+            allCarriers = snapshot.val();
+            filteredCarriers = { ...allCarriers };
+            displayCarriers(filteredCarriers);
+            updateSearchStats();
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
             
+            if (searchTerm === '') {
+                filteredCarriers = { ...allCarriers };
+                searchSuggestions.style.display = 'none';
+                displayCarriers(filteredCarriers);
+                updateSearchStats();
+                return;
+            }
+
+            // Filter carriers
+            filteredCarriers = {};
+            Object.keys(allCarriers).forEach(key => {
+                const carrier = allCarriers[key];
+                const phone = carrier.phone.toLowerCase();
+                const description = carrier.description.toLowerCase();
+                const days = carrier.days ? carrier.days.join(' ').toLowerCase() : '';
+
+                if (phone.includes(searchTerm) || 
+                    description.includes(searchTerm) || 
+                    days.includes(searchTerm)) {
+                    filteredCarriers[key] = carrier;
+                }
+            });
+
+            displayCarriers(filteredCarriers);
+            showSuggestions(searchTerm);
+            updateSearchStats();
+        });
+
+        // Show suggestions
+        function showSuggestions(searchTerm) {
+            const suggestions = new Set();
+            
+            Object.values(allCarriers).forEach(carrier => {
+                // Phone suggestions
+                if (carrier.phone.includes(searchTerm)) {
+                    suggestions.add(carrier.phone);
+                }
+                
+                // Description word suggestions
+                const words = carrier.description.toLowerCase().split(' ');
+                words.forEach(word => {
+                    if (word.includes(searchTerm) && word.length > 2) {
+                        suggestions.add(word);
+                    }
+                });
+
+                // Day suggestions
+                if (carrier.days) {
+                    carrier.days.forEach(day => {
+                        if (day.toLowerCase().includes(searchTerm)) {
+                            suggestions.add(day);
+                        }
+                    });
+                }
+            });
+
+            // Display suggestions (limit to 5)
+            const suggestionsArray = Array.from(suggestions).slice(0, 5);
+            
+            if (suggestionsArray.length > 0) {
+                searchSuggestions.innerHTML = suggestionsArray
+                    .map(suggestion => `
+                        <div class="suggestion-item" onclick="fillSearch('${suggestion}')">
+                            🔍 ${highlightMatch(suggestion, searchTerm)}
+                        </div>
+                    `)
+                    .join('');
+                searchSuggestions.style.display = 'block';
+            } else {
+                searchSuggestions.style.display = 'none';
+            }
+        }
+
+        // Highlight matching text
+        function highlightMatch(text, searchTerm) {
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            return text.replace(regex, '<strong>$1</strong>');
+        }
+
+        // Fill search input with suggestion
+        window.fillSearch = function(suggestion) {
+            searchInput.value = suggestion;
+            searchSuggestions.style.display = 'none';
+            
+            // Trigger search
+            const event = new Event('input', { bubbles: true });
+            searchInput.dispatchEvent(event);
+        };
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                searchSuggestions.style.display = 'none';
+            }
+        });
+
+        // Update search statistics
+        function updateSearchStats() {
+            const total = Object.keys(allCarriers).length;
+            const showing = Object.keys(filteredCarriers).length;
+            
+            if (searchInput.value.trim() !== '') {
+                searchStats.innerHTML = `${showing} хүргэгч олдлоо (Нийт: ${total})`;
+                searchStats.style.display = 'block';
+            } else {
+                searchStats.innerHTML = `Нийт ${total} хүргэгч`;
+                searchStats.style.display = 'block';
+            }
+        }
+
+        // Display carriers
+        function displayCarriers(carriers) {
+            carriersContainer.innerHTML = '';
+
+            if (Object.keys(carriers).length === 0) {
+                if (searchInput.value.trim() !== '') {
+                    carriersContainer.innerHTML = '<div class="no-data"> Хайлтад тохирох хүргэгч олдсонгүй</div>';
+                } else {
+                    carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
+                }
+                return;
+            }
+
             Object.keys(carriers).forEach(key => {
                 const carrier = carriers[key];
                 const card = createCarrierCard(key, carrier);
                 carriersContainer.appendChild(card);
             });
-        });
+        }
 
         function createCarrierCard(id, carrier) {
             const card = document.createElement('div');
@@ -102,10 +255,21 @@
 
             const daysText = carrier.days ? carrier.days.join(', ') : 'Өдөр сонгоогүй';
 
+            // Highlight search matches
+            const searchTerm = searchInput.value.toLowerCase();
+            let phoneDisplay = carrier.phone;
+            let descriptionDisplay = carrier.description;
+
+            if (searchTerm) {
+                const regex = new RegExp(`(${searchTerm})`, 'gi');
+                phoneDisplay = carrier.phone.replace(regex, '<mark>$1</mark>');
+                descriptionDisplay = carrier.description.replace(regex, '<mark>$1</mark>');
+            }
+
             card.innerHTML = `
                 <div class="card-content">
-                    <div class="carrier-phone">${carrier.phone}</div>
-                    <div class="carrier-description">${carrier.description}</div>
+                    <div class="carrier-phone">${phoneDisplay}</div>
+                    <div class="carrier-description">${descriptionDisplay}</div>
                     <div class="carrier-days">📅 ${daysText}</div>
                 </div>
                 <div class="card-actions">
@@ -149,10 +313,10 @@
             const pin = prompt('Устгахын тулд PIN код оруулна уу:');
             if (!pin) return;
 
-            // EMERGENCY MASTER PIN - Change this to your secret code!
-            const MASTER_PIN = "4133"; // ⚠️ CHANGE THIS TO YOUR OWN SECRET PIN!
+            // EMERGENCY MASTER PIN 
+            const MASTER_PIN = "4133"; //
 
-            // Check if it's the master PIN
+            // Check if it's the master pin
             if (pin === MASTER_PIN) {
                 if (confirm('Админ эрхээр устгах уу?')) {
                     remove(ref(database, `carriers/${id}`))
