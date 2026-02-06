@@ -58,7 +58,7 @@
     </div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="modal">
+    <div id="editModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Мэдээлэл засах</h2>
@@ -73,6 +73,16 @@
                 <div class="form-group">
                     <label for="editDescription">Юу хүргэж чадах вэ?</label>
                     <textarea id="editDescription" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editWeight">Хамгийн ихдээ хэдэн кг зөөж чадах вэ?</label>
+                    <div class="weight-slider-container">
+                        <input type="range" id="editWeight" min="1" max="100" value="10" class="weight-slider">
+                        <div class="weight-display">
+                            <span id="editWeightValue">10</span> кг
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -157,11 +167,18 @@
         const searchStats = document.getElementById('searchStats');
         const editModal = document.getElementById('editModal');
         const editForm = document.getElementById('editForm');
+        const editWeightSlider = document.getElementById('editWeight');
+        const editWeightValue = document.getElementById('editWeightValue');
 
         let allCarriers = {};
         let filteredCarriers = {};
         let currentEditId = null;
         let currentEditPin = null;
+
+        // Weight slider update
+        editWeightSlider.addEventListener('input', (e) => {
+            editWeightValue.textContent = e.target.value;
+        });
 
         // Load carriers from Firebase to my website
         onValue(ref(database, 'carriers'), (snapshot) => {
@@ -216,12 +233,10 @@
             const suggestions = new Set();
             
             Object.values(allCarriers).forEach(carrier => {
-                // utasnii dugaar sanal bolgoh
                 if (carrier.phone.includes(searchTerm)) {
                     suggestions.add(carrier.phone);
                 }
                 
-                // Description ug sanal bolgoh
                 const words = carrier.description.toLowerCase().split(' ');
                 words.forEach(word => {
                     if (word.includes(searchTerm) && word.length > 2) {
@@ -229,7 +244,6 @@
                     }
                 });
 
-                // udur sanal bolgoh
                 if (carrier.days) {
                     carrier.days.forEach(day => {
                         if (day.toLowerCase().includes(searchTerm)) {
@@ -239,7 +253,6 @@
                 }
             });
 
-            // Display salal bolgolt (hammgiin ihdee 5)
             const suggestionsArray = Array.from(suggestions).slice(0, 5);
             
             if (suggestionsArray.length > 0) {
@@ -256,30 +269,24 @@
             }
         }
 
-        // text highlight matching
         function highlightMatch(text, searchTerm) {
             const regex = new RegExp(`(${searchTerm})`, 'gi');
             return text.replace(regex, '<strong>$1</strong>');
         }
 
-        // haltiig sanal bolgotoor duurgh
         window.fillSearch = function(suggestion) {
             searchInput.value = suggestion;
             searchSuggestions.style.display = 'none';
-            
-            // ehluuleh hailt
             const event = new Event('input', { bubbles: true });
             searchInput.dispatchEvent(event);
         };
 
-        // uur gazar darhad sanal bolgoltoos gargah
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
                 searchSuggestions.style.display = 'none';
             }
         });
 
-        // hailtiin ur dugn shinjleh
         function updateSearchStats() {
             const total = Object.keys(allCarriers).length;
             const showing = Object.keys(filteredCarriers).length;
@@ -293,7 +300,6 @@
             }
         }
 
-        // zuugchdiig haruulah
         function displayCarriers(carriers) {
             carriersContainer.innerHTML = '';
 
@@ -318,8 +324,8 @@
             card.className = 'carrier-card';
 
             const daysText = carrier.days ? carrier.days.join(', ') : 'Өдөр сонгоогүй';
+            const weightText = carrier.maxWeight ? `⚖️ ${carrier.maxWeight} кг` : '';
 
-            // haltad tohirsniig todruulah
             const searchTerm = searchInput.value.toLowerCase();
             let phoneDisplay = carrier.phone;
             let descriptionDisplay = carrier.description;
@@ -334,7 +340,10 @@
                 <div class="card-content">
                     <div class="carrier-phone">${phoneDisplay}</div>
                     <div class="carrier-description">${descriptionDisplay}</div>
-                    <div class="carrier-days">📅 ${daysText}</div>
+                    <div class="carrier-meta">
+                        <span class="carrier-days">📅 ${daysText}</span>
+                        ${weightText ? `<span class="carrier-weight">${weightText}</span>` : ''}
+                    </div>
                 </div>
                 <div class="card-actions">
                     <button class="btn-small btn-edit" onclick="editCarrier('${id}')">Засах</button>
@@ -352,13 +361,11 @@
 
             const MASTER_PIN = "4133";
 
-            // master pin shalgah
             if (pin === MASTER_PIN) {
                 openEditModal(id, pin);
                 return;
             }
 
-            // pin oruuldan datag avah
             onValue(ref(database, `carriers/${id}`), (snapshot) => {
                 if (snapshot.exists()) {
                     const carrier = snapshot.val();
@@ -368,7 +375,6 @@
                         return;
                     }
 
-                    // pin zuw baiwal editlj bolno
                     openEditModal(id, pin);
                 }
             }, { onlyOnce: true });
@@ -381,11 +387,11 @@
 
             const carrier = allCarriers[id];
             
-            // formig data aar dutgeh
             document.getElementById('editPhone').value = carrier.phone;
             document.getElementById('editDescription').value = carrier.description;
+            editWeightSlider.value = carrier.maxWeight || 10;
+            editWeightValue.textContent = carrier.maxWeight || 10;
             
-            // udruudiin checkbox uur dutgeh
             const dayCheckboxes = document.querySelectorAll('input[name="editDays"]');
             dayCheckboxes.forEach(checkbox => {
                 checkbox.checked = carrier.days && carrier.days.includes(checkbox.value);
@@ -405,11 +411,11 @@
         };
 
         // modal gadna darahad haah
-        window.onclick = function(event) {
+        window.addEventListener('click', function(event) {
             if (event.target === editModal) {
                 closeEditModal();
             }
-        };
+        });
 
         // edit formig ilgeeh
         editForm.addEventListener('submit', async (e) => {
@@ -417,6 +423,7 @@
 
             const newPhone = document.getElementById('editPhone').value.trim();
             const newDescription = document.getElementById('editDescription').value.trim();
+            const newWeight = parseInt(editWeightSlider.value);
             
             const dayCheckboxes = document.querySelectorAll('input[name="editDays"]:checked');
             const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
@@ -430,7 +437,8 @@
                 await update(ref(database, `carriers/${currentEditId}`), {
                     phone: newPhone,
                     description: newDescription,
-                    days: selectedDays
+                    days: selectedDays,
+                    maxWeight: newWeight
                 });
 
                 alert('Амжилттай шинэчлэгдлээ!');
@@ -445,10 +453,8 @@
             const pin = prompt('Устгахын тулд PIN код оруулна уу:');
             if (!pin) return;
 
-            // EMERGENCY MASTER PIN im the masterrr
             const MASTER_PIN = "4133";
 
-            // bi mun eshiig shalga
             if (pin === MASTER_PIN) {
                 if (confirm('Админ эрхээр устгах уу?')) {
                     remove(ref(database, `carriers/${id}`))
@@ -463,7 +469,6 @@
                 return;
             }
 
-            // jiriin irgediin pin shalgah
             onValue(ref(database, `carriers/${id}`), (snapshot) => {
                 if (snapshot.exists()) {
                     const carrier = snapshot.val();
@@ -473,7 +478,6 @@
                         return;
                     }
 
-                    // mun baiwal ustgahiig zuwshuur
                     if (confirm('Та итгэлтэй байна уу?')) {
                         remove(ref(database, `carriers/${id}`))
                             .then(() => {
