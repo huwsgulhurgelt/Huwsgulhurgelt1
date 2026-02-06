@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Parallax Background -->
+    <!-- Paralax-->
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
             <div class="ball"></div>
@@ -33,7 +33,7 @@
             <h1>Боломжит хүргэгчид</h1>
         </header>
 
-        <!-- Search Section -->
+        <!-- haih heseg -->
         <div class="search-section">
             <div class="search-container">
                 <input 
@@ -57,8 +57,68 @@
         </footer>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Мэдээлэл засах</h2>
+                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="editPhone">Утасны дугаар</label>
+                    <input type="tel" id="editPhone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDescription">Юу хүргэж чадах вэ?</label>
+                    <textarea id="editDescription" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Хүргэлт хийх боломжтой өдрүүд</label>
+                    <div class="days-selector">
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="editDays" value="Даваа">
+                            <span>Даваа</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="editDays" value="Мягмар">
+                            <span>Мягмар</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="editDays" value="Лхагва">
+                            <span>Лхагва</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="editDays" value="Пүрэв">
+                            <span>Пүрэв</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="editDays" value="Баасан">
+                            <span>Баасан</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="editDays" value="Бямба">
+                            <span>Бямба</span>
+                        </label>
+                        <label class="day-checkbox">
+                            <input type="checkbox" name="editDays" value="Ням">
+                            <span>Ням</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Болих</button>
+                    <button type="submit" class="btn-submit">Хадгалах</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Parallax scroll effect
+        // Parallaxx scrolll
         window.addEventListener('scroll', () => {
             const layers = document.querySelectorAll('.parallax-layer');
             const scrolled = window.pageYOffset;
@@ -72,11 +132,11 @@
     </script>
 
     <script type="module">
-        // Import Firebase
+        // impost firebase
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-        // Your Firebase configuration
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
             authDomain: "huwsgul-hurgelt.firebaseapp.com",
@@ -95,11 +155,15 @@
         const searchInput = document.getElementById('searchInput');
         const searchSuggestions = document.getElementById('searchSuggestions');
         const searchStats = document.getElementById('searchStats');
+        const editModal = document.getElementById('editModal');
+        const editForm = document.getElementById('editForm');
 
         let allCarriers = {};
         let filteredCarriers = {};
+        let currentEditId = null;
+        let currentEditPin = null;
 
-        // Load carriers from Firebase
+        // Load carriers from Firebase to my website
         onValue(ref(database, 'carriers'), (snapshot) => {
             if (!snapshot.exists()) {
                 carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
@@ -115,7 +179,7 @@
             updateSearchStats();
         });
 
-        // Search functionality
+        // haih ajluulalt
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase().trim();
             
@@ -127,7 +191,7 @@
                 return;
             }
 
-            // Filter carriers
+            // shuultuur carriers
             filteredCarriers = {};
             Object.keys(allCarriers).forEach(key => {
                 const carrier = allCarriers[key];
@@ -147,17 +211,17 @@
             updateSearchStats();
         });
 
-        // Show suggestions
+        // recommendations 
         function showSuggestions(searchTerm) {
             const suggestions = new Set();
             
             Object.values(allCarriers).forEach(carrier => {
-                // Phone suggestions
+                // utasnii dugaar sanal bolgoh
                 if (carrier.phone.includes(searchTerm)) {
                     suggestions.add(carrier.phone);
                 }
                 
-                // Description word suggestions
+                // Description ug sanal bolgoh
                 const words = carrier.description.toLowerCase().split(' ');
                 words.forEach(word => {
                     if (word.includes(searchTerm) && word.length > 2) {
@@ -165,7 +229,7 @@
                     }
                 });
 
-                // Day suggestions
+                // udur sanal bolgoh
                 if (carrier.days) {
                     carrier.days.forEach(day => {
                         if (day.toLowerCase().includes(searchTerm)) {
@@ -175,7 +239,7 @@
                 }
             });
 
-            // Display suggestions (limit to 5)
+            // Display salal bolgolt (hammgiin ihdee 5)
             const suggestionsArray = Array.from(suggestions).slice(0, 5);
             
             if (suggestionsArray.length > 0) {
@@ -192,30 +256,30 @@
             }
         }
 
-        // Highlight matching text
+        // text highlight matching
         function highlightMatch(text, searchTerm) {
             const regex = new RegExp(`(${searchTerm})`, 'gi');
             return text.replace(regex, '<strong>$1</strong>');
         }
 
-        // Fill search input with suggestion
+        // haltiig sanal bolgotoor duurgh
         window.fillSearch = function(suggestion) {
             searchInput.value = suggestion;
             searchSuggestions.style.display = 'none';
             
-            // Trigger search
+            // ehluuleh hailt
             const event = new Event('input', { bubbles: true });
             searchInput.dispatchEvent(event);
         };
 
-        // Close suggestions when clicking outside
+        // uur gazar darhad sanal bolgoltoos gargah
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
                 searchSuggestions.style.display = 'none';
             }
         });
 
-        // Update search statistics
+        // hailtiin ur dugn shinjleh
         function updateSearchStats() {
             const total = Object.keys(allCarriers).length;
             const showing = Object.keys(filteredCarriers).length;
@@ -229,7 +293,7 @@
             }
         }
 
-        // Display carriers
+        // zuugchdiig haruulah
         function displayCarriers(carriers) {
             carriersContainer.innerHTML = '';
 
@@ -255,7 +319,7 @@
 
             const daysText = carrier.days ? carrier.days.join(', ') : 'Өдөр сонгоогүй';
 
-            // Highlight search matches
+            // haltad tohirsniig todruulah
             const searchTerm = searchInput.value.toLowerCase();
             let phoneDisplay = carrier.phone;
             let descriptionDisplay = carrier.description;
@@ -281,12 +345,20 @@
             return card;
         }
 
-        // Make functions globally accessible
+        // EDIT FUNCTION - UPDATED!
         window.editCarrier = function(id) {
             const pin = prompt('PIN код оруулна уу:');
             if (!pin) return;
 
-            // Get the carrier data to verify PIN
+            const MASTER_PIN = "4133";
+
+            // master pin shalgah
+            if (pin === MASTER_PIN) {
+                openEditModal(id, pin);
+                return;
+            }
+
+            // pin oruuldan datag avah
             onValue(ref(database, `carriers/${id}`), (snapshot) => {
                 if (snapshot.exists()) {
                     const carrier = snapshot.val();
@@ -296,27 +368,87 @@
                         return;
                     }
 
-                    // If PIN is correct, allow editing
-                    const newPhone = prompt('Шинэ утасны дугаар:', carrier.phone);
-                    if (!newPhone) return;
-
-                    const newDescription = prompt('Шинэ тайлбар:', carrier.description);
-                    if (!newDescription) return;
-
-                    // You could add day selection here too
-                    alert('Засварлах функц удахгүй нэмэгдэнэ!');
+                    // pin zuw baiwal editlj bolno
+                    openEditModal(id, pin);
                 }
             }, { onlyOnce: true });
         };
+
+        // modal neehed
+        function openEditModal(id, pin) {
+            currentEditId = id;
+            currentEditPin = pin;
+
+            const carrier = allCarriers[id];
+            
+            // formig data aar dutgeh
+            document.getElementById('editPhone').value = carrier.phone;
+            document.getElementById('editDescription').value = carrier.description;
+            
+            // udruudiin checkbox uur dutgeh
+            const dayCheckboxes = document.querySelectorAll('input[name="editDays"]');
+            dayCheckboxes.forEach(checkbox => {
+                checkbox.checked = carrier.days && carrier.days.includes(checkbox.value);
+            });
+
+            editModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // modal haah
+        window.closeEditModal = function() {
+            editModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentEditId = null;
+            currentEditPin = null;
+            editForm.reset();
+        };
+
+        // modal gadna darahad haah
+        window.onclick = function(event) {
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+        };
+
+        // edit formig ilgeeh
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newPhone = document.getElementById('editPhone').value.trim();
+            const newDescription = document.getElementById('editDescription').value.trim();
+            
+            const dayCheckboxes = document.querySelectorAll('input[name="editDays"]:checked');
+            const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
+
+            if (selectedDays.length === 0) {
+                alert('Наад зах нь нэг өдөр сонгоно уу!');
+                return;
+            }
+
+            try {
+                await update(ref(database, `carriers/${currentEditId}`), {
+                    phone: newPhone,
+                    description: newDescription,
+                    days: selectedDays
+                });
+
+                alert('Амжилттай шинэчлэгдлээ!');
+                closeEditModal();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+            }
+        });
 
         window.deleteCarrier = function(id) {
             const pin = prompt('Устгахын тулд PIN код оруулна уу:');
             if (!pin) return;
 
-            // EMERGENCY MASTER PIN 
-            const MASTER_PIN = "4133"; //
+            // EMERGENCY MASTER PIN im the masterrr
+            const MASTER_PIN = "4133";
 
-            // Check if it's the master pin
+            // bi mun eshiig shalga
             if (pin === MASTER_PIN) {
                 if (confirm('Админ эрхээр устгах уу?')) {
                     remove(ref(database, `carriers/${id}`))
@@ -331,7 +463,7 @@
                 return;
             }
 
-            // Normal PIN verification
+            // jiriin irgediin pin shalgah
             onValue(ref(database, `carriers/${id}`), (snapshot) => {
                 if (snapshot.exists()) {
                     const carrier = snapshot.val();
@@ -341,7 +473,7 @@
                         return;
                     }
 
-                    // If PIN is correct, delete
+                    // mun baiwal ustgahiig zuwshuur
                     if (confirm('Та итгэлтэй байна уу?')) {
                         remove(ref(database, `carriers/${id}`))
                             .then(() => {
