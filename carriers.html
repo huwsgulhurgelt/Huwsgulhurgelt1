@@ -494,3 +494,20 @@
     </script>
 </body>
 </html>
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3>Засварлах</h3>
+
+        <label>Юу хүргэх вэ?</label>
+        <textarea id="editDescription"></textarea>
+
+        <label>
+            Хэдэн кг?
+            (<span id="editWeightValue">5</span> кг)
+        </label>
+        <input type="range" id="editWeight" min="1" max="50">
+
+        <button id="saveEdit">Хадгалах</button>
+        <button onclick="closeModal()">Болих</button>
+    </div>
+</div>
