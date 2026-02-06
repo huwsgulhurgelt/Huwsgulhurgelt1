@@ -7,170 +7,85 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Parallax Background -->
-    <div class="parallax-bg">
-        <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-    </div>
 
-    <div class="container">
-        <header class="page-header">
-            <a href="index.html" class="back-link">← Буцах</a>
-            <h1>Хүргэгч бүртгэл</h1>
-        </header>
+<div class="container">
+    <header class="page-header">
+        <a href="index.html" class="back-link">← Буцах</a>
+        <h1>Хүргэгч бүртгэл</h1>
+    </header>
 
-        <main class="form-container">
-            <form id="signupForm">
-                <div class="form-group">
-                    <label for="phone">Утасны дугаар</label>
-                    <input type="tel" id="phone" placeholder="99001122" required>
-                </div>
+    <main class="form-container">
+        <form id="signupForm">
 
-                <div class="form-group">
-                    <label for="description">Юу хүргэж чадах вэ?</label>
-                    <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." required></textarea>
-                </div>
+            <div class="form-group">
+                <label for="phone">Утасны дугаар</label>
+                <input type="tel" id="phone" placeholder="99001122" required>
+            </div>
 
-                <div class="form-group">
-                    <label for="pin">PIN код (засах, устгахад хэрэглэгдэнэ)</label>
-                    <input type="password" id="pin" placeholder="4 оронтой тоо" maxlength="4" pattern="\d{4}" required>
-                </div>
+            <div class="form-group">
+                <label for="description">Юу хүргэж чадах вэ?</label>
+                <textarea id="description" rows="4" required></textarea>
+            </div>
 
-                <div class="form-group">
-                    <label>Хүргэлт хийх боломжтой өдрүүд</label>
-                    <div class="days-selector">
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="days" value="Даваа" checked>
-                            <span>Даваа</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="days" value="Мягмар" checked>
-                            <span>Мягмар</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="days" value="Лхагва" checked>
-                            <span>Лхагва</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="days" value="Пүрэв" checked>
-                            <span>Пүрэв</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="days" value="Баасан" checked>
-                            <span>Баасан</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="days" value="Бямба" checked>
-                            <span>Бямба</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="days" value="Ням" checked>
-                            <span>Ням</span>
-                        </label>
-                    </div>
-                </div>
+            <!-- WEIGHT SLIDER -->
+            <div class="form-group">
+                <label>
+                    Хэдэн кг хүртэл хүргэх боломжтой вэ?
+                    (<span id="weightValue">5</span> кг)
+                </label>
+                <input type="range" id="weight" min="1" max="50" value="5">
+            </div>
 
-                <button type="submit" class="btn btn-submit">Бүртгүүлэх</button>
-            </form>
-        </main>
+            <div class="form-group">
+                <label for="pin">PIN код</label>
+                <input type="password" id="pin" maxlength="4" required>
+            </div>
 
-        <footer>
-            <p>Сургуулийн төсөл • Prototype</p>
-        </footer>
-    </div>
+            <button type="submit" class="btn btn-submit">Бүртгүүлэх</button>
+        </form>
+    </main>
+</div>
 
-    <script>
-        // Parallax scroll effect
-        window.addEventListener('scroll', () => {
-            const layers = document.querySelectorAll('.parallax-layer');
-            const scrolled = window.pageYOffset;
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-            layers.forEach(layer => {
-                const speed = layer.dataset.speed;
-                const yPos = -(scrolled * speed);
-                layer.style.transform = `translateY(${yPos}px)`;
-            });
-        });
-    </script>
+const firebaseConfig = {
+    apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+    authDomain: "huwsgul-hurgelt.firebaseapp.com",
+    databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "huwsgul-hurgelt",
+    storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+    messagingSenderId: "457877716370",
+    appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
+};
 
-    <script type="module">
-        // Import Firebase
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-            authDomain: "huwsgul-hurgelt.firebaseapp.com",
-            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "huwsgul-hurgelt",
-            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
-            messagingSenderId: "457877716370",
-            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
-        };
+const weightInput = document.getElementById('weight');
+const weightValue = document.getElementById('weightValue');
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+weightInput.addEventListener('input', () => {
+    weightValue.textContent = weightInput.value;
+});
 
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            const phone = document.getElementById('phone').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const pin = document.getElementById('pin').value.trim();
+    await push(ref(database, 'carriers'), {
+        phone: phone.value.trim(),
+        description: description.value.trim(),
+        weight: Number(weightInput.value),
+        pin: pin.value.trim(),
+        timestamp: Date.now()
+    });
 
-            // Get selected days
-            const dayCheckboxes = document.querySelectorAll('input[name="days"]:checked');
-            const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
+    alert('Амжилттай бүртгэгдлээ!');
+    e.target.reset();
+    weightValue.textContent = 5;
+});
+</script>
 
-            if (!phone || !description || !pin) {
-                alert('Бүх талбарыг бөглөнө үү!');
-                return;
-            }
-
-            if (pin.length !== 4 || !/^\d+$/.test(pin)) {
-                alert('PIN код 4 оронтой тоо байх ёстой!');
-                return;
-            }
-
-            if (selectedDays.length === 0) {
-                alert('Наад зах нь нэг өдөр сонгоно уу!');
-                return;
-            }
-
-            try {
-                await push(ref(database, 'carriers'), {
-                    phone: phone,
-                    description: description,
-                    days: selectedDays,
-                    pin: pin,
-                    timestamp: Date.now()
-                });
-
-                alert('Амжилттай бүртгэгдлээ!');
-                document.getElementById('signupForm').reset();
-                // Re-check all checkboxes after reset
-                document.querySelectorAll('input[name="days"]').forEach(cb => cb.checked = true);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
-            }
-        });
-    </script>
 </body>
 </html>
