@@ -884,3 +884,33 @@ footer {
     font-size: 0.85rem;
     font-weight: 600;
 }
+/* ===== MODAL FIX (SCROLLABLE) ===== */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #ffffff;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Range slider spacing */
+input[type="range"] {
+    width: 100%;
+    margin-top: 10px;
+}
