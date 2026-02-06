@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Paralax-->
+    <!-- Parallax Background -->
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
             <div class="ball"></div>
@@ -33,16 +33,10 @@
             <h1>Боломжит хүргэгчид</h1>
         </header>
 
-        <!-- haih heseg -->
+        <!-- Search Section -->
         <div class="search-section">
             <div class="search-container">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input" 
-                    placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..."
-                    autocomplete="off"
-                >
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..." autocomplete="off">
                 <div id="searchSuggestions" class="search-suggestions"></div>
             </div>
             <div id="searchStats" class="search-stats"></div>
@@ -69,12 +63,10 @@
                     <label for="editPhone">Утасны дугаар</label>
                     <input type="tel" id="editPhone" required>
                 </div>
-
                 <div class="form-group">
                     <label for="editDescription">Юу хүргэж чадах вэ?</label>
                     <textarea id="editDescription" rows="4" required></textarea>
                 </div>
-
                 <div class="form-group">
                     <label for="editWeight">Хамгийн ихдээ хэдэн кг зөөж чадах вэ?</label>
                     <div class="weight-slider-container">
@@ -84,41 +76,18 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Хүргэлт хийх боломжтой өдрүүд</label>
                     <div class="days-selector">
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="editDays" value="Даваа">
-                            <span>Даваа</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="editDays" value="Мягмар">
-                            <span>Мягмар</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="editDays" value="Лхагва">
-                            <span>Лхагва</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="editDays" value="Пүрэв">
-                            <span>Пүрэв</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="editDays" value="Баасан">
-                            <span>Баасан</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="editDays" value="Бямба">
-                            <span>Бямба</span>
-                        </label>
-                        <label class="day-checkbox">
-                            <input type="checkbox" name="editDays" value="Ням">
-                            <span>Ням</span>
-                        </label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Даваа"><span>Даваа</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Мягмар"><span>Мягмар</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Лхагва"><span>Лхагва</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Пүрэв"><span>Пүрэв</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Баасан"><span>Баасан</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Бямба"><span>Бямба</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Ням"><span>Ням</span></label>
                     </div>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" onclick="closeEditModal()">Болих</button>
                     <button type="submit" class="btn-submit">Хадгалах</button>
@@ -128,25 +97,21 @@
     </div>
 
     <script>
-        // Parallaxx scrolll
+        // Parallax scroll
         window.addEventListener('scroll', () => {
             const layers = document.querySelectorAll('.parallax-layer');
             const scrolled = window.pageYOffset;
-
             layers.forEach(layer => {
                 const speed = layer.dataset.speed;
-                const yPos = -(scrolled * speed);
-                layer.style.transform = `translateY(${yPos}px)`;
+                layer.style.transform = `translateY(${-scrolled * speed}px)`;
             });
         });
     </script>
 
     <script type="module">
-        // impost firebase
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
             authDomain: "huwsgul-hurgelt.firebaseapp.com",
@@ -157,7 +122,6 @@
             appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
@@ -173,14 +137,13 @@
         let allCarriers = {};
         let filteredCarriers = {};
         let currentEditId = null;
-        let currentEditPin = null;
 
-        // Weight slider update
+        // Slider update
         editWeightSlider.addEventListener('input', (e) => {
             editWeightValue.textContent = e.target.value;
         });
 
-        // Load carriers from Firebase to my website
+        // Load carriers
         onValue(ref(database, 'carriers'), (snapshot) => {
             if (!snapshot.exists()) {
                 carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
@@ -189,325 +152,102 @@
                 updateSearchStats();
                 return;
             }
-
             allCarriers = snapshot.val();
             filteredCarriers = { ...allCarriers };
             displayCarriers(filteredCarriers);
             updateSearchStats();
         });
 
-        // haih ajluulalt
         searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            
-            if (searchTerm === '') {
-                filteredCarriers = { ...allCarriers };
-                searchSuggestions.style.display = 'none';
-                displayCarriers(filteredCarriers);
-                updateSearchStats();
-                return;
-            }
-
-            // shuultuur carriers
+            const term = e.target.value.toLowerCase().trim();
             filteredCarriers = {};
             Object.keys(allCarriers).forEach(key => {
-                const carrier = allCarriers[key];
-                const phone = carrier.phone.toLowerCase();
-                const description = carrier.description.toLowerCase();
-                const days = carrier.days ? carrier.days.join(' ').toLowerCase() : '';
-
-                if (phone.includes(searchTerm) || 
-                    description.includes(searchTerm) || 
-                    days.includes(searchTerm)) {
-                    filteredCarriers[key] = carrier;
+                const c = allCarriers[key];
+                const phone = c.phone.toLowerCase();
+                const desc = c.description.toLowerCase();
+                const days = c.days ? c.days.join(' ').toLowerCase() : '';
+                if (phone.includes(term) || desc.includes(term) || days.includes(term)) {
+                    filteredCarriers[key] = c;
                 }
             });
-
             displayCarriers(filteredCarriers);
-            showSuggestions(searchTerm);
             updateSearchStats();
         });
 
-        // recommendations 
-        function showSuggestions(searchTerm) {
-            const suggestions = new Set();
-            
-            Object.values(allCarriers).forEach(carrier => {
-                if (carrier.phone.includes(searchTerm)) {
-                    suggestions.add(carrier.phone);
-                }
-                
-                const words = carrier.description.toLowerCase().split(' ');
-                words.forEach(word => {
-                    if (word.includes(searchTerm) && word.length > 2) {
-                        suggestions.add(word);
-                    }
-                });
-
-                if (carrier.days) {
-                    carrier.days.forEach(day => {
-                        if (day.toLowerCase().includes(searchTerm)) {
-                            suggestions.add(day);
-                        }
-                    });
-                }
-            });
-
-            const suggestionsArray = Array.from(suggestions).slice(0, 5);
-            
-            if (suggestionsArray.length > 0) {
-                searchSuggestions.innerHTML = suggestionsArray
-                    .map(suggestion => `
-                        <div class="suggestion-item" onclick="fillSearch('${suggestion}')">
-                            🔍 ${highlightMatch(suggestion, searchTerm)}
-                        </div>
-                    `)
-                    .join('');
-                searchSuggestions.style.display = 'block';
-            } else {
-                searchSuggestions.style.display = 'none';
-            }
-        }
-
-        function highlightMatch(text, searchTerm) {
-            const regex = new RegExp(`(${searchTerm})`, 'gi');
-            return text.replace(regex, '<strong>$1</strong>');
-        }
-
-        window.fillSearch = function(suggestion) {
-            searchInput.value = suggestion;
-            searchSuggestions.style.display = 'none';
-            const event = new Event('input', { bubbles: true });
-            searchInput.dispatchEvent(event);
-        };
-
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
-                searchSuggestions.style.display = 'none';
-            }
-        });
-
-        function updateSearchStats() {
-            const total = Object.keys(allCarriers).length;
-            const showing = Object.keys(filteredCarriers).length;
-            
-            if (searchInput.value.trim() !== '') {
-                searchStats.innerHTML = `${showing} хүргэгч олдлоо (Нийт: ${total})`;
-                searchStats.style.display = 'block';
-            } else {
-                searchStats.innerHTML = `Нийт ${total} хүргэгч`;
-                searchStats.style.display = 'block';
-            }
-        }
-
         function displayCarriers(carriers) {
             carriersContainer.innerHTML = '';
-
-            if (Object.keys(carriers).length === 0) {
-                if (searchInput.value.trim() !== '') {
-                    carriersContainer.innerHTML = '<div class="no-data"> Хайлтад тохирох хүргэгч олдсонгүй</div>';
-                } else {
-                    carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
-                }
+            if (!Object.keys(carriers).length) {
+                carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
                 return;
             }
-
-            Object.keys(carriers).forEach(key => {
-                const carrier = carriers[key];
-                const card = createCarrierCard(key, carrier);
+            Object.keys(carriers).forEach(id => {
+                const c = carriers[id];
+                const card = document.createElement('div');
+                card.className = 'carrier-card';
+                card.innerHTML = `
+                    <div class="card-content">
+                        <div class="carrier-phone">${c.phone}</div>
+                        <div class="carrier-description">${c.description}</div>
+                        <div class="carrier-meta">
+                            <span class="carrier-days">📅 ${c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'}</span>
+                            ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${c.maxWeight} кг</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-small btn-edit" onclick="editCarrier('${id}')">Засах</button>
+                        <button class="btn-small btn-delete" onclick="deleteCarrier('${id}')">Устгах</button>
+                    </div>
+                `;
                 carriersContainer.appendChild(card);
             });
         }
 
-        function createCarrierCard(id, carrier) {
-            const card = document.createElement('div');
-            card.className = 'carrier-card';
-
-            const daysText = carrier.days ? carrier.days.join(', ') : 'Өдөр сонгоогүй';
-            const weightText = carrier.maxWeight ? `⚖️ ${carrier.maxWeight} кг` : '';
-
-            const searchTerm = searchInput.value.toLowerCase();
-            let phoneDisplay = carrier.phone;
-            let descriptionDisplay = carrier.description;
-
-            if (searchTerm) {
-                const regex = new RegExp(`(${searchTerm})`, 'gi');
-                phoneDisplay = carrier.phone.replace(regex, '<mark>$1</mark>');
-                descriptionDisplay = carrier.description.replace(regex, '<mark>$1</mark>');
-            }
-
-            card.innerHTML = `
-                <div class="card-content">
-                    <div class="carrier-phone">${phoneDisplay}</div>
-                    <div class="carrier-description">${descriptionDisplay}</div>
-                    <div class="carrier-meta">
-                        <span class="carrier-days">📅 ${daysText}</span>
-                        ${weightText ? `<span class="carrier-weight">${weightText}</span>` : ''}
-                    </div>
-                </div>
-                <div class="card-actions">
-                    <button class="btn-small btn-edit" onclick="editCarrier('${id}')">Засах</button>
-                    <button class="btn-small btn-delete" onclick="deleteCarrier('${id}')">Устгах</button>
-                </div>
-            `;
-
-            return card;
-        }
-
-        // EDIT hiih
         window.editCarrier = function(id) {
             const pin = prompt('PIN код оруулна уу:');
             if (!pin) return;
-
             const MASTER_PIN = "4133";
-
-            if (pin === MASTER_PIN) {
-                openEditModal(id, pin);
-                return;
+            if (pin === MASTER_PIN || (allCarriers[id] && allCarriers[id].pin === pin)) {
+                openEditModal(id);
+            } else {
+                alert('Буруу PIN код!');
             }
-
-            onValue(ref(database, `carriers/${id}`), (snapshot) => {
-                if (snapshot.exists()) {
-                    const carrier = snapshot.val();
-                    
-                    if (carrier.pin !== pin) {
-                        alert('Буруу PIN код!');
-                        return;
-                    }
-
-                    openEditModal(id, pin);
-                }
-            }, { onlyOnce: true });
         };
 
-        // modal neehed
-        function openEditModal(id, pin) {
+        function openEditModal(id) {
             currentEditId = id;
-            currentEditPin = pin;
-
-            const carrier = allCarriers[id];
-            
-            document.getElementById('editPhone').value = carrier.phone;
-            document.getElementById('editDescription').value = carrier.description;
-            editWeightSlider.value = carrier.maxWeight || 10;
-            editWeightValue.textContent = carrier.maxWeight || 10;
-            
-            const dayCheckboxes = document.querySelectorAll('input[name="editDays"]');
-            dayCheckboxes.forEach(checkbox => {
-                checkbox.checked = carrier.days && carrier.days.includes(checkbox.value);
+            const c = allCarriers[id];
+            document.getElementById('editPhone').value = c.phone;
+            document.getElementById('editDescription').value = c.description;
+            editWeightSlider.value = c.maxWeight || 10;
+            editWeightValue.textContent = c.maxWeight || 10;
+            document.querySelectorAll('input[name="editDays"]').forEach(cb => {
+                cb.checked = c.days && c.days.includes(cb.value);
             });
-
             editModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
         }
 
-        // modal haah
         window.closeEditModal = function() {
             editModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
             currentEditId = null;
-            currentEditPin = null;
             editForm.reset();
         };
 
-        // modal gadna darahad haah
-        window.addEventListener('click', function(event) {
-            if (event.target === editModal) {
-                closeEditModal();
-            }
-        });
-
-        // edit formig ilgeeh
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            const newPhone = document.getElementById('editPhone').value.trim();
-            const newDescription = document.getElementById('editDescription').value.trim();
-            const newWeight = parseInt(editWeightSlider.value);
-            
-            const dayCheckboxes = document.querySelectorAll('input[name="editDays"]:checked');
-            const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
-
-            if (selectedDays.length === 0) {
-                alert('Наад зах нь нэг өдөр сонгоно уу!');
-                return;
-            }
-
-            try {
-                await update(ref(database, `carriers/${currentEditId}`), {
-                    phone: newPhone,
-                    description: newDescription,
-                    days: selectedDays,
-                    maxWeight: newWeight
-                });
-
-                alert('Амжилттай шинэчлэгдлээ!');
-                closeEditModal();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
-            }
+            const phone = document.getElementById('editPhone').value.trim();
+            const desc = document.getElementById('editDescription').value.trim();
+            const weight = parseInt(editWeightSlider.value);
+            const days = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
+            if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
+            await update(ref(database, `carriers/${currentEditId}`), { phone, description: desc, maxWeight: weight, days });
+            alert('Амжилттай шинэчлэгдлээ!');
+            closeEditModal();
         });
 
         window.deleteCarrier = function(id) {
-            const pin = prompt('Устгахын тулд PIN код оруулна уу:');
-            if (!pin) return;
-
-            const MASTER_PIN = "4133";
-
-            if (pin === MASTER_PIN) {
-                if (confirm('Админ эрхээр устгах уу?')) {
-                    remove(ref(database, `carriers/${id}`))
-                        .then(() => {
-                            alert('Амжилттай устгалаа!');
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                            alert('Алдаа гарлаа!');
-                        });
-                }
-                return;
-            }
-
-            onValue(ref(database, `carriers/${id}`), (snapshot) => {
-                if (snapshot.exists()) {
-                    const carrier = snapshot.val();
-                    
-                    if (carrier.pin !== pin) {
-                        alert('Буруу PIN код!');
-                        return;
-                    }
-
-                    if (confirm('Та итгэлтэй байна уу?')) {
-                        remove(ref(database, `carriers/${id}`))
-                            .then(() => {
-                                alert('Амжилттай устгалаа!');
-                            })
-                            .catch((error) => {
-                                console.error('Error:', error);
-                                alert('Алдаа гарлаа!');
-                            });
-                    }
-                }
-            }, { onlyOnce: true });
+            if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
+            remove(ref(database, `carriers/${id}`)).then(() => alert('Амжилттай устгалаа!'));
         };
     </script>
 </body>
 </html>
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <h3>Засварлах</h3>
-
-        <label>Юу хүргэх вэ?</label>
-        <textarea id="editDescription"></textarea>
-
-        <label>
-            Хэдэн кг?
-            (<span id="editWeightValue">5</span> кг)
-        </label>
-        <input type="range" id="editWeight" min="1" max="50">
-
-        <button id="saveEdit">Хадгалах</button>
-        <button onclick="closeModal()">Болих</button>
-    </div>
-</div>
