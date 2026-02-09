@@ -51,12 +51,12 @@
         </footer>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
+    <!-- Edit Model -->
+    <div id="editModel" class="model" style="display: none;">
+        <div class="model-content">
+            <div class="model-header">
                 <h2>Мэдээлэл засах</h2>
-                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+                <span class="close-model" onclick="closeEditModel()">&times;</span>
             </div>
             <form id="editForm">
                 <div class="form-group">
@@ -88,8 +88,8 @@
                         <label class="day-checkbox"><input type="checkbox" name="editDays" value="Ням"><span>Ням</span></label>
                     </div>
                 </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Болих</button>
+                <div class="model-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditModel()">Болих</button>
                     <button type="submit" class="btn-submit">Хадгалах</button>
                 </div>
             </form>
@@ -129,7 +129,7 @@
         const searchInput = document.getElementById('searchInput');
         const searchSuggestions = document.getElementById('searchSuggestions');
         const searchStats = document.getElementById('searchStats');
-        const editModal = document.getElementById('editModal');
+        const editModel = document.getElementById('editModel');
         const editForm = document.getElementById('editForm');
         const editWeightSlider = document.getElementById('editWeight');
         const editWeightValue = document.getElementById('editWeightValue');
@@ -138,12 +138,12 @@
         let filteredCarriers = {};
         let currentEditId = null;
 
-        // Slider update
+        // Weight slider update
         editWeightSlider.addEventListener('input', (e) => {
             editWeightValue.textContent = e.target.value;
         });
 
-        // Load carriers
+        // Load carriers from Firebase
         onValue(ref(database, 'carriers'), (snapshot) => {
             if (!snapshot.exists()) {
                 carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
@@ -158,28 +158,44 @@
             updateSearchStats();
         });
 
+        // Search functionality
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
+            
+            if (!term) {
+                filteredCarriers = { ...allCarriers };
+                searchSuggestions.style.display = 'none';
+                displayCarriers(filteredCarriers);
+                updateSearchStats();
+                return;
+            }
+
+            // Filter carriers
             filteredCarriers = {};
             Object.keys(allCarriers).forEach(key => {
                 const c = allCarriers[key];
                 const phone = c.phone.toLowerCase();
                 const desc = c.description.toLowerCase();
                 const days = c.days ? c.days.join(' ').toLowerCase() : '';
+                
                 if (phone.includes(term) || desc.includes(term) || days.includes(term)) {
                     filteredCarriers[key] = c;
                 }
             });
+            
             displayCarriers(filteredCarriers);
             updateSearchStats();
         });
 
+        // Display carriers
         function displayCarriers(carriers) {
             carriersContainer.innerHTML = '';
+            
             if (!Object.keys(carriers).length) {
                 carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
                 return;
             }
+            
             Object.keys(carriers).forEach(id => {
                 const c = carriers[id];
                 const card = document.createElement('div');
@@ -202,52 +218,105 @@
             });
         }
 
+        // Update search stats
+        function updateSearchStats() {
+            const total = Object.keys(allCarriers).length;
+            const showing = Object.keys(filteredCarriers).length;
+            
+            if (searchInput.value.trim()) {
+                searchStats.innerHTML = `${showing} хүргэгч олдлоо (Нийт: ${total})`;
+            } else {
+                searchStats.innerHTML = `Нийт ${total} хүргэгч`;
+            }
+        }
+
+        // Edit carrier
         window.editCarrier = function(id) {
             const pin = prompt('PIN код оруулна уу:');
             if (!pin) return;
+            
             const MASTER_PIN = "4133";
+            
             if (pin === MASTER_PIN || (allCarriers[id] && allCarriers[id].pin === pin)) {
-                openEditModal(id);
+                openEditModel(id);
             } else {
                 alert('Буруу PIN код!');
             }
         };
 
-        function openEditModal(id) {
+        // Open edit model
+        function openEditModel(id) {
             currentEditId = id;
             const c = allCarriers[id];
+            
             document.getElementById('editPhone').value = c.phone;
             document.getElementById('editDescription').value = c.description;
             editWeightSlider.value = c.maxWeight || 10;
             editWeightValue.textContent = c.maxWeight || 10;
+            
             document.querySelectorAll('input[name="editDays"]').forEach(cb => {
                 cb.checked = c.days && c.days.includes(cb.value);
             });
-            editModal.style.display = 'block';
+            
+            editModel.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
-        window.closeEditModal = function() {
-            editModal.style.display = 'none';
+        // Close edit model
+        window.closeEditModel = function() {
+            editModel.style.display = 'none';
+            document.body.style.overflow = 'auto';
             currentEditId = null;
             editForm.reset();
         };
 
+        // Close model when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === editModel) {
+                closeEditModel();
+            }
+        });
+
+        // Submit edit form
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const phone = document.getElementById('editPhone').value.trim();
             const desc = document.getElementById('editDescription').value.trim();
             const weight = parseInt(editWeightSlider.value);
             const days = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
-            if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
-            await update(ref(database, `carriers/${currentEditId}`), { phone, description: desc, maxWeight: weight, days });
-            alert('Амжилттай шинэчлэгдлээ!');
-            closeEditModal();
+            
+            if (!days.length) {
+                alert('Наад зах нь нэг өдөр сонгоно уу!');
+                return;
+            }
+            
+            try {
+                await update(ref(database, `carriers/${currentEditId}`), {
+                    phone,
+                    description: desc,
+                    maxWeight: weight,
+                    days
+                });
+                alert('Амжилттай шинэчлэгдлээ!');
+                closeEditModel();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Алдаа гарлаа!');
+            }
         });
 
+        // Delete carrier
         window.deleteCarrier = function(id) {
             if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
-            remove(ref(database, `carriers/${id}`)).then(() => alert('Амжилттай устгалаа!'));
+            
+            remove(ref(database, `carriers/${id}`))
+                .then(() => alert('Амжилттай устгалаа!'))
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('Алдаа гарлаа!');
+                });
         };
     </script>
 </body>
-</html>
+    </html>
