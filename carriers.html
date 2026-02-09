@@ -33,7 +33,7 @@
             <h1>Боломжит хүргэгчид</h1>
         </header>
 
-        <!-- Search Section -->
+        <!-- haih heseg -->
         <div class="search-section">
             <div class="search-container">
                 <input type="text" id="searchInput" class="search-input" placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..." autocomplete="off">
@@ -51,7 +51,7 @@
         </footer>
     </div>
 
-    <!-- Edit Model -->
+    <!-- model editleh -->
     <div id="editModel" class="model" style="display: none;">
         <div class="model-content">
             <div class="model-header">
@@ -97,7 +97,7 @@
     </div>
 
     <script>
-        // Parallax scroll
+        // Parallax scrolldown
         window.addEventListener('scroll', () => {
             const layers = document.querySelectorAll('.parallax-layer');
             const scrolled = window.pageYOffset;
@@ -138,12 +138,12 @@
         let filteredCarriers = {};
         let currentEditId = null;
 
-        // Weight slider update
+        // her hemjeenii achaa juuhuu chirj uurchluh
         editWeightSlider.addEventListener('input', (e) => {
             editWeightValue.textContent = e.target.value;
         });
 
-        // Load carriers from Firebase
+        // firebase>zuugchid
         onValue(ref(database, 'carriers'), (snapshot) => {
             if (!snapshot.exists()) {
                 carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
@@ -158,7 +158,7 @@
             updateSearchStats();
         });
 
-        // Search functionality
+        // haih ajluulah
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
             
@@ -170,7 +170,7 @@
                 return;
             }
 
-            // Filter carriers
+            // juugchdiig shuuh
             filteredCarriers = {};
             Object.keys(allCarriers).forEach(key => {
                 const c = allCarriers[key];
@@ -187,7 +187,7 @@
             updateSearchStats();
         });
 
-        // Display carriers
+        // zuugchdiig haruulah
         function displayCarriers(carriers) {
             carriersContainer.innerHTML = '';
             
@@ -218,7 +218,7 @@
             });
         }
 
-        // Update search stats
+        // update hailtiin stats
         function updateSearchStats() {
             const total = Object.keys(allCarriers).length;
             const showing = Object.keys(filteredCarriers).length;
@@ -244,7 +244,7 @@
             }
         };
 
-        // Open edit model
+        // model editlehruu oroh
         function openEditModel(id) {
             currentEditId = id;
             const c = allCarriers[id];
@@ -262,7 +262,7 @@
             document.body.style.overflow = 'hidden';
         }
 
-        // Close edit model
+        // model editlhees gargah
         window.closeEditModel = function() {
             editModel.style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -270,7 +270,7 @@
             editForm.reset();
         };
 
-        // Close model when clicking outside
+        // gadaa n darsan tohioldold gargah
         window.addEventListener('click', function(event) {
             if (event.target === editModel) {
                 closeEditModel();
@@ -306,7 +306,7 @@
             }
         });
 
-        // Delete carrier
+        // zuugch ustgah
         window.deleteCarrier = function(id) {
             if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
             
