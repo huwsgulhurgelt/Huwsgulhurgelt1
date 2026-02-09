@@ -35,11 +35,11 @@
 
         <main class="menu">
             <a href="carriers.html" class="btn btn-user">
-                <span class="btn-icon"></span>
+                <span class="btn-icon">👤</span>
                 Хэрэглэгч
             </a>
             <a href="signup.html" class="btn btn-carrier">
-                <span class="btn-icon"></span>
+                <span class="btn-icon">🚚</span>
                 Хүргэгч
             </a>
         </main>
@@ -50,15 +50,14 @@
     </div>
 
     <script>
-        // Parallax scroll turshilt 
+        // Parallax scroll turshilt
         window.addEventListener('scroll', () => {
             const layers = document.querySelectorAll('.parallax-layer');
             const scrolled = window.pageYOffset;
 
             layers.forEach(layer => {
                 const speed = layer.dataset.speed;
-                const yPos = -(scrolled * speed);
-                layer.style.transform = `translateY(${yPos}px)`;
+                layer.style.transform = `translateY(${-scrolled * speed}px)`;
             });
         });
     </script>
