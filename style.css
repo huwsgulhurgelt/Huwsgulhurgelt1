@@ -610,7 +610,7 @@ body {
     box-shadow: 0 8px 20px rgba(250, 112, 154, 0.4);
 }
 
-/* Search Section */
+/* haih heseg */
 .search-section {
     padding: 30px 40px 20px;
     background: transparent;
@@ -692,7 +692,7 @@ body {
     font-weight: 500;
 }
 
-/* Weight Slider */
+/* jin process bar */
 .weight-slider-container {
     margin-top: 15px;
 }
@@ -873,7 +873,7 @@ body {
     font-size: 1.2rem;
 }
 
-/* hul gehumu hashayun */
+/* hul gehimu hashayun */
 footer {
     background: rgba(10, 14, 39, 0.9);
     backdrop-filter: blur(10px);
