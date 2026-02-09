@@ -45,7 +45,7 @@
                     <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." required></textarea>
                 </div>
 
-                <!-- Weight slider -->
+                <!-- jin hemjih process bar -->
                 <div class="form-group">
                     <label for="weight">
                         Хэдэн кг хүртэл хүргэх боломжтой вэ?
@@ -92,7 +92,7 @@
             });
         });
 
-        // Weight slider update
+        // jin process bar update
         const weightInput = document.getElementById('weight');
         const weightValue = document.getElementById('weightValue');
 
@@ -126,7 +126,7 @@
             const weight = Number(document.getElementById('weight').value);
             const pin = document.getElementById('pin').value.trim();
 
-            // Get selected days
+            // songoson udur awh
             const dayCheckboxes = document.querySelectorAll('input[name="days"]:checked');
             const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
 
