@@ -55,7 +55,7 @@
                     <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." required></textarea>
                 </div>
 
-                <!-- Weight slider -->
+                <!-- jin chireh -->
                 <div class="form-group">
                     <label for="weight">
                         Хэдэн кг хүртэл хүргэх боломжтой вэ?
@@ -88,7 +88,7 @@
         </main>
 
         <footer>
-            <p>Сургуулийн төсөл • Prototype</p>
+            <p>im watchin you </p>
         </footer>
     </div>
 
@@ -103,7 +103,7 @@
             });
         });
 
-        // Weight slider update
+        // jin chire update
         const weightInput = document.getElementById('weight');
         const weightValue = document.getElementById('weightValue');
 
@@ -111,12 +111,12 @@
             weightValue.textContent = weightInput.value;
         });
 
-        // Phone validation - only numbers, max 8 digits
+        // zuwhun 8 orontoi too oruul
         const phoneInput = document.getElementById('phone');
         const phoneError = document.getElementById('phoneError');
 
         phoneInput.addEventListener('input', (e) => {
-            // Remove non-numeric characters
+            // too bish bol ustgana
             e.target.value = e.target.value.replace(/\D/g, '');
             
             if (e.target.value.length > 8) {
@@ -132,13 +132,13 @@
             }
         });
 
-        // Car number validation - only numbers, max 4 digits
+        // mashinii dugaar 4 orontai TOO
         const carNumberInput = document.getElementById('carNumber');
         const carLettersInput = document.getElementById('carLetters');
         const carError = document.getElementById('carError');
 
         carNumberInput.addEventListener('input', (e) => {
-            // Remove non-numeric characters
+            // too bish bol ustgana(mashinii dugaar dotorh)
             e.target.value = e.target.value.replace(/\D/g, '');
             
             if (e.target.value.length > 4) {
@@ -148,12 +148,12 @@
             validateCarNumber();
         });
 
-        // Car letters validation - only Cyrillic letters, max 3
+        // mashinii dugaar zuwhun mongol heleer bichne max3
         carLettersInput.addEventListener('input', (e) => {
-            // Convert to uppercase
+            // shuud tomruula( auto capslock)
             e.target.value = e.target.value.toUpperCase();
             
-            // Remove non-Cyrillic characters and numbers
+            // mongol useg bish bol ustgana
             e.target.value = e.target.value.replace(/[^А-ЯӨҮ]/g, '');
             
             if (e.target.value.length > 3) {
@@ -184,12 +184,12 @@
             return true;
         }
 
-        // PIN validation - only numbers, exactly 4 digits
+        // PIN zuwhun 4 orontoi tooo
         const pinInput = document.getElementById('pin');
         const pinError = document.getElementById('pinError');
 
         pinInput.addEventListener('input', (e) => {
-            // Remove non-numeric characters
+            // too bish bol ustg
             e.target.value = e.target.value.replace(/\D/g, '');
             
             if (e.target.value.length > 4) {
@@ -233,11 +233,11 @@
             const weight = Number(document.getElementById('weight').value);
             const pin = document.getElementById('pin').value.trim();
 
-            // Get selected days
+            // songson udur
             const dayCheckboxes = document.querySelectorAll('input[name="days"]:checked');
             const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
 
-            // Validation
+            // bugluhgu bol sighinuphiij bolku
             if (!phone || !description || !pin || !carNumber || !carLetters) {
                 alert('Бүх талбарыг бөглөнө үү!');
                 return;
