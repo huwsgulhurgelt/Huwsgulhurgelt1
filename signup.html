@@ -36,8 +36,18 @@
         <main class="form-container">
             <form id="signupForm">
                 <div class="form-group">
-                    <label for="phone">Утасны дугаар</label>
-                    <input type="tel" id="phone" placeholder="99001122" required>
+                    <label for="phone">Утасны дугаар (8 орон)</label>
+                    <input type="tel" id="phone" placeholder="99001122" maxlength="8" pattern="\d{8}" required>
+                    <span class="error-message" id="phoneError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Машины дугаар (Жишээ: 1234ХӨВ)</label>
+                    <div class="car-number-container">
+                        <input type="text" id="carNumber" class="car-number-input" placeholder="1234" maxlength="4" required>
+                        <input type="text" id="carLetters" class="car-letters-input" placeholder="ХӨВ" maxlength="3" required>
+                    </div>
+                    <span class="error-message" id="carError"></span>
                 </div>
 
                 <div class="form-group">
@@ -45,7 +55,7 @@
                     <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." required></textarea>
                 </div>
 
-                <!-- jin hemjih process bar -->
+                <!-- Weight slider -->
                 <div class="form-group">
                     <label for="weight">
                         Хэдэн кг хүртэл хүргэх боломжтой вэ?
@@ -57,6 +67,7 @@
                 <div class="form-group">
                     <label for="pin">PIN код (засах, устгахад хэрэглэгдэнэ)</label>
                     <input type="password" id="pin" placeholder="4 оронтой тоо" maxlength="4" pattern="\d{4}" required>
+                    <span class="error-message" id="pinError"></span>
                 </div>
 
                 <div class="form-group">
@@ -92,12 +103,106 @@
             });
         });
 
-        // jin process bar update
+        // Weight slider update
         const weightInput = document.getElementById('weight');
         const weightValue = document.getElementById('weightValue');
 
         weightInput.addEventListener('input', () => {
             weightValue.textContent = weightInput.value;
+        });
+
+        // Phone validation - only numbers, max 8 digits
+        const phoneInput = document.getElementById('phone');
+        const phoneError = document.getElementById('phoneError');
+
+        phoneInput.addEventListener('input', (e) => {
+            // Remove non-numeric characters
+            e.target.value = e.target.value.replace(/\D/g, '');
+            
+            if (e.target.value.length > 8) {
+                e.target.value = e.target.value.slice(0, 8);
+            }
+
+            if (e.target.value.length > 0 && e.target.value.length < 8) {
+                phoneError.textContent = '8 оронтой тоо байх ёстой';
+                phoneError.style.display = 'block';
+            } else {
+                phoneError.textContent = '';
+                phoneError.style.display = 'none';
+            }
+        });
+
+        // Car number validation - only numbers, max 4 digits
+        const carNumberInput = document.getElementById('carNumber');
+        const carLettersInput = document.getElementById('carLetters');
+        const carError = document.getElementById('carError');
+
+        carNumberInput.addEventListener('input', (e) => {
+            // Remove non-numeric characters
+            e.target.value = e.target.value.replace(/\D/g, '');
+            
+            if (e.target.value.length > 4) {
+                e.target.value = e.target.value.slice(0, 4);
+            }
+
+            validateCarNumber();
+        });
+
+        // Car letters validation - only Cyrillic letters, max 3
+        carLettersInput.addEventListener('input', (e) => {
+            // Convert to uppercase
+            e.target.value = e.target.value.toUpperCase();
+            
+            // Remove non-Cyrillic characters and numbers
+            e.target.value = e.target.value.replace(/[^А-ЯӨҮ]/g, '');
+            
+            if (e.target.value.length > 3) {
+                e.target.value = e.target.value.slice(0, 3);
+            }
+
+            validateCarNumber();
+        });
+
+        function validateCarNumber() {
+            const numbers = carNumberInput.value;
+            const letters = carLettersInput.value;
+
+            if (numbers.length > 0 && numbers.length < 4) {
+                carError.textContent = 'Машины дугаар 4 оронтой тоо байх ёстой';
+                carError.style.display = 'block';
+                return false;
+            }
+
+            if (letters.length > 0 && letters.length < 3) {
+                carError.textContent = 'Машины үсэг 3 үсэгтэй байх ёстой';
+                carError.style.display = 'block';
+                return false;
+            }
+
+            carError.textContent = '';
+            carError.style.display = 'none';
+            return true;
+        }
+
+        // PIN validation - only numbers, exactly 4 digits
+        const pinInput = document.getElementById('pin');
+        const pinError = document.getElementById('pinError');
+
+        pinInput.addEventListener('input', (e) => {
+            // Remove non-numeric characters
+            e.target.value = e.target.value.replace(/\D/g, '');
+            
+            if (e.target.value.length > 4) {
+                e.target.value = e.target.value.slice(0, 4);
+            }
+
+            if (e.target.value.length > 0 && e.target.value.length < 4) {
+                pinError.textContent = 'PIN код 4 оронтой тоо байх ёстой';
+                pinError.style.display = 'block';
+            } else {
+                pinError.textContent = '';
+                pinError.style.display = 'none';
+            }
         });
     </script>
 
@@ -122,20 +227,43 @@
             e.preventDefault();
 
             const phone = document.getElementById('phone').value.trim();
+            const carNumber = document.getElementById('carNumber').value.trim();
+            const carLetters = document.getElementById('carLetters').value.trim();
             const description = document.getElementById('description').value.trim();
             const weight = Number(document.getElementById('weight').value);
             const pin = document.getElementById('pin').value.trim();
 
-            // songoson udur awh
+            // Get selected days
             const dayCheckboxes = document.querySelectorAll('input[name="days"]:checked');
             const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
 
-            if (!phone || !description || !pin) {
+            // Validation
+            if (!phone || !description || !pin || !carNumber || !carLetters) {
                 alert('Бүх талбарыг бөглөнө үү!');
                 return;
             }
 
-            if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+            if (phone.length !== 8) {
+                alert('Утасны дугаар 8 оронтой тоо байх ёстой!');
+                return;
+            }
+
+            if (!/^\d{8}$/.test(phone)) {
+                alert('Утасны дугаар зөвхөн тооноос бүрдэх ёстой!');
+                return;
+            }
+
+            if (carNumber.length !== 4 || !/^\d{4}$/.test(carNumber)) {
+                alert('Машины дугаар 4 оронтой тоо байх ёстой!');
+                return;
+            }
+
+            if (carLetters.length !== 3 || !/^[А-ЯӨҮ]{3}$/.test(carLetters)) {
+                alert('Машины үсэг 3 кирилл үсэгтэй байх ёстой!');
+                return;
+            }
+
+            if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
                 alert('PIN код 4 оронтой тоо байх ёстой!');
                 return;
             }
@@ -148,6 +276,7 @@
             try {
                 await push(ref(database, 'carriers'), {
                     phone,
+                    carPlate: carNumber + carLetters,
                     description,
                     maxWeight: weight,
                     days: selectedDays,
@@ -166,4 +295,4 @@
         });
     </script>
 </body>
-</html>
+            </html>
