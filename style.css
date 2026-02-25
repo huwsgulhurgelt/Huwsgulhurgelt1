@@ -179,7 +179,7 @@ body {
     50% { transform: translate(60px, 85px); }
 }
 
-/* container 6767 */
+/* container golden dandelion */
 .container {
     max-width: 900px;
     width: 100%;
@@ -973,7 +973,7 @@ footer {
         padding: 25px 15px;
     }
 }
-/* Car Number Input Container */
+/* mashinii dugaar hadgalah gehimu */
 .car-number-container {
     display: flex;
     gap: 10px;
@@ -1012,7 +1012,7 @@ footer {
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
 }
 
-/* Error Messages */
+/* bolhgu bol bty orul */
 .error-message {
     display: none;
     color: #fa709a;
@@ -1021,7 +1021,7 @@ footer {
     font-weight: 600;
 }
 
-/* Responsive */
+/* hariu uildl */
 @media (max-width: 480px) {
     .car-number-container {
         flex-direction: column;
