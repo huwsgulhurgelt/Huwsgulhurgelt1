@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Боломжит хүргэгчид - Мөрөн Хүргэлт</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .carrier-plate {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fee140;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+    </style>
 </head>
 <body>
     <!-- Parallax Background -->
@@ -33,7 +43,6 @@
             <h1>Боломжит хүргэгчид</h1>
         </header>
 
-        <!-- haih heseg -->
         <div class="search-section">
             <div class="search-container">
                 <input type="text" id="searchInput" class="search-input" placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..." autocomplete="off">
@@ -51,7 +60,7 @@
         </footer>
     </div>
 
-    <!-- model editleh -->
+    <!-- Edit Modal -->
     <div id="editModel" class="model" style="display: none;">
         <div class="model-content">
             <div class="model-header">
@@ -62,6 +71,13 @@
                 <div class="form-group">
                     <label for="editPhone">Утасны дугаар</label>
                     <input type="tel" id="editPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Машины дугаар</label>
+                    <div class="car-number-container">
+                        <input type="text" id="editCarNumber" class="car-number-input" placeholder="1234" maxlength="4">
+                        <input type="text" id="editCarLetters" class="car-letters-input" placeholder="ХӨВ" maxlength="3">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="editDescription">Юу хүргэж чадах вэ?</label>
@@ -97,7 +113,7 @@
     </div>
 
     <script>
-        // Parallax scrolldown
+        // Parallax scroll
         window.addEventListener('scroll', () => {
             const layers = document.querySelectorAll('.parallax-layer');
             const scrolled = window.pageYOffset;
@@ -106,6 +122,21 @@
                 layer.style.transform = `translateY(${-scrolled * speed}px)`;
             });
         });
+
+        // SHA-256 via Web Crypto API
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // SHA-256 hash of master PIN "4133"
+        // To regenerate: open browser console and run:
+        // crypto.subtle.digest('SHA-256', new TextEncoder().encode('4133'))
+        //   .then(b => console.log(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')))
+        const MASTER_PIN_HASH = "a7c4e35b2f8d1690e5b3f2a4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7";
+        // ^^^ PASTE YOUR REAL HASH HERE — generate it with the console command above
     </script>
 
     <script type="module">
@@ -127,7 +158,6 @@
 
         const carriersContainer = document.getElementById('carriersContainer');
         const searchInput = document.getElementById('searchInput');
-        const searchSuggestions = document.getElementById('searchSuggestions');
         const searchStats = document.getElementById('searchStats');
         const editModel = document.getElementById('editModel');
         const editForm = document.getElementById('editForm');
@@ -138,12 +168,19 @@
         let filteredCarriers = {};
         let currentEditId = null;
 
-        // her hemjeenii achaa juuhuu chirj uurchluh
         editWeightSlider.addEventListener('input', (e) => {
             editWeightValue.textContent = e.target.value;
         });
 
-        // firebase>zuugchid
+        document.getElementById('editCarLetters').addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
+        });
+
+        document.getElementById('editCarNumber').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+
+        // Load from Firebase
         onValue(ref(database, 'carriers'), (snapshot) => {
             if (!snapshot.exists()) {
                 carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
@@ -158,44 +195,36 @@
             updateSearchStats();
         });
 
-        // haih ajluulah
+        // Search
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
-            
             if (!term) {
                 filteredCarriers = { ...allCarriers };
-                searchSuggestions.style.display = 'none';
                 displayCarriers(filteredCarriers);
                 updateSearchStats();
                 return;
             }
-
-            // juugchdiig shuuh
             filteredCarriers = {};
             Object.keys(allCarriers).forEach(key => {
                 const c = allCarriers[key];
                 const phone = c.phone.toLowerCase();
                 const desc = c.description.toLowerCase();
                 const days = c.days ? c.days.join(' ').toLowerCase() : '';
-                
                 if (phone.includes(term) || desc.includes(term) || days.includes(term)) {
                     filteredCarriers[key] = c;
                 }
             });
-            
             displayCarriers(filteredCarriers);
             updateSearchStats();
         });
 
-        // zuugchdiig haruulah
+        // Display cards — car plate shown, PIN never shown
         function displayCarriers(carriers) {
             carriersContainer.innerHTML = '';
-            
             if (!Object.keys(carriers).length) {
                 carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
                 return;
             }
-            
             Object.keys(carriers).forEach(id => {
                 const c = carriers[id];
                 const card = document.createElement('div');
@@ -203,6 +232,7 @@
                 card.innerHTML = `
                     <div class="card-content">
                         <div class="carrier-phone">${c.phone}</div>
+                        ${c.carPlate ? `<div class="carrier-plate">🚗 ${c.carPlate}</div>` : ''}
                         <div class="carrier-description">${c.description}</div>
                         <div class="carrier-meta">
                             <span class="carrier-days">📅 ${c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'}</span>
@@ -218,51 +248,77 @@
             });
         }
 
-        // update hailtiin stats
         function updateSearchStats() {
             const total = Object.keys(allCarriers).length;
             const showing = Object.keys(filteredCarriers).length;
-            
-            if (searchInput.value.trim()) {
-                searchStats.innerHTML = `${showing} хүргэгч олдлоо (Нийт: ${total})`;
-            } else {
-                searchStats.innerHTML = `Нийт ${total} хүргэгч`;
-            }
+            searchStats.innerHTML = searchInput.value.trim()
+                ? `${showing} хүргэгч олдлоо (Нийт: ${total})`
+                : `Нийт ${total} хүргэгч`;
         }
 
-        // Edit carrier
-        window.editCarrier = function(id) {
+        // Edit with hashed PIN check
+        window.editCarrier = async function(id) {
             const pin = prompt('PIN код оруулна уу:');
             if (!pin) return;
-            
-            const MASTER_PIN = "4133";
-            
-            if (pin === MASTER_PIN || (allCarriers[id] && allCarriers[id].pin === pin)) {
+
+            const enteredHash = await sha256(pin);
+            const carrierPinHash = allCarriers[id]?.pin
+                ? await sha256(allCarriers[id].pin)
+                : null;
+
+            if (enteredHash === MASTER_PIN_HASH || enteredHash === carrierPinHash) {
                 openEditModel(id);
             } else {
                 alert('Буруу PIN код!');
             }
         };
 
-        // model editlehruu oroh
+        // Delete — now also PIN protected
+        window.deleteCarrier = async function(id) {
+            const pin = prompt('Устгахын тулд PIN код оруулна уу:');
+            if (!pin) return;
+
+            const enteredHash = await sha256(pin);
+            const carrierPinHash = allCarriers[id]?.pin
+                ? await sha256(allCarriers[id].pin)
+                : null;
+
+            if (enteredHash !== MASTER_PIN_HASH && enteredHash !== carrierPinHash) {
+                alert('Буруу PIN код!');
+                return;
+            }
+
+            if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
+
+            remove(ref(database, `carriers/${id}`))
+                .then(() => alert('Амжилттай устгалаа!'))
+                .catch(err => { console.error(err); alert('Алдаа гарлаа!'); });
+        };
+
         function openEditModel(id) {
             currentEditId = id;
             const c = allCarriers[id];
-            
+
             document.getElementById('editPhone').value = c.phone;
             document.getElementById('editDescription').value = c.description;
             editWeightSlider.value = c.maxWeight || 10;
             editWeightValue.textContent = c.maxWeight || 10;
-            
+
+            if (c.carPlate) {
+                const numPart = c.carPlate.match(/^\d+/)?.[0] || '';
+                const letPart = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
+                document.getElementById('editCarNumber').value = numPart;
+                document.getElementById('editCarLetters').value = letPart;
+            }
+
             document.querySelectorAll('input[name="editDays"]').forEach(cb => {
                 cb.checked = c.days && c.days.includes(cb.value);
             });
-            
+
             editModel.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
 
-        // model editlhees gargah
         window.closeEditModel = function() {
             editModel.style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -270,33 +326,32 @@
             editForm.reset();
         };
 
-        // gadaa n darsan tohioldold gargah
-        window.addEventListener('click', function(event) {
-            if (event.target === editModel) {
-                closeEditModel();
-            }
+        window.addEventListener('click', (e) => {
+            if (e.target === editModel) closeEditModel();
         });
 
-        // Submit edit form
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const phone = document.getElementById('editPhone').value.trim();
             const desc = document.getElementById('editDescription').value.trim();
             const weight = parseInt(editWeightSlider.value);
             const days = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
-            
+            const carNumber = document.getElementById('editCarNumber').value.trim();
+            const carLetters = document.getElementById('editCarLetters').value.trim();
+
             if (!days.length) {
                 alert('Наад зах нь нэг өдөр сонгоно уу!');
                 return;
             }
-            
+
             try {
                 await update(ref(database, `carriers/${currentEditId}`), {
                     phone,
                     description: desc,
                     maxWeight: weight,
-                    days
+                    days,
+                    carPlate: carNumber + carLetters
                 });
                 alert('Амжилттай шинэчлэгдлээ!');
                 closeEditModel();
@@ -305,18 +360,6 @@
                 alert('Алдаа гарлаа!');
             }
         });
-
-        // zuugch ustgah
-        window.deleteCarrier = function(id) {
-            if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
-            
-            remove(ref(database, `carriers/${id}`))
-                .then(() => alert('Амжилттай устгалаа!'))
-                .catch((error) => {
-                    console.error('Error:', error);
-                    alert('Алдаа гарлаа!');
-                });
-        };
     </script>
 </body>
-    </html>
+        </html>
