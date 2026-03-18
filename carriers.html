@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Боломжит хүргэгчид - Мөрөн Хүргэлт</title>
+    <title>Хүргэгчид - Мөрөн</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .carrier-plate {
+        .plate-txt {
             font-size: 1.1rem;
             font-weight: 700;
             color: #fee140;
@@ -14,10 +14,15 @@
             font-family: 'Courier New', monospace;
             letter-spacing: 2px;
         }
+        /* TODO: this padding feels off on mobile, check later */
+        .carriers-grid {
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
-    <!-- Parallax Background -->
+
+    <!-- bg animation parallax animatiom -->
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
             <div class="ball"></div>
@@ -33,7 +38,6 @@
         <div class="parallax-layer layer-3" data-speed="1">
             <div class="ball"></div>
             <div class="ball"></div>
-            <div class="ball"></div>
         </div>
     </div>
 
@@ -45,67 +49,68 @@
 
         <div class="search-section">
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..." autocomplete="off">
-                <div id="searchSuggestions" class="search-suggestions"></div>
+                <input type="text" id="srchInput" class="search-input"
+                    placeholder="🔍 Утас, тайлбар хайх..." autocomplete="off">
             </div>
-            <div id="searchStats" class="search-stats"></div>
+            <div id="srchStats" class="search-stats"></div>
         </div>
 
-        <main id="carriersContainer" class="carriers-grid">
+        <main id="listContainer" class="carriers-grid">
             <div class="loading">Уншиж байна...</div>
         </main>
 
         <footer>
-            <p>Сургуулийн төсөл • Prototype</p>
+            <p>Сургуулийн төсөл </p>
         </footer>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModel" class="model" style="display: none;">
+    <!-- hiijaahd ad gar ireehsaga-->
+    <!-- model shuu rename hiih gher zalhu hurd bn -->
+    <div id="editModal" class="model" style="display:none;">
         <div class="model-content">
             <div class="model-header">
                 <h2>Мэдээлэл засах</h2>
-                <span class="close-model" onclick="closeEditModel()">&times;</span>
+                <span class="close-model" onclick="closeModal()">&times;</span>
             </div>
             <form id="editForm">
                 <div class="form-group">
-                    <label for="editPhone">Утасны дугаар</label>
-                    <input type="tel" id="editPhone" required>
+                    <label for="ePhone">Утасны дугаар</label>
+                    <input type="tel" id="ePhone" required>
                 </div>
                 <div class="form-group">
                     <label>Машины дугаар</label>
                     <div class="car-number-container">
-                        <input type="text" id="editCarNumber" class="car-number-input" placeholder="1234" maxlength="4">
-                        <input type="text" id="editCarLetters" class="car-letters-input" placeholder="ХӨВ" maxlength="3">
+                        <input type="text" id="eCarNum" class="car-number-input" placeholder="1234" maxlength="4">
+                        <input type="text" id="eCarLet" class="car-letters-input" placeholder="ХӨВ" maxlength="3">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="editDescription">Юу хүргэж чадах вэ?</label>
-                    <textarea id="editDescription" rows="4" required></textarea>
+                    <label for="eDesc">Юу хүргэж чадах вэ?</label>
+                    <textarea id="eDesc" rows="4" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="editWeight">Хамгийн ихдээ хэдэн кг зөөж чадах вэ?</label>
+                    <label for="eWeight">Хамгийн ихдээ хэдэн кг?</label>
                     <div class="weight-slider-container">
-                        <input type="range" id="editWeight" min="1" max="100" value="10" class="weight-slider">
+                        <input type="range" id="eWeight" min="1" max="100" value="10" class="weight-slider">
                         <div class="weight-display">
-                            <span id="editWeightValue">10</span> кг
+                            <span id="eWeightVal">10</span> кг
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Хүргэлт хийх боломжтой өдрүүд</label>
+                    <label>Өдрүүд</label>
                     <div class="days-selector">
-                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Даваа"><span>Даваа</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Мягмар"><span>Мягмар</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Лхагва"><span>Лхагва</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Пүрэв"><span>Пүрэв</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Баасан"><span>Баасан</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Бямба"><span>Бямба</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Ням"><span>Ням</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Даваа"><span>Даваа</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Мягмар"><span>Мягмар</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Лхагва"><span>Лхагва</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Пүрэв"><span>Пүрэв</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Баасан"><span>Баасан</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Бямба"><span>Бямба</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Ням"><span>Ням</span></label>
                     </div>
                 </div>
                 <div class="model-actions">
-                    <button type="button" class="btn-cancel" onclick="closeEditModel()">Болих</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Болих</button>
                     <button type="submit" class="btn-submit">Хадгалах</button>
                 </div>
             </form>
@@ -113,37 +118,35 @@
     </div>
 
     <script>
-        // Parallax scroll
-        window.addEventListener('scroll', () => {
-            const layers = document.querySelectorAll('.parallax-layer');
-            const scrolled = window.pageYOffset;
-            layers.forEach(layer => {
-                const speed = layer.dataset.speed;
-                layer.style.transform = `translateY(${-scrolled * speed}px)`;
-            });
-        });
+        // parallax scrolldown 
+        window.addEventListener('scroll', function() {
+            var layers = document.querySelectorAll('.parallax-layer')
+            var scrolled = window.pageYOffset
+            for (var i = 0; i < layers.length; i++) {
+                var spd = layers[i].dataset.speed
+                layers[i].style.transform = 'translateY(' + (-scrolled * spd) + 'px)'
+            }
+        })
 
-        // SHA-256 via Web Crypto API
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        // hash functionally
+        // yaj ajiljaagagin medkich ajlaad bhin wtf?
+        async function hashPin(p) {
+            const buf = new TextEncoder().encode(p)
+            const h = await crypto.subtle.digest('SHA-256', buf)
+            return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('')
         }
 
-        // SHA-256 hash of master PIN "4133"
-        // To regenerate: open browser console and run:
-        // crypto.subtle.digest('SHA-256', new TextEncoder().encode('4133'))
-        //   .then(b => console.log(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')))
-        const MASTER_PIN_HASH = "a7c4e35b2f8d1690e5b3f2a4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7";
-        // ^^^ PASTE YOUR REAL HASH HERE — generate it with the console command above
+        
+        // master codw
+        const MASTER_HASH = "a7c4e35b2f8d1690e5b3f2a4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7"
+
     </script>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js'
+        import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js'
 
-        const firebaseConfig = {
+        const cfg = {
             apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
             authDomain: "huwsgul-hurgelt.firebaseapp.com",
             databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -151,215 +154,254 @@
             storageBucket: "huwsgul-hurgelt.firebasestorage.app",
             messagingSenderId: "457877716370",
             appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
-        };
+        }
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        const app = initializeApp(cfg)
+        const db = getDatabase(app)
 
-        const carriersContainer = document.getElementById('carriersContainer');
-        const searchInput = document.getElementById('searchInput');
-        const searchStats = document.getElementById('searchStats');
-        const editModel = document.getElementById('editModel');
-        const editForm = document.getElementById('editForm');
-        const editWeightSlider = document.getElementById('editWeight');
-        const editWeightValue = document.getElementById('editWeightValue');
+        var allData = {}
+        var filtered = {}
+        var editingId = null
 
-        let allCarriers = {};
-        let filteredCarriers = {};
-        let currentEditId = null;
+        // urguh
+        var listEl   = document.getElementById('listContainer')
+        var srchEl   = document.getElementById('srchInput')
+        var statsEl  = document.getElementById('srchStats')
+        var modal    = document.getElementById('editModal')
+        var form     = document.getElementById('editForm')
+        var wSlider  = document.getElementById('eWeight')
+        var wVal     = document.getElementById('eWeightVal')
 
-        editWeightSlider.addEventListener('input', (e) => {
-            editWeightValue.textContent = e.target.value;
-        });
+        // jin gilgiilna
+        wSlider.oninput = function() {
+            wVal.textContent = this.value
+        }
 
-        document.getElementById('editCarLetters').addEventListener('input', (e) => {
-            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
-        });
+        // auto capslock
+        document.getElementById('eCarLet').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase().slice(0, 3)
+        })
 
-        document.getElementById('editCarNumber').addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
-        });
+        document.getElementById('eCarNum').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4)
+        })
 
-        // Load from Firebase
-        onValue(ref(database, 'carriers'), (snapshot) => {
-            if (!snapshot.exists()) {
-                carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
-                allCarriers = {};
-                filteredCarriers = {};
-                updateSearchStats();
-                return;
+        // zuugchdiig firebaseees awh
+        onValue(ref(db, 'carriers'), function(snap) {
+            if (!snap.exists()) {
+                listEl.innerHTML = '<div class="no-data">Хүргэгч байхгүй байна.</div>'
+                allData = {}
+                filtered = {}
+                updateStats()
+                return
             }
-            allCarriers = snapshot.val();
-            filteredCarriers = { ...allCarriers };
-            displayCarriers(filteredCarriers);
-            updateSearchStats();
-        });
+            allData = snap.val()
+            filtered = Object.assign({}, allData)
+            renderList(filtered)
+            updateStats()
+        })
 
-        // Search
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase().trim();
-            if (!term) {
-                filteredCarriers = { ...allCarriers };
-                displayCarriers(filteredCarriers);
-                updateSearchStats();
-                return;
+        // haih
+        srchEl.addEventListener('input', function() {
+            var q = this.value.toLowerCase().trim()
+            if (!q) {
+                filtered = Object.assign({}, allData)
+                renderList(filtered)
+                updateStats()
+                return
             }
-            filteredCarriers = {};
-            Object.keys(allCarriers).forEach(key => {
-                const c = allCarriers[key];
-                const phone = c.phone.toLowerCase();
-                const desc = c.description.toLowerCase();
-                const days = c.days ? c.days.join(' ').toLowerCase() : '';
-                if (phone.includes(term) || desc.includes(term) || days.includes(term)) {
-                    filteredCarriers[key] = c;
+            filtered = {}
+            var keys = Object.keys(allData)
+            for (var i = 0; i < keys.length; i++) {
+                var k = keys[i]
+                var c = allData[k]
+                // search phone, description, days
+                var haystack = c.phone + ' ' + c.description + ' ' + (c.days ? c.days.join(' ') : '')
+                if (haystack.toLowerCase().includes(q)) {
+                    filtered[k] = c
                 }
-            });
-            displayCarriers(filteredCarriers);
-            updateSearchStats();
-        });
-
-        // Display cards — car plate shown, PIN never shown
-        function displayCarriers(carriers) {
-            carriersContainer.innerHTML = '';
-            if (!Object.keys(carriers).length) {
-                carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
-                return;
             }
-            Object.keys(carriers).forEach(id => {
-                const c = carriers[id];
-                const card = document.createElement('div');
-                card.className = 'carrier-card';
-                card.innerHTML = `
-                    <div class="card-content">
-                        <div class="carrier-phone">${c.phone}</div>
-                        ${c.carPlate ? `<div class="carrier-plate">🚗 ${c.carPlate}</div>` : ''}
-                        <div class="carrier-description">${c.description}</div>
-                        <div class="carrier-meta">
-                            <span class="carrier-days">📅 ${c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'}</span>
-                            ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${c.maxWeight} кг</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="card-actions">
-                        <button class="btn-small btn-edit" onclick="editCarrier('${id}')">Засах</button>
-                        <button class="btn-small btn-delete" onclick="deleteCarrier('${id}')">Устгах</button>
-                    </div>
-                `;
-                carriersContainer.appendChild(card);
-            });
+            renderList(filtered)
+            updateStats()
+        })
+
+        function renderList(data) {
+            listEl.innerHTML = ''
+            var keys = Object.keys(data)
+            if (!keys.length) {
+                listEl.innerHTML = '<div class="no-data">Олдсонгүй</div>'
+                return
+            }
+            keys.forEach(function(id) {
+                var c = data[id]
+                var card = document.createElement('div')
+                card.className = 'carrier-card'
+
+                // build plate html separately so it doesnt get messy
+                var plateHtml = ''
+                if (c.carPlate) {
+                    plateHtml = '<div class="plate-txt">🚗 ' + c.carPlate + '</div>'
+                }
+
+                var daysStr = c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'
+                var weightStr = c.maxWeight ? '<span class="carrier-weight">⚖️ ' + c.maxWeight + ' кг</span>' : ''
+
+                card.innerHTML =
+                    '<div class="card-content">' +
+                        '<div class="carrier-phone">' + c.phone + '</div>' +
+                        plateHtml +
+                        '<div class="carrier-description">' + c.description + '</div>' +
+                        '<div class="carrier-meta">' +
+                            '<span class="carrier-days">📅 ' + daysStr + '</span>' +
+                            weightStr +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="card-actions">' +
+                        '<button class="btn-small btn-edit" onclick="editCarrier(\'' + id + '\')">Засах</button>' +
+                        '<button class="btn-small btn-delete" onclick="deleteCarrier(\'' + id + '\')">Устгах</button>' +
+                    '</div>'
+
+                listEl.appendChild(card)
+            })
         }
 
-        function updateSearchStats() {
-            const total = Object.keys(allCarriers).length;
-            const showing = Object.keys(filteredCarriers).length;
-            searchStats.innerHTML = searchInput.value.trim()
-                ? `${showing} хүргэгч олдлоо (Нийт: ${total})`
-                : `Нийт ${total} хүргэгч`;
-        }
-
-        // Edit with hashed PIN check
-        window.editCarrier = async function(id) {
-            const pin = prompt('PIN код оруулна уу:');
-            if (!pin) return;
-
-            const enteredHash = await sha256(pin);
-            const carrierPinHash = allCarriers[id]?.pin
-                ? await sha256(allCarriers[id].pin)
-                : null;
-
-            if (enteredHash === MASTER_PIN_HASH || enteredHash === carrierPinHash) {
-                openEditModel(id);
+        function updateStats() {
+            var total = Object.keys(allData).length
+            var showing = Object.keys(filtered).length
+            if (srchEl.value.trim()) {
+                statsEl.textContent = showing + ' хүргэгч олдлоо (Нийт: ' + total + ')'
             } else {
-                alert('Буруу PIN код!');
+                statsEl.textContent = 'Нийт ' + total + ' хүргэгч'
             }
-        };
-
-        // Delete — now also PIN protected
-        window.deleteCarrier = async function(id) {
-            const pin = prompt('Устгахын тулд PIN код оруулна уу:');
-            if (!pin) return;
-
-            const enteredHash = await sha256(pin);
-            const carrierPinHash = allCarriers[id]?.pin
-                ? await sha256(allCarriers[id].pin)
-                : null;
-
-            if (enteredHash !== MASTER_PIN_HASH && enteredHash !== carrierPinHash) {
-                alert('Буруу PIN код!');
-                return;
-            }
-
-            if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
-
-            remove(ref(database, `carriers/${id}`))
-                .then(() => alert('Амжилттай устгалаа!'))
-                .catch(err => { console.error(err); alert('Алдаа гарлаа!'); });
-        };
-
-        function openEditModel(id) {
-            currentEditId = id;
-            const c = allCarriers[id];
-
-            document.getElementById('editPhone').value = c.phone;
-            document.getElementById('editDescription').value = c.description;
-            editWeightSlider.value = c.maxWeight || 10;
-            editWeightValue.textContent = c.maxWeight || 10;
-
-            if (c.carPlate) {
-                const numPart = c.carPlate.match(/^\d+/)?.[0] || '';
-                const letPart = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
-                document.getElementById('editCarNumber').value = numPart;
-                document.getElementById('editCarLetters').value = letPart;
-            }
-
-            document.querySelectorAll('input[name="editDays"]').forEach(cb => {
-                cb.checked = c.days && c.days.includes(cb.value);
-            });
-
-            editModel.style.display = 'block';
-            document.body.style.overflow = 'hidden';
         }
 
-        window.closeEditModel = function() {
-            editModel.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            currentEditId = null;
-            editForm.reset();
-        };
+    
+        window.editCarrier = async function(id) {
+            var pin = prompt('PIN код:')
+            if (!pin) return
 
-        window.addEventListener('click', (e) => {
-            if (e.target === editModel) closeEditModel();
-        });
+            var entered = await hashPin(pin)
 
-        editForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            // allow pon
+            var carrierHash = null
+            if (allData[id] && allData[id].pin) {
+                carrierHash = await hashPin(allData[id].pin)
+            }
 
-            const phone = document.getElementById('editPhone').value.trim();
-            const desc = document.getElementById('editDescription').value.trim();
-            const weight = parseInt(editWeightSlider.value);
-            const days = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
-            const carNumber = document.getElementById('editCarNumber').value.trim();
-            const carLetters = document.getElementById('editCarLetters').value.trim();
+            if (entered !== MASTER_HASH && entered !== carrierHash) {
+                alert('Буруу PIN!')
+                return
+            }
+            openModal(id)
+        }
+
+        // ustgah
+        window.deleteCarrier = async function(id) {
+            var pin = prompt('Устгах PIN:')
+            if (!pin) return
+
+            var entered = await hashPin(pin)
+            var carrierHash = null
+            if (allData[id] && allData[id].pin) {
+                carrierHash = await hashPin(allData[id].pin)
+            }
+
+            if (entered !== MASTER_HASH && entered !== carrierHash) {
+                alert('Буруу PIN!')
+                return
+            }
+            if (!confirm('Устгах уу?')) return
+
+            remove(ref(db, 'carriers/' + id))
+                .then(function() { alert('Устгалаа!') })
+                .catch(function(err) { alert('Алдаа: ' + err.message) })
+        }
+
+        function openModal(id) {
+            editingId = id
+            var c = allData[id]
+
+            document.getElementById('ePhone').value = c.phone
+            document.getElementById('eDesc').value = c.description
+            wSlider.value = c.maxWeight || 10
+            wVal.textContent = c.maxWeight || 10
+
+        
+            if (c.carPlate) {
+                var numPart = ''
+                var letPart = ''
+                
+                var match = c.carPlate.match(/^(\d+)([А-ЯӨҮa-zA-Z]+)$/)
+                if (match) {
+                    numPart = match[1]
+                    letPart = match[2]
+                }
+                document.getElementById('eCarNum').value = numPart
+                document.getElementById('eCarLet').value = letPart
+            } else {
+                document.getElementById('eCarNum').value = ''
+                document.getElementById('eCarLet').value = ''
+            }
+
+        
+            document.querySelectorAll('input[name="eDays"]').forEach(function(cb) {
+                cb.checked = c.days && c.days.includes(cb.value)
+            })
+
+            modal.style.display = 'block'
+            document.body.style.overflow = 'hidden'
+        }
+
+        // modrl
+        window.closeModal = function() {
+            modal.style.display = 'none'
+            document.body.style.overflow = ''
+            editingId = null
+            form.reset()
+        }
+
+        // gadn darul garna
+        window.onclick = function(e) {
+            if (e.target === modal) closeModal()
+        }
+
+        //edituudiig save
+        form.addEventListener('submit', function(e) {
+            e.preventDefault()
+
+            var phone = document.getElementById('ePhone').value.trim()
+            var desc  = document.getElementById('eDesc').value.trim()
+            var kg    = parseInt(wSlider.value)
+            var days  = []
+            document.querySelectorAll('input[name="eDays"]:checked').forEach(function(cb) {
+                days.push(cb.value)
+            })
+            var num  = document.getElementById('eCarNum').value.trim()
+            var lets = document.getElementById('eCarLet').value.trim()
 
             if (!days.length) {
-                alert('Наад зах нь нэг өдөр сонгоно уу!');
-                return;
+                alert('Наад зах нь нэг өдөр сонгоно уу!')
+                return
             }
 
-            try {
-                await update(ref(database, `carriers/${currentEditId}`), {
-                    phone,
-                    description: desc,
-                    maxWeight: weight,
-                    days,
-                    carPlate: carNumber + carLetters
-                });
-                alert('Амжилттай шинэчлэгдлээ!');
-                closeEditModel();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа!');
+            var updates = {
+                phone: phone,
+                description: desc,
+                maxWeight: kg,
+                days: days,
+                carPlate: num + lets
             }
-        });
+
+            update(ref(db, 'carriers/' + editingId), updates)
+                .then(function() {
+                    alert('Хадгаллаа!')
+                    closeModal()
+                })
+                .catch(function(err) {
+                    alert('Алдаа гарлаа: ' + err.message)
+                })
+        })
+
     </script>
 </body>
-        </html>
+</html>
