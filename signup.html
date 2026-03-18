@@ -3,28 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Хүргэгч бүртгэл - Мөрөн Хүргэлт</title>
+    <title>Хүргэгч бүртгэл - Мөрөн</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Parallax Background -->
-    <div class="parallax-bg">
-        <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
+
+    <!-- same worm bg as other pages -->
+    <div class="worm-bg">
+        <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
     <div class="container">
@@ -35,9 +21,10 @@
 
         <main class="form-container">
             <form id="signupForm">
+
                 <div class="form-group">
                     <label for="phone">Утасны дугаар (8 орон)</label>
-                    <input type="tel" id="phone" placeholder="99001122" maxlength="8" pattern="\d{8}" required>
+                    <input type="tel" id="phone" placeholder="99001122" maxlength="8" required>
                     <span class="error-message" id="phoneError"></span>
                 </div>
 
@@ -55,18 +42,16 @@
                     <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." required></textarea>
                 </div>
 
-                <!-- jin chireh -->
                 <div class="form-group">
                     <label for="weight">
-                        Хэдэн кг хүртэл хүргэх боломжтой вэ?
-                        (<span id="weightValue">5</span> кг)
+                        Хэдэн кг хүртэл? (<span id="weightValue">5</span> кг)
                     </label>
                     <input type="range" id="weight" min="1" max="50" value="5" class="weight-slider">
                 </div>
 
                 <div class="form-group">
-                    <label for="pin">PIN код (засах, устгахад хэрэглэгдэнэ)</label>
-                    <input type="password" id="pin" placeholder="4 оронтой тоо" maxlength="4" pattern="\d{4}" required>
+                    <label for="pin">PIN код (засах, устгахад)</label>
+                    <input type="password" id="pin" placeholder="4 оронтой тоо" maxlength="4" required>
                     <span class="error-message" id="pinError"></span>
                 </div>
 
@@ -88,129 +73,104 @@
         </main>
 
         <footer>
-            <p>im watchin you </p>
+            <p>im watchin you</p>
         </footer>
     </div>
 
+    <style>
+        @keyframes wormWave {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(0.22); }
+        }
+    </style>
+
     <script>
-        // Parallax scroll
-        window.addEventListener('scroll', () => {
-            const layers = document.querySelectorAll('.parallax-layer');
-            const scrolled = window.pageYOffset;
-            layers.forEach(layer => {
-                const speed = layer.dataset.speed;
-                layer.style.transform = `translateY(${-scrolled * speed}px)`;
-            });
-        });
-
-        // jin chire update
-        const weightInput = document.getElementById('weight');
-        const weightValue = document.getElementById('weightValue');
-
-        weightInput.addEventListener('input', () => {
-            weightValue.textContent = weightInput.value;
-        });
-
-        // zuwhun 8 orontoi too oruul
-        const phoneInput = document.getElementById('phone');
-        const phoneError = document.getElementById('phoneError');
-
-        phoneInput.addEventListener('input', (e) => {
-            // too bish bol ustgana
-            e.target.value = e.target.value.replace(/\D/g, '');
-            
-            if (e.target.value.length > 8) {
-                e.target.value = e.target.value.slice(0, 8);
-            }
-
-            if (e.target.value.length > 0 && e.target.value.length < 8) {
-                phoneError.textContent = '8 оронтой тоо байх ёстой';
-                phoneError.style.display = 'block';
-            } else {
-                phoneError.textContent = '';
-                phoneError.style.display = 'none';
-            }
-        });
-
-        // mashinii dugaar 4 orontai TOO
-        const carNumberInput = document.getElementById('carNumber');
-        const carLettersInput = document.getElementById('carLetters');
-        const carError = document.getElementById('carError');
-
-        carNumberInput.addEventListener('input', (e) => {
-            // too bish bol ustgana(mashinii dugaar dotorh)
-            e.target.value = e.target.value.replace(/\D/g, '');
-            
-            if (e.target.value.length > 4) {
-                e.target.value = e.target.value.slice(0, 4);
-            }
-
-            validateCarNumber();
-        });
-
-        // mashinii dugaar zuwhun mongol heleer bichne max3
-        carLettersInput.addEventListener('input', (e) => {
-            // shuud tomruula( auto capslock)
-            e.target.value = e.target.value.toUpperCase();
-            
-            // mongol useg bish bol ustgana
-            e.target.value = e.target.value.replace(/[^А-ЯӨҮ]/g, '');
-            
-            if (e.target.value.length > 3) {
-                e.target.value = e.target.value.slice(0, 3);
-            }
-
-            validateCarNumber();
-        });
-
-        function validateCarNumber() {
-            const numbers = carNumberInput.value;
-            const letters = carLettersInput.value;
-
-            if (numbers.length > 0 && numbers.length < 4) {
-                carError.textContent = 'Машины дугаар 4 оронтой тоо байх ёстой';
-                carError.style.display = 'block';
-                return false;
-            }
-
-            if (letters.length > 0 && letters.length < 3) {
-                carError.textContent = 'Машины үсэг 3 үсэгтэй байх ёстой';
-                carError.style.display = 'block';
-                return false;
-            }
-
-            carError.textContent = '';
-            carError.style.display = 'none';
-            return true;
+        // worm bg -- same as index/carriers
+        var svg3 = document.getElementById('wormSvg')
+        for (var wi = 0; wi < 10; wi++) {
+            var wd = Math.abs(wi - 4.5)
+            var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+            wc.setAttribute('cx', 150)
+            wc.setAttribute('cy', 24 + wi * 42)
+            wc.setAttribute('r',  28 + wd * 15)
+            wc.setAttribute('fill', 'none')
+            wc.setAttribute('stroke', 'white')
+            wc.setAttribute('stroke-width', '0.85')
+            wc.style.cssText = 'animation: wormWave 2.4s ease-in-out ' + (wi * 0.24) + 's infinite; transform-box: fill-box; transform-origin: center center;'
+            svg3.appendChild(wc)
         }
 
-        // PIN zuwhun 4 orontoi tooo
-        const pinInput = document.getElementById('pin');
-        const pinError = document.getElementById('pinError');
+        // parallax scroll -- kept for old css compat but does nothing now
+        window.addEventListener('scroll', function() {
+            // balls are gone so this does nothing lol
+        })
 
-        pinInput.addEventListener('input', (e) => {
-            // too bish bol ustg
-            e.target.value = e.target.value.replace(/\D/g, '');
-            
-            if (e.target.value.length > 4) {
-                e.target.value = e.target.value.slice(0, 4);
-            }
+        // weight slider
+        var weightInput = document.getElementById('weight')
+        var weightValue = document.getElementById('weightValue')
+        weightInput.oninput = function() { weightValue.textContent = this.value }
 
-            if (e.target.value.length > 0 && e.target.value.length < 4) {
-                pinError.textContent = 'PIN код 4 оронтой тоо байх ёстой';
-                pinError.style.display = 'block';
+        // phone -- only numbers
+        var phoneInput = document.getElementById('phone')
+        var phoneError = document.getElementById('phoneError')
+        phoneInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '')
+            if (e.target.value.length > 8) e.target.value = e.target.value.slice(0, 8)
+            if (e.target.value.length > 0 && e.target.value.length < 8) {
+                phoneError.textContent = '8 оронтой тоо байх ёстой'
+                phoneError.style.display = 'block'
             } else {
-                pinError.textContent = '';
-                pinError.style.display = 'none';
+                phoneError.style.display = 'none'
             }
-        });
+        })
+
+        // car number -- 4 digits
+        var carNumInput = document.getElementById('carNumber')
+        var carLetInput = document.getElementById('carLetters')
+        var carError    = document.getElementById('carError')
+
+        carNumInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4)
+            checkCar()
+        })
+
+        // car letters -- cyrillic only auto caps
+        carLetInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3)
+            checkCar()
+        })
+
+        function checkCar() {
+            var n = carNumInput.value
+            var l = carLetInput.value
+            if ((n.length > 0 && n.length < 4) || (l.length > 0 && l.length < 3)) {
+                carError.textContent = 'Машины дугаар бүрэн биш байна'
+                carError.style.display = 'block'
+                return false
+            }
+            carError.style.display = 'none'
+            return true
+        }
+
+        // pin -- 4 digits only
+        var pinInput = document.getElementById('pin')
+        var pinError = document.getElementById('pinError')
+        pinInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4)
+            if (e.target.value.length > 0 && e.target.value.length < 4) {
+                pinError.textContent = 'PIN код 4 оронтой тоо байх ёстой'
+                pinError.style.display = 'block'
+            } else {
+                pinError.style.display = 'none'
+            }
+        })
     </script>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js'
+        import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js'
 
-        const firebaseConfig = {
+        const cfg = {
             apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
             authDomain: "huwsgul-hurgelt.firebaseapp.com",
             databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -218,81 +178,54 @@
             storageBucket: "huwsgul-hurgelt.firebasestorage.app",
             messagingSenderId: "457877716370",
             appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
-        };
+        }
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        const app = initializeApp(cfg)
+        const db  = getDatabase(app)
 
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault()
 
-            const phone = document.getElementById('phone').value.trim();
-            const carNumber = document.getElementById('carNumber').value.trim();
-            const carLetters = document.getElementById('carLetters').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const weight = Number(document.getElementById('weight').value);
-            const pin = document.getElementById('pin').value.trim();
+            var phone      = document.getElementById('phone').value.trim()
+            var carNum     = document.getElementById('carNumber').value.trim()
+            var carLet     = document.getElementById('carLetters').value.trim()
+            var desc       = document.getElementById('description').value.trim()
+            var weight     = Number(document.getElementById('weight').value)
+            var pin        = document.getElementById('pin').value.trim()
+            var days       = []
+            document.querySelectorAll('input[name="days"]:checked').forEach(function(cb) {
+                days.push(cb.value)
+            })
 
-            // songson udur
-            const dayCheckboxes = document.querySelectorAll('input[name="days"]:checked');
-            const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
-
-            // bugluhgu bol sighinuphiij bolku
-            if (!phone || !description || !pin || !carNumber || !carLetters) {
-                alert('Бүх талбарыг бөглөнө үү!');
-                return;
+            // basic checks
+            if (!phone || !desc || !pin || !carNum || !carLet) {
+                alert('Бүх талбарыг бөглөнө үү!')
+                return
             }
-
-            if (phone.length !== 8) {
-                alert('Утасны дугаар 8 оронтой тоо байх ёстой!');
-                return;
-            }
-
-            if (!/^\d{8}$/.test(phone)) {
-                alert('Утасны дугаар зөвхөн тооноос бүрдэх ёстой!');
-                return;
-            }
-
-            if (carNumber.length !== 4 || !/^\d{4}$/.test(carNumber)) {
-                alert('Машины дугаар 4 оронтой тоо байх ёстой!');
-                return;
-            }
-
-            if (carLetters.length !== 3 || !/^[А-ЯӨҮ]{3}$/.test(carLetters)) {
-                alert('Машины үсэг 3 кирилл үсэгтэй байх ёстой!');
-                return;
-            }
-
-            if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
-                alert('PIN код 4 оронтой тоо байх ёстой!');
-                return;
-            }
-
-            if (selectedDays.length === 0) {
-                alert('Наад зах нь нэг өдөр сонгоно уу!');
-                return;
-            }
+            if (phone.length !== 8)          { alert('Утасны дугаар 8 орон!'); return }
+            if (carNum.length !== 4)          { alert('Машины дугаар 4 орон!'); return }
+            if (carLet.length !== 3)          { alert('Машины үсэг 3 үсэг!'); return }
+            if (pin.length !== 4)             { alert('PIN 4 орон!'); return }
+            if (!days.length)                 { alert('Наад зах нь нэг өдөр сонго!'); return }
 
             try {
-                await push(ref(database, 'carriers'), {
-                    phone,
-                    carPlate: carNumber + carLetters,
-                    description,
-                    maxWeight: weight,
-                    days: selectedDays,
-                    pin,
-                    timestamp: Date.now()
-                });
-
-                alert('Амжилттай бүртгэгдлээ!');
-                e.target.reset();
-                weightValue.textContent = 5;
-                document.querySelectorAll('input[name="days"]').forEach(cb => cb.checked = true);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Алдаа гарлаа. Дахин оролдоно уу.');
+                await push(ref(db, 'carriers'), {
+                    phone:       phone,
+                    carPlate:    carNum + carLet,
+                    description: desc,
+                    maxWeight:   weight,
+                    days:        days,
+                    pin:         pin,
+                    timestamp:   Date.now()
+                })
+                alert('Амжилттай бүртгэгдлээ!')
+                e.target.reset()
+                document.getElementById('weightValue').textContent = 5
+                document.querySelectorAll('input[name="days"]').forEach(function(cb) { cb.checked = true })
+            } catch(err) {
+                alert('Алдаа гарлаа: ' + err.message)
             }
-        });
+        })
     </script>
 </body>
-            </html>
+</html>
