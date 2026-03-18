@@ -5,40 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Хүргэгчид - Мөрөн</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .plate-txt {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fee140;
-            margin-bottom: 10px;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
-        }
-        /* TODO: this padding feels off on mobile, check later */
-        .carriers-grid {
-            padding: 10px;
-        }
-    </style>
 </head>
 <body>
 
-    <!-- bg animation parallax animatiom -->
-    <div class="parallax-bg">
-        <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
+    <!-- worm in bg same as index -->
+    <div class="worm-bg">
+        <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
     <div class="container">
@@ -60,12 +32,12 @@
         </main>
 
         <footer>
-            <p>Сургуулийн төсөл </p>
+            <p>Сургуулийн төсөл • Prototype</p>
         </footer>
     </div>
 
-    <!-- hiijaahd ad gar ireehsaga-->
-    <!-- model shuu rename hiih gher zalhu hurd bn -->
+    <!-- edit popup -->
+    <!-- NOTE: named modal but class is still "model" from old css too lazy fix -->
     <div id="editModal" class="model" style="display:none;">
         <div class="model-content">
             <div class="model-header">
@@ -117,30 +89,40 @@
         </div>
     </div>
 
-    <script>
-        // scrolldon
-        window.addEventListener('scroll', function() {
-            var layers = document.querySelectorAll('.parallax-layer')
-            var scrolled = window.pageYOffset
-            for (var i = 0; i < layers.length; i++) {
-                var spd = layers[i].dataset.speed
-                layers[i].style.transform = 'translateY(' + (-scrolled * spd) + 'px)'
-            }
-        })
+    <style>
+        @keyframes wormWave {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(0.22); }
+        }
+    </style>
 
-        // hash ......
-        // yaj ajiljaagagin medkich ajlaad bhin wtf?
+    <script>
+        // worm bg -- copy pasted from index
+        var svg2 = document.getElementById('wormSvg')
+        for (var wi = 0; wi < 10; wi++) {
+            var wd = Math.abs(wi - 4.5)
+            var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+            wc.setAttribute('cx', 150)
+            wc.setAttribute('cy', 24 + wi * 42)
+            wc.setAttribute('r',  28 + wd * 15)
+            wc.setAttribute('fill', 'none')
+            wc.setAttribute('stroke', 'white')
+            wc.setAttribute('stroke-width', '0.85')
+            wc.style.cssText = 'animation: wormWave 2.4s ease-in-out ' + (wi * 0.24) + 's infinite; transform-box: fill-box; transform-origin: center center;'
+            svg2.appendChild(wc)
+        }
+
+        // hash fn -- from stackoverflow dont touch
         async function hashPin(p) {
             const buf = new TextEncoder().encode(p)
             const h = await crypto.subtle.digest('SHA-256', buf)
             return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('')
         }
 
-        
-        // master codw
-       const MASTER_HASH = "a7c4e35b2f8d1690e5b3f2a4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7"
-
-    </script> 
+        // master pin hash for "4133"
+        // generated with: echo -n "4133" | sha256sum
+        var MASTER_HASH = 'a07cf27590e57bf851029cada1b752019189ba52defb3e43401887fcb2489b5e'
+    </script>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js'
@@ -157,27 +139,24 @@
         }
 
         const app = initializeApp(cfg)
-        const db = getDatabase(app)
+        const db  = getDatabase(app)
 
-        var allData = {}
-        var filtered = {}
+        var allData   = {}
+        var filtered  = {}
         var editingId = null
 
-        // urguh
-        var listEl   = document.getElementById('listContainer')
-        var srchEl   = document.getElementById('srchInput')
-        var statsEl  = document.getElementById('srchStats')
-        var modal    = document.getElementById('editModal')
-        var form     = document.getElementById('editForm')
-        var wSlider  = document.getElementById('eWeight')
-        var wVal     = document.getElementById('eWeightVal')
+        var listEl  = document.getElementById('listContainer')
+        var srchEl  = document.getElementById('srchInput')
+        var statsEl = document.getElementById('srchStats')
+        var modal   = document.getElementById('editModal')
+        var form    = document.getElementById('editForm')
+        var wSlider = document.getElementById('eWeight')
+        var wVal    = document.getElementById('eWeightVal')
 
-        // jin gilgiilna
-        wSlider.oninput = function() {
-            wVal.textContent = this.value
-        }
+        // weight slider live
+        wSlider.oninput = function() { wVal.textContent = this.value }
 
-        // auto capslock
+        // auto uppercase for letters
         document.getElementById('eCarLet').addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase().slice(0, 3)
         })
@@ -186,7 +165,7 @@
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4)
         })
 
-        // zuugchdiig firebaseees awh
+        // load from firebase
         onValue(ref(db, 'carriers'), function(snap) {
             if (!snap.exists()) {
                 listEl.innerHTML = '<div class="no-data">Хүргэгч байхгүй байна.</div>'
@@ -201,7 +180,7 @@
             updateStats()
         })
 
-        // haih
+        // search
         srchEl.addEventListener('input', function() {
             var q = this.value.toLowerCase().trim()
             if (!q) {
@@ -215,11 +194,8 @@
             for (var i = 0; i < keys.length; i++) {
                 var k = keys[i]
                 var c = allData[k]
-                // search phone, description, days
                 var haystack = c.phone + ' ' + c.description + ' ' + (c.days ? c.days.join(' ') : '')
-                if (haystack.toLowerCase().includes(q)) {
-                    filtered[k] = c
-                }
+                if (haystack.toLowerCase().includes(q)) filtered[k] = c
             }
             renderList(filtered)
             updateStats()
@@ -237,14 +213,11 @@
                 var card = document.createElement('div')
                 card.className = 'carrier-card'
 
-                // build plate html separately so it doesnt get messy
-                var plateHtml = ''
-                if (c.carPlate) {
-                    plateHtml = '<div class="plate-txt">🚗 ' + c.carPlate + '</div>'
-                }
-
-                var daysStr = c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'
-                var weightStr = c.maxWeight ? '<span class="carrier-weight">⚖️ ' + c.maxWeight + ' кг</span>' : ''
+                var plateHtml = c.carPlate
+                    ? '<div class="plate-txt">🚗 ' + c.carPlate + '</div>'
+                    : ''
+                var daysStr   = c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'
+                var wStr      = c.maxWeight ? '<span class="carrier-weight">⚖️ ' + c.maxWeight + ' кг</span>' : ''
 
                 card.innerHTML =
                     '<div class="card-content">' +
@@ -253,7 +226,7 @@
                         '<div class="carrier-description">' + c.description + '</div>' +
                         '<div class="carrier-meta">' +
                             '<span class="carrier-days">📅 ' + daysStr + '</span>' +
-                            weightStr +
+                            wStr +
                         '</div>' +
                     '</div>' +
                     '<div class="card-actions">' +
@@ -266,23 +239,19 @@
         }
 
         function updateStats() {
-            var total = Object.keys(allData).length
+            var total   = Object.keys(allData).length
             var showing = Object.keys(filtered).length
-            if (srchEl.value.trim()) {
-                statsEl.textContent = showing + ' хүргэгч олдлоо (Нийт: ' + total + ')'
-            } else {
-                statsEl.textContent = 'Нийт ' + total + ' хүргэгч'
-            }
+            statsEl.textContent = srchEl.value.trim()
+                ? showing + ' хүргэгч олдлоо (Нийт: ' + total + ')'
+                : 'Нийт ' + total + ' хүргэгч'
         }
 
-    
+        // edit -- pin check first
         window.editCarrier = async function(id) {
             var pin = prompt('PIN код:')
             if (!pin) return
 
             var entered = await hashPin(pin)
-
-            // allow pon
             var carrierHash = null
             if (allData[id] && allData[id].pin) {
                 carrierHash = await hashPin(allData[id].pin)
@@ -295,7 +264,7 @@
             openModal(id)
         }
 
-        // ustgah
+        // delete -- same pin check
         window.deleteCarrier = async function(id) {
             var pin = prompt('Устгах PIN:')
             if (!pin) return
@@ -322,28 +291,20 @@
             var c = allData[id]
 
             document.getElementById('ePhone').value = c.phone
-            document.getElementById('eDesc').value = c.description
-            wSlider.value = c.maxWeight || 10
+            document.getElementById('eDesc').value  = c.description
+            wSlider.value    = c.maxWeight || 10
             wVal.textContent = c.maxWeight || 10
 
-        
+            // split plate e.g. "1234ХӨВ"
             if (c.carPlate) {
-                var numPart = ''
-                var letPart = ''
-                
                 var match = c.carPlate.match(/^(\d+)([А-ЯӨҮa-zA-Z]+)$/)
-                if (match) {
-                    numPart = match[1]
-                    letPart = match[2]
-                }
-                document.getElementById('eCarNum').value = numPart
-                document.getElementById('eCarLet').value = letPart
+                document.getElementById('eCarNum').value = match ? match[1] : ''
+                document.getElementById('eCarLet').value = match ? match[2] : ''
             } else {
                 document.getElementById('eCarNum').value = ''
                 document.getElementById('eCarLet').value = ''
             }
 
-        
             document.querySelectorAll('input[name="eDays"]').forEach(function(cb) {
                 cb.checked = c.days && c.days.includes(cb.value)
             })
@@ -352,7 +313,6 @@
             document.body.style.overflow = 'hidden'
         }
 
-        // modrl
         window.closeModal = function() {
             modal.style.display = 'none'
             document.body.style.overflow = ''
@@ -360,12 +320,11 @@
             form.reset()
         }
 
-        // gadn darul garna
+        // click outside closes modal
         window.onclick = function(e) {
             if (e.target === modal) closeModal()
         }
 
-        //edituudiig save
         form.addEventListener('submit', function(e) {
             e.preventDefault()
 
@@ -384,22 +343,20 @@
                 return
             }
 
-            var updates = {
-                phone: phone,
+            update(ref(db, 'carriers/' + editingId), {
+                phone:       phone,
                 description: desc,
-                maxWeight: kg,
-                days: days,
-                carPlate: num + lets
-            }
-
-            update(ref(db, 'carriers/' + editingId), updates)
-                .then(function() {
-                    alert('Хадгаллаа!')
-                    closeModal()
-                })
-                .catch(function(err) {
-                    alert('Алдаа гарлаа: ' + err.message)
-                })
+                maxWeight:   kg,
+                days:        days,
+                carPlate:    num + lets
+            })
+            .then(function() {
+                alert('Хадгаллаа!')
+                closeModal()
+            })
+            .catch(function(err) {
+                alert('Алдаа гарлаа: ' + err.message)
+            })
         })
 
     </script>
