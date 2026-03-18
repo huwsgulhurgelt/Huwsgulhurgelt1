@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <!-- Parallax Background i luv parallax<3 -->
     <div class="parallax-bg">
+        
         <div class="parallax-layer layer-1" data-speed="0.2">
             <div class="ball"></div>
             <div class="ball"></div>
@@ -30,6 +32,7 @@
     <div class="container">
         <header class="hero">
             <h1>Мөрөн Хүргэлт</h1>
+            
             <p class="subtitle">Энэ бол зөвхөн зуучлах сайт</p>
         </header>
 
@@ -42,24 +45,28 @@
                 <span class="btn-icon">🚚</span>
                 Хүргэгч
             </a>
+            
         </main>
 
         <footer>
-            <p>Сургуулийн төсөл • Prototype</p>
+            <p></p>
         </footer>
     </div>
 
     <script>
-        // Parallax scroll turshilt
+        // parallax scroll turshilt
+        // 0.2 0.5 1 hurd boljeesn 0.8->discusting
         window.addEventListener('scroll', () => {
-            const layers = document.querySelectorAll('.parallax-layer');
-            const scrolled = window.pageYOffset;
-
+            const layers = document.querySelectorAll('.parallax-layer')
+            const scrolled = window.pageYOffset
             layers.forEach(layer => {
-                const speed = layer.dataset.speed;
-                layer.style.transform = `translateY(${-scrolled * speed}px)`;
-            });
-        });
+                const speed = layer.dataset.speed
+                layer.style.transform = `translateY(${-scrolled * speed}px)`
+            })
+        })
+
+        
     </script>
+
 </body>
 </html>
