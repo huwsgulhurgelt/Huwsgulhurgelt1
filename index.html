@@ -8,6 +8,11 @@
 </head>
 <body class="home">
 
+    <!-- worm fixed in background -->
+    <div class="worm-bg">
+        <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
     <nav class="top-nav">
         <div class="dot-grid">
             <span></span><span></span><span></span>
@@ -19,66 +24,66 @@
 
     <main class="home-main">
 
-        <div class="worm-wrap">
-            <svg id="wormSvg" viewBox="0 0 300 492" xmlns="http://www.w3.org/2000/svg">
-                <!-- circles injected by JS -->
-            </svg>
-        </div>
+        <section class="home-hero">
+            <span class="section-tag">01 — Зуучлах платформ</span>
+            <h1 class="home-title">Мөрөн<br>Хүргэлт</h1>
+            <p class="home-sub">Хурдан, энгийн, найдвартай</p>
+        </section>
 
-        <div class="home-foot">
-            <div class="home-title-block">
-                <span class="section-num">01</span>
-                <h1 class="home-title">Мөрөн Хүргэлт</h1>
+        <section class="home-links">
+            <a href="carriers.html" class="home-link">
+                <span class="link-num">01</span>
+                <span class="link-label">Хэрэглэгч — хүргэлт хайх</span>
+                <span class="link-arrow">↗</span>
+            </a>
+            <a href="signup.html" class="home-link">
+                <span class="link-num">02</span>
+                <span class="link-label">Хүргэгч болох — бүртгүүлэх</span>
+                <span class="link-arrow">↗</span>
+            </a>
+        </section>
+
+        <section class="home-info">
+            <div class="info-block">
+                <span class="info-label">Тухай</span>
+                <p>Мөрөн дэх хүргэлтийн зуучлах цэг. Хэрэглэгч хүргэлт хайж, хүргэгч бүртгүүлнэ.</p>
             </div>
-            <p class="home-sub">Зуучлах платформ — хурдан, энгийн</p>
-            <div class="home-links">
-                <a href="carriers.html" class="home-link">
-                    <span class="link-num">01</span>
-                    <span class="link-label">Хэрэглэгч</span>
-                    <span class="link-arrow">↗</span>
-                </a>
-                <a href="signup.html" class="home-link">
-                    <span class="link-num">02</span>
-                    <span class="link-label">Хүргэгч болох</span>
-                    <span class="link-arrow">↗</span>
-                </a>
-            </div>
-        </div>
+        </section>
+
+        <footer class="home-footer">
+            <p>Сургуулийн төсөл • Prototype</p>
+        </footer>
 
     </main>
 
     <style>
-        @keyframes wormPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50%       { transform: scale(0.04); opacity: 0.3; }
+        @keyframes wormWave {
+            0%, 100% { transform: scale(1);    }
+            50%       { transform: scale(0.22); }
         }
     </style>
 
     <script>
-        const svg = document.getElementById('wormSvg');
-        const N = 10;
-        const CX = 150;
-        const START_Y = 110;
-        const SPACING = 30;
-        const R_MIN = 38;
-        const R_STEP = 13;
-        const DURATION = 2.6;   // seconds per full pulse
-        const STAGGER = 0.16;   // seconds between each circle
+        const svg      = document.getElementById('wormSvg');
+        const N        = 10;
+        const CX       = 150;
+        const DURATION = 2.4;
+        const STAGGER  = DURATION / N;
 
         for (let i = 0; i < N; i++) {
             const dist = Math.abs(i - (N - 1) / 2);
-            const r  = R_MIN + dist * R_STEP;
-            const cy = START_Y + i * SPACING;
+            const r    = 28 + dist * 15;
+            const cy   = 24 + i * 42;
 
             const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             c.setAttribute('cx', CX);
             c.setAttribute('cy', cy);
-            c.setAttribute('r', r);
-            c.setAttribute('fill', 'none');
-            c.setAttribute('stroke', 'white');
-            c.setAttribute('stroke-width', '0.9');
+            c.setAttribute('r',  r);
+            c.setAttribute('fill',         'none');
+            c.setAttribute('stroke',       'white');
+            c.setAttribute('stroke-width', '0.85');
             c.style.cssText = `
-                animation: wormPulse ${DURATION}s ease-in-out ${i * STAGGER}s infinite;
+                animation: wormWave ${DURATION}s ease-in-out ${i * STAGGER}s infinite;
                 transform-box: fill-box;
                 transform-origin: center center;
             `;
