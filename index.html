@@ -6,67 +6,84 @@
     <title>Мөрөн Хүргэлт</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="home">
 
-    <!-- Parallax Background i luv parallax<3 -->
-    <div class="parallax-bg">
-        
-        <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+    <nav class="top-nav">
+        <div class="dot-grid">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
         </div>
-        <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+        <div class="nav-right">Menu &nbsp;—</div>
+    </nav>
+
+    <main class="home-main">
+
+        <div class="worm-wrap">
+            <svg id="wormSvg" viewBox="0 0 300 492" xmlns="http://www.w3.org/2000/svg">
+                <!-- circles injected by JS -->
+            </svg>
         </div>
-        <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+
+        <div class="home-foot">
+            <div class="home-title-block">
+                <span class="section-num">01</span>
+                <h1 class="home-title">Мөрөн Хүргэлт</h1>
+            </div>
+            <p class="home-sub">Зуучлах платформ — хурдан, энгийн</p>
+            <div class="home-links">
+                <a href="carriers.html" class="home-link">
+                    <span class="link-num">01</span>
+                    <span class="link-label">Хэрэглэгч</span>
+                    <span class="link-arrow">↗</span>
+                </a>
+                <a href="signup.html" class="home-link">
+                    <span class="link-num">02</span>
+                    <span class="link-label">Хүргэгч болох</span>
+                    <span class="link-arrow">↗</span>
+                </a>
+            </div>
         </div>
-    </div>
 
-    <div class="container">
-        <header class="hero">
-            <h1>Мөрөн Хүргэлт</h1>
-            
-            <p class="subtitle">Энэ бол зөвхөн зуучлах сайт</p>
-        </header>
+    </main>
 
-        <main class="menu">
-            <a href="carriers.html" class="btn btn-user">
-                <span class="btn-icon">👤</span>
-                Хэрэглэгч
-            </a>
-            <a href="signup.html" class="btn btn-carrier">
-                <span class="btn-icon">🚚</span>
-                Хүргэгч
-            </a>
-            
-        </main>
-
-        <footer>
-            <p></p>
-        </footer>
-    </div>
+    <style>
+        @keyframes wormPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50%       { transform: scale(0.04); opacity: 0.3; }
+        }
+    </style>
 
     <script>
-        // parallax scroll turshilt
-        // 0.2 0.5 1 hurd boljeesn 0.8->discusting
-        window.addEventListener('scroll', () => {
-            const layers = document.querySelectorAll('.parallax-layer')
-            const scrolled = window.pageYOffset
-            layers.forEach(layer => {
-                const speed = layer.dataset.speed
-                layer.style.transform = `translateY(${-scrolled * speed}px)`
-            })
-        })
+        const svg = document.getElementById('wormSvg');
+        const N = 10;
+        const CX = 150;
+        const START_Y = 110;
+        const SPACING = 30;
+        const R_MIN = 38;
+        const R_STEP = 13;
+        const DURATION = 2.6;   // seconds per full pulse
+        const STAGGER = 0.16;   // seconds between each circle
 
-        
+        for (let i = 0; i < N; i++) {
+            const dist = Math.abs(i - (N - 1) / 2);
+            const r  = R_MIN + dist * R_STEP;
+            const cy = START_Y + i * SPACING;
+
+            const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            c.setAttribute('cx', CX);
+            c.setAttribute('cy', cy);
+            c.setAttribute('r', r);
+            c.setAttribute('fill', 'none');
+            c.setAttribute('stroke', 'white');
+            c.setAttribute('stroke-width', '0.9');
+            c.style.cssText = `
+                animation: wormPulse ${DURATION}s ease-in-out ${i * STAGGER}s infinite;
+                transform-box: fill-box;
+                transform-origin: center center;
+            `;
+            svg.appendChild(c);
+        }
     </script>
-
 </body>
 </html>
