@@ -1,4 +1,6 @@
-/* base resettt */
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
 *, *::before, *::after {
     margin: 0; padding: 0; box-sizing: border-box;
 }
@@ -29,7 +31,9 @@ body {
 .parallax-bg { display: none !important; }
 
 
-/* utshig ium */
+/* ============================================================
+   WORM BACKGROUND — fixed, behind everything
+   ============================================================ */
 .worm-bg {
     position: fixed;
     inset: 0;
@@ -38,7 +42,7 @@ body {
     justify-content: center;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.18;     /* iumni ard n haragduulah*/
+    opacity: 0.18;     /* subtle — visible but behind content */
 }
 
 .worm-bg svg {
@@ -48,7 +52,9 @@ body {
 }
 
 
-/* yp nv */
+/* ============================================================
+   TOP NAV
+   ============================================================ */
 .top-nav {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -91,17 +97,19 @@ body {
 .nav-right:hover { color: var(--white); }
 
 
-/* maon domain */
+/* ============================================================
+   HOME PAGE
+   ============================================================ */
 .home-main {
     position: relative;
     z-index: 1;
-    padding-top: 60px;   /* undriig n tarriilah*/
+    padding-top: 60px;   /* nav height */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-
+/* hero */
 .home-hero {
     padding: 80px 36px 60px;
     border-bottom: 1px solid var(--border);
@@ -132,7 +140,7 @@ body {
     text-transform: uppercase;
 }
 
-/* linkuud */
+/* links */
 .home-links {
     display: flex;
     flex-direction: column;
@@ -174,7 +182,7 @@ body {
 .home-link:hover .link-num,
 .home-link:hover .link-label { color: #111; }
 
-/* medeelel blc*/
+/* info block */
 .home-info {
     padding: 48px 36px;
     border-bottom: 1px solid var(--border);
@@ -198,7 +206,7 @@ body {
     font-weight: 300;
 }
 
-
+/* home footer */
 .home-footer {
     margin-top: auto;
     padding: 24px 36px;
@@ -210,7 +218,9 @@ body {
 }
 
 
-
+/* ============================================================
+   INNER PAGES — shared layout
+   ============================================================ */
 body:not(.home) {
     display: flex;
     justify-content: center;
@@ -232,6 +242,7 @@ body:not(.home) {
     backdrop-filter: blur(4px);
 }
 
+/* page header */
 .page-header {
     padding: 30px 36px 26px;
     border-bottom: 1px solid var(--border);
@@ -261,7 +272,7 @@ body:not(.home) {
 }
 .back-link:hover { color: var(--white); }
 
-
+/* legacy hero class */
 .hero {
     background: var(--surface2);
     color: var(--white);
@@ -284,7 +295,7 @@ body:not(.home) {
     margin-top: 12px;
 }
 
-
+/* legacy menu */
 .menu {
     padding: 0;
     display: grid;
@@ -316,7 +327,9 @@ body:not(.home) {
 .btn-icon { font-size: 2rem; margin-bottom: 14px; filter: grayscale(1); }
 
 
-/* haih heseg */
+/* ============================================================
+   SEARCH SECTION
+   ============================================================ */
 .search-section {
     padding: 22px 36px 16px;
     border-bottom: 1px solid var(--border);
@@ -353,7 +366,9 @@ body:not(.home) {
 }
 
 
-/* zuugchid */
+/* ============================================================
+   CARRIERS GRID
+   ============================================================ */
 .carriers-grid {
     padding: 0;
     display: grid;
@@ -455,6 +470,9 @@ body:not(.home) {
 .btn-edit, .btn-delete { background: var(--surface2); color: var(--muted); }
 
 
+/* ============================================================
+   FORM
+   ============================================================ */
 .form-container {
     padding: 42px 36px;
     flex: 1;
@@ -533,7 +551,9 @@ body:not(.home) {
 }
 
 
-/* udruudee songo */
+/* ============================================================
+   DAYS SELECTOR
+   ============================================================ */
 .days-selector {
     display: flex;
     flex-wrap: wrap;
@@ -562,7 +582,9 @@ body:not(.home) {
 .day-checkbox span { font-size: 0.8rem; color: var(--muted); user-select: none; }
 
 
-/* jin gulgaa */
+/* ============================================================
+   WEIGHT SLIDER
+   ============================================================ */
 .weight-slider-container { margin-top: 14px; }
 
 .weight-slider {
@@ -604,7 +626,9 @@ body:not(.home) {
 }
 
 
-/* submt n cancl */
+/* ============================================================
+   SUBMIT / CANCEL
+   ============================================================ */
 .btn-submit {
     width: 100%;
     padding: 17px;
@@ -624,7 +648,9 @@ body:not(.home) {
 .btn-submit:hover { background: transparent; color: var(--white); transform: none; box-shadow: none; }
 
 
-/* model */
+/* ============================================================
+   MODAL
+   ============================================================ */
 .model {
     display: none;
     position: fixed;
@@ -719,6 +745,9 @@ body:not(.home) {
 .btn-cancel:hover { background: rgba(255,255,255,0.08); color: var(--white); transform: none; }
 
 
+/* ============================================================
+   MISC
+   ============================================================ */
 .loading,
 .no-data {
     text-align: center;
@@ -743,7 +772,9 @@ footer {
 }
 
 
-/* hariu uildel */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 768px) {
     body:not(.home) { padding: 0; }
 
