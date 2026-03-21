@@ -8,7 +8,6 @@
 </head>
 <body class="home">
 
-    <!-- worm fixed in background -->
     <div class="worm-bg">
         <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
@@ -58,36 +57,30 @@
 
     <style>
         @keyframes wormWave {
-            0%, 100% { transform: scale(1);    }
-            50%       { transform: scale(0.22); }
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(0.44); }
         }
     </style>
 
     <script>
-        const svg      = document.getElementById('wormSvg');
-        const N        = 10;
-        const CX       = 150;
-        const DURATION = 2.4;
-        const STAGGER  = DURATION / N;
+        var svg     = document.getElementById('wormSvg')
+        var N       = 10
+        var dur     = 4.8   // slower now
+        var stagger = dur / N
 
-        for (let i = 0; i < N; i++) {
-            const dist = Math.abs(i - (N - 1) / 2);
-            const r    = 28 + dist * 15;
-            const cy   = 24 + i * 42;
-
-            const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            c.setAttribute('cx', CX);
-            c.setAttribute('cy', cy);
-            c.setAttribute('r',  r);
-            c.setAttribute('fill',         'none');
-            c.setAttribute('stroke',       'white');
-            c.setAttribute('stroke-width', '0.85');
-            c.style.cssText = `
-                animation: wormWave ${DURATION}s ease-in-out ${i * STAGGER}s infinite;
-                transform-box: fill-box;
-                transform-origin: center center;
-            `;
-            svg.appendChild(c);
+        for (var i = 0; i < N; i++) {
+            var dist = Math.abs(i - (N-1) / 2)
+            var r    = 28 + dist * 15
+            var cy   = 24 + i * 42
+            var c    = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+            c.setAttribute('cx', 150)
+            c.setAttribute('cy', cy)
+            c.setAttribute('r', r)
+            c.setAttribute('fill', 'none')
+            c.setAttribute('stroke', 'white')
+            c.setAttribute('stroke-width', '0.85')
+            c.style.cssText = 'animation: wormWave ' + dur + 's ease-in-out ' + (i * stagger) + 's infinite; transform-box: fill-box; transform-origin: center center;'
+            svg.appendChild(c)
         }
     </script>
 </body>
