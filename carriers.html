@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- worm in bg same as index -->
     <div class="worm-bg">
         <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
@@ -36,8 +35,7 @@
         </footer>
     </div>
 
-    <!-- edit popup -->
-    <!-- NOTE: named modal but class is still "model" from old css too lazy fix -->
+    <!-- modal -- still called "model" in css too lazy to rename lol -->
     <div id="editModal" class="model" style="display:none;">
         <div class="model-content">
             <div class="model-header">
@@ -92,35 +90,34 @@
     <style>
         @keyframes wormWave {
             0%, 100% { transform: scale(1); }
-            50%       { transform: scale(0.22); }
+            50%       { transform: scale(0.44); }
         }
     </style>
 
     <script>
-        // worm bg -- copy pasted from index
+        // worm -- same as index, copy paste
         var svg2 = document.getElementById('wormSvg')
         for (var wi = 0; wi < 10; wi++) {
             var wd = Math.abs(wi - 4.5)
             var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
             wc.setAttribute('cx', 150)
             wc.setAttribute('cy', 24 + wi * 42)
-            wc.setAttribute('r',  28 + wd * 15)
+            wc.setAttribute('r', 28 + wd * 15)
             wc.setAttribute('fill', 'none')
             wc.setAttribute('stroke', 'white')
             wc.setAttribute('stroke-width', '0.85')
-            wc.style.cssText = 'animation: wormWave 2.4s ease-in-out ' + (wi * 0.24) + 's infinite; transform-box: fill-box; transform-origin: center center;'
+            wc.style.cssText = 'animation: wormWave 4.8s ease-in-out ' + (wi * 0.48) + 's infinite; transform-box: fill-box; transform-origin: center center;'
             svg2.appendChild(wc)
         }
 
-        // hash fn -- from stackoverflow dont touch
+        // hash fn from stackoverflow
         async function hashPin(p) {
             const buf = new TextEncoder().encode(p)
             const h = await crypto.subtle.digest('SHA-256', buf)
             return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('')
         }
 
-        // master pin hash for "4133"
-        // generated with: echo -n "4133" | sha256sum
+        // master pin "4133" -- echo -n "4133" | sha256sum
         var MASTER_HASH = 'a07cf27590e57bf851029cada1b752019189ba52defb3e43401887fcb2489b5e'
     </script>
 
@@ -153,24 +150,19 @@
         var wSlider = document.getElementById('eWeight')
         var wVal    = document.getElementById('eWeightVal')
 
-        // weight slider live
         wSlider.oninput = function() { wVal.textContent = this.value }
 
-        // auto uppercase for letters
         document.getElementById('eCarLet').addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase().slice(0, 3)
         })
-
         document.getElementById('eCarNum').addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4)
         })
 
-        // load from firebase
         onValue(ref(db, 'carriers'), function(snap) {
             if (!snap.exists()) {
                 listEl.innerHTML = '<div class="no-data">Хүргэгч байхгүй байна.</div>'
-                allData = {}
-                filtered = {}
+                allData = {}; filtered = {}
                 updateStats()
                 return
             }
@@ -180,7 +172,6 @@
             updateStats()
         })
 
-        // search
         srchEl.addEventListener('input', function() {
             var q = this.value.toLowerCase().trim()
             if (!q) {
@@ -194,8 +185,8 @@
             for (var i = 0; i < keys.length; i++) {
                 var k = keys[i]
                 var c = allData[k]
-                var haystack = c.phone + ' ' + c.description + ' ' + (c.days ? c.days.join(' ') : '')
-                if (haystack.toLowerCase().includes(q)) filtered[k] = c
+                var hay = c.phone + ' ' + c.description + ' ' + (c.days ? c.days.join(' ') : '')
+                if (hay.toLowerCase().includes(q)) filtered[k] = c
             }
             renderList(filtered)
             updateStats()
@@ -204,29 +195,25 @@
         function renderList(data) {
             listEl.innerHTML = ''
             var keys = Object.keys(data)
-            if (!keys.length) {
-                listEl.innerHTML = '<div class="no-data">Олдсонгүй</div>'
-                return
-            }
+            if (!keys.length) { listEl.innerHTML = '<div class="no-data">Олдсонгүй</div>'; return }
+
             keys.forEach(function(id) {
-                var c = data[id]
+                var c    = data[id]
                 var card = document.createElement('div')
                 card.className = 'carrier-card'
 
-                var plateHtml = c.carPlate
-                    ? '<div class="plate-txt">🚗 ' + c.carPlate + '</div>'
-                    : ''
-                var daysStr   = c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'
-                var wStr      = c.maxWeight ? '<span class="carrier-weight">⚖️ ' + c.maxWeight + ' кг</span>' : ''
+                var platePart  = c.carPlate ? '<div class="plate-txt">🚗 ' + c.carPlate + '</div>' : ''
+                var daysStr    = c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'
+                var weightPart = c.maxWeight ? '<span class="carrier-weight">⚖️ ' + c.maxWeight + ' кг</span>' : ''
 
                 card.innerHTML =
                     '<div class="card-content">' +
                         '<div class="carrier-phone">' + c.phone + '</div>' +
-                        plateHtml +
+                        platePart +
                         '<div class="carrier-description">' + c.description + '</div>' +
                         '<div class="carrier-meta">' +
                             '<span class="carrier-days">📅 ' + daysStr + '</span>' +
-                            wStr +
+                            weightPart +
                         '</div>' +
                     '</div>' +
                     '<div class="card-actions">' +
@@ -246,41 +233,22 @@
                 : 'Нийт ' + total + ' хүргэгч'
         }
 
-        // edit -- pin check first
         window.editCarrier = async function(id) {
             var pin = prompt('PIN код:')
             if (!pin) return
-
-            var entered = await hashPin(pin)
-            var carrierHash = null
-            if (allData[id] && allData[id].pin) {
-                carrierHash = await hashPin(allData[id].pin)
-            }
-
-            if (entered !== MASTER_HASH && entered !== carrierHash) {
-                alert('Буруу PIN!')
-                return
-            }
+            var entered     = await hashPin(pin)
+            var carrierHash = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
+            if (entered !== MASTER_HASH && entered !== carrierHash) { alert('Буруу PIN!'); return }
             openModal(id)
         }
 
-        // delete -- same pin check
         window.deleteCarrier = async function(id) {
             var pin = prompt('Устгах PIN:')
             if (!pin) return
-
-            var entered = await hashPin(pin)
-            var carrierHash = null
-            if (allData[id] && allData[id].pin) {
-                carrierHash = await hashPin(allData[id].pin)
-            }
-
-            if (entered !== MASTER_HASH && entered !== carrierHash) {
-                alert('Буруу PIN!')
-                return
-            }
+            var entered     = await hashPin(pin)
+            var carrierHash = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
+            if (entered !== MASTER_HASH && entered !== carrierHash) { alert('Буруу PIN!'); return }
             if (!confirm('Устгах уу?')) return
-
             remove(ref(db, 'carriers/' + id))
                 .then(function() { alert('Устгалаа!') })
                 .catch(function(err) { alert('Алдаа: ' + err.message) })
@@ -289,17 +257,15 @@
         function openModal(id) {
             editingId = id
             var c = allData[id]
-
             document.getElementById('ePhone').value = c.phone
             document.getElementById('eDesc').value  = c.description
             wSlider.value    = c.maxWeight || 10
             wVal.textContent = c.maxWeight || 10
 
-            // split plate e.g. "1234ХӨВ"
             if (c.carPlate) {
-                var match = c.carPlate.match(/^(\d+)([А-ЯӨҮa-zA-Z]+)$/)
-                document.getElementById('eCarNum').value = match ? match[1] : ''
-                document.getElementById('eCarLet').value = match ? match[2] : ''
+                var m = c.carPlate.match(/^(\d+)([А-ЯӨҮa-zA-Z]+)$/)
+                document.getElementById('eCarNum').value = m ? m[1] : ''
+                document.getElementById('eCarLet').value = m ? m[2] : ''
             } else {
                 document.getElementById('eCarNum').value = ''
                 document.getElementById('eCarLet').value = ''
@@ -308,7 +274,6 @@
             document.querySelectorAll('input[name="eDays"]').forEach(function(cb) {
                 cb.checked = c.days && c.days.includes(cb.value)
             })
-
             modal.style.display = 'block'
             document.body.style.overflow = 'hidden'
         }
@@ -320,43 +285,25 @@
             form.reset()
         }
 
-        // click outside closes modal
-        window.onclick = function(e) {
-            if (e.target === modal) closeModal()
-        }
+        window.onclick = function(e) { if (e.target === modal) closeModal() }
 
         form.addEventListener('submit', function(e) {
             e.preventDefault()
-
             var phone = document.getElementById('ePhone').value.trim()
             var desc  = document.getElementById('eDesc').value.trim()
             var kg    = parseInt(wSlider.value)
             var days  = []
-            document.querySelectorAll('input[name="eDays"]:checked').forEach(function(cb) {
-                days.push(cb.value)
-            })
+            document.querySelectorAll('input[name="eDays"]:checked').forEach(function(cb) { days.push(cb.value) })
             var num  = document.getElementById('eCarNum').value.trim()
             var lets = document.getElementById('eCarLet').value.trim()
 
-            if (!days.length) {
-                alert('Наад зах нь нэг өдөр сонгоно уу!')
-                return
-            }
+            if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return }
 
             update(ref(db, 'carriers/' + editingId), {
-                phone:       phone,
-                description: desc,
-                maxWeight:   kg,
-                days:        days,
-                carPlate:    num + lets
+                phone: phone, description: desc, maxWeight: kg, days: days, carPlate: num + lets
             })
-            .then(function() {
-                alert('Хадгаллаа!')
-                closeModal()
-            })
-            .catch(function(err) {
-                alert('Алдаа гарлаа: ' + err.message)
-            })
+            .then(function() { alert('Хадгаллаа!'); closeModal() })
+            .catch(function(err) { alert('Алдаа: ' + err.message) })
         })
 
     </script>
