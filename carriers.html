@@ -35,7 +35,7 @@
         </footer>
     </div>
 
-    <!-- modal -- still called "model" in css too lazy to rename lol -->
+    <!-- modal n model shu -->
     <div id="editModal" class="model" style="display:none;">
         <div class="model-content">
             <div class="model-header">
@@ -95,7 +95,7 @@
     </style>
 
     <script>
-        // worm -- same as index, copy paste
+        // ot
         var svg2 = document.getElementById('wormSvg')
         for (var wi = 0; wi < 10; wi++) {
             var wd = Math.abs(wi - 4.5)
@@ -110,14 +110,14 @@
             svg2.appendChild(wc)
         }
 
-        // hash fn from stackoverflow
+        
         async function hashPin(p) {
             const buf = new TextEncoder().encode(p)
             const h = await crypto.subtle.digest('SHA-256', buf)
             return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('')
         }
 
-        // master pin "4133" -- echo -n "4133" | sha256sum
+        // admin codiig hash hisn
         var MASTER_HASH = 'a07cf27590e57bf851029cada1b752019189ba52defb3e43401887fcb2489b5e'
     </script>
 
