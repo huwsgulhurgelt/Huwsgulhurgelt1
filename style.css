@@ -26,7 +26,7 @@ body {
 
 .parallax-bg { display: none !important; }
 
-/* worm bg -- fixed behind everything on all pages */
+/* utnii backrounds */
 .worm-bg {
     position: fixed;
     inset: 0;
@@ -86,7 +86,7 @@ body {
 }
 .nav-right:hover { color: var(--white); }
 
-/* home page */
+/* undsen pagr */
 .home-main {
     position: relative;
     z-index: 1;
@@ -199,7 +199,7 @@ body {
     text-transform: uppercase;
 }
 
-/* inner pages layout */
+
 body:not(.home) {
     display: flex;
     justify-content: center;
@@ -252,7 +252,6 @@ body:not(.home) {
 }
 .back-link:hover { color: var(--white); }
 
-/* legacy hero/menu for index if ever used */
 .hero {
     background: rgba(255,255,255,0.03);
     color: var(--white);
@@ -305,7 +304,7 @@ body:not(.home) {
 .btn:hover { background: var(--white); color: #111; transform: none; box-shadow: none; }
 .btn-icon { font-size: 2rem; margin-bottom: 14px; filter: grayscale(1); }
 
-/* search */
+/* haih */
 .search-section {
     padding: 22px 36px 16px;
     border-bottom: 1px solid var(--border);
@@ -341,7 +340,7 @@ body:not(.home) {
     text-transform: uppercase;
 }
 
-/* carriers grid */
+/* zuugchid grid */
 .carriers-grid {
     padding: 20px;
     display: grid;
@@ -451,7 +450,6 @@ body:not(.home) {
     box-shadow: none;
 }
 
-/* form */
 .form-container {
     padding: 42px 36px;
     flex: 1;
@@ -530,7 +528,7 @@ body:not(.home) {
     margin-top: 8px;
 }
 
-/* days selector */
+/* udur songoh*/
 .days-selector {
     display: flex;
     flex-wrap: wrap;
@@ -559,7 +557,7 @@ body:not(.home) {
 .day-checkbox input[type="checkbox"]:checked + span { font-weight: 600; color: var(--white); }
 .day-checkbox span { font-size: 0.8rem; color: var(--white); user-select: none; opacity: 0.8; }
 
-/* weight slider */
+/* jin gulgaa */
 .weight-slider-container { margin-top: 14px; }
 
 .weight-slider {
@@ -599,7 +597,7 @@ body:not(.home) {
     color: var(--white);
 }
 
-/* buttons */
+
 .btn-submit {
     width: 100%;
     padding: 17px;
@@ -618,7 +616,7 @@ body:not(.home) {
 }
 .btn-submit:hover { background: transparent; color: var(--white); transform: none; box-shadow: none; }
 
-/* modal */
+/* model */
 .model {
     display: none;
     position: fixed;
@@ -712,8 +710,6 @@ body:not(.home) {
     font-family: var(--font);
 }
 .btn-cancel:hover { background: rgba(255,255,255,0.12); color: var(--white); transform: none; }
-
-/* misc */
 .loading,
 .no-data {
     text-align: center;
@@ -737,7 +733,6 @@ footer {
     border-top: 1px solid var(--border);
 }
 
-/* responsive */
 @media (max-width: 768px) {
     body:not(.home) { padding: 0; }
 
