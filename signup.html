@@ -82,7 +82,7 @@
     </style>
 
     <script>
-        // worm bg same as other pages
+        // worm bg universl
         var svg3 = document.getElementById('wormSvg')
         for (var wi = 0; wi < 10; wi++) {
             var wd = Math.abs(wi - 4.5)
@@ -97,12 +97,12 @@
             svg3.appendChild(wc)
         }
 
-        // weight slider
+        // jin gulgaa
         var weightInput = document.getElementById('weight')
         var weightValue = document.getElementById('weightValue')
         weightInput.oninput = function() { weightValue.textContent = this.value }
 
-        // phone validation
+        // utsnii dugr valdashion
         var phoneInput = document.getElementById('phone')
         var phoneError = document.getElementById('phoneError')
         phoneInput.addEventListener('input', function(e) {
@@ -112,7 +112,7 @@
             phoneError.textContent = '8 оронтой тоо байх ёстой'
         })
 
-        // car number
+        // mashinii dugaar
         var carNumInput = document.getElementById('carNumber')
         var carLetInput = document.getElementById('carLetters')
         var carError    = document.getElementById('carError')
@@ -122,7 +122,7 @@
             checkCar()
         })
 
-        // cyrillic only auto caps
+        // zuwhun mongol heleer bichne auto capslock
         carLetInput.addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3)
             checkCar()
