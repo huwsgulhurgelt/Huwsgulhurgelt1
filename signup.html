@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- same worm bg as other pages -->
     <div class="worm-bg">
         <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
@@ -43,9 +42,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="weight">
-                        Хэдэн кг хүртэл? (<span id="weightValue">5</span> кг)
-                    </label>
+                    <label for="weight">Хэдэн кг хүртэл? (<span id="weightValue">5</span> кг)</label>
                     <input type="range" id="weight" min="1" max="50" value="5" class="weight-slider">
                 </div>
 
@@ -80,51 +77,42 @@
     <style>
         @keyframes wormWave {
             0%, 100% { transform: scale(1); }
-            50%       { transform: scale(0.22); }
+            50%       { transform: scale(0.44); }
         }
     </style>
 
     <script>
-        // worm bg -- same as index/carriers
+        // worm bg same as other pages
         var svg3 = document.getElementById('wormSvg')
         for (var wi = 0; wi < 10; wi++) {
             var wd = Math.abs(wi - 4.5)
             var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
             wc.setAttribute('cx', 150)
             wc.setAttribute('cy', 24 + wi * 42)
-            wc.setAttribute('r',  28 + wd * 15)
+            wc.setAttribute('r', 28 + wd * 15)
             wc.setAttribute('fill', 'none')
             wc.setAttribute('stroke', 'white')
             wc.setAttribute('stroke-width', '0.85')
-            wc.style.cssText = 'animation: wormWave 2.4s ease-in-out ' + (wi * 0.24) + 's infinite; transform-box: fill-box; transform-origin: center center;'
+            wc.style.cssText = 'animation: wormWave 4.8s ease-in-out ' + (wi * 0.48) + 's infinite; transform-box: fill-box; transform-origin: center center;'
             svg3.appendChild(wc)
         }
-
-        // parallax scroll -- kept for old css compat but does nothing now
-        window.addEventListener('scroll', function() {
-            // balls are gone so this does nothing lol
-        })
 
         // weight slider
         var weightInput = document.getElementById('weight')
         var weightValue = document.getElementById('weightValue')
         weightInput.oninput = function() { weightValue.textContent = this.value }
 
-        // phone -- only numbers
+        // phone validation
         var phoneInput = document.getElementById('phone')
         var phoneError = document.getElementById('phoneError')
         phoneInput.addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '')
             if (e.target.value.length > 8) e.target.value = e.target.value.slice(0, 8)
-            if (e.target.value.length > 0 && e.target.value.length < 8) {
-                phoneError.textContent = '8 оронтой тоо байх ёстой'
-                phoneError.style.display = 'block'
-            } else {
-                phoneError.style.display = 'none'
-            }
+            phoneError.style.display = (e.target.value.length > 0 && e.target.value.length < 8) ? 'block' : 'none'
+            phoneError.textContent = '8 оронтой тоо байх ёстой'
         })
 
-        // car number -- 4 digits
+        // car number
         var carNumInput = document.getElementById('carNumber')
         var carLetInput = document.getElementById('carLetters')
         var carError    = document.getElementById('carError')
@@ -134,35 +122,27 @@
             checkCar()
         })
 
-        // car letters -- cyrillic only auto caps
+        // cyrillic only auto caps
         carLetInput.addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3)
             checkCar()
         })
 
         function checkCar() {
-            var n = carNumInput.value
-            var l = carLetInput.value
-            if ((n.length > 0 && n.length < 4) || (l.length > 0 && l.length < 3)) {
-                carError.textContent = 'Машины дугаар бүрэн биш байна'
-                carError.style.display = 'block'
-                return false
-            }
-            carError.style.display = 'none'
-            return true
+            var n = carNumInput.value, l = carLetInput.value
+            var bad = (n.length > 0 && n.length < 4) || (l.length > 0 && l.length < 3)
+            carError.style.display = bad ? 'block' : 'none'
+            carError.textContent = 'Машины дугаар бүрэн биш байна'
+            return !bad
         }
 
-        // pin -- 4 digits only
+        // pin
         var pinInput = document.getElementById('pin')
         var pinError = document.getElementById('pinError')
         pinInput.addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4)
-            if (e.target.value.length > 0 && e.target.value.length < 4) {
-                pinError.textContent = 'PIN код 4 оронтой тоо байх ёстой'
-                pinError.style.display = 'block'
-            } else {
-                pinError.style.display = 'none'
-            }
+            pinError.style.display = (e.target.value.length > 0 && e.target.value.length < 4) ? 'block' : 'none'
+            pinError.textContent = 'PIN код 4 оронтой тоо байх ёстой'
         })
     </script>
 
@@ -186,37 +166,26 @@
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault()
 
-            var phone      = document.getElementById('phone').value.trim()
-            var carNum     = document.getElementById('carNumber').value.trim()
-            var carLet     = document.getElementById('carLetters').value.trim()
-            var desc       = document.getElementById('description').value.trim()
-            var weight     = Number(document.getElementById('weight').value)
-            var pin        = document.getElementById('pin').value.trim()
-            var days       = []
-            document.querySelectorAll('input[name="days"]:checked').forEach(function(cb) {
-                days.push(cb.value)
-            })
+            var phone  = document.getElementById('phone').value.trim()
+            var carNum = document.getElementById('carNumber').value.trim()
+            var carLet = document.getElementById('carLetters').value.trim()
+            var desc   = document.getElementById('description').value.trim()
+            var weight = Number(document.getElementById('weight').value)
+            var pin    = document.getElementById('pin').value.trim()
+            var days   = []
+            document.querySelectorAll('input[name="days"]:checked').forEach(function(cb) { days.push(cb.value) })
 
-            // basic checks
-            if (!phone || !desc || !pin || !carNum || !carLet) {
-                alert('Бүх талбарыг бөглөнө үү!')
-                return
-            }
-            if (phone.length !== 8)          { alert('Утасны дугаар 8 орон!'); return }
-            if (carNum.length !== 4)          { alert('Машины дугаар 4 орон!'); return }
-            if (carLet.length !== 3)          { alert('Машины үсэг 3 үсэг!'); return }
-            if (pin.length !== 4)             { alert('PIN 4 орон!'); return }
-            if (!days.length)                 { alert('Наад зах нь нэг өдөр сонго!'); return }
+            if (!phone || !desc || !pin || !carNum || !carLet) { alert('Бүх талбарыг бөглөнө үү!'); return }
+            if (phone.length !== 8)  { alert('Утасны дугаар 8 орон!'); return }
+            if (carNum.length !== 4) { alert('Машины дугаар 4 орон!'); return }
+            if (carLet.length !== 3) { alert('Машины үсэг 3 үсэг!'); return }
+            if (pin.length !== 4)    { alert('PIN 4 орон!'); return }
+            if (!days.length)        { alert('Наад зах нь нэг өдөр сонго!'); return }
 
             try {
                 await push(ref(db, 'carriers'), {
-                    phone:       phone,
-                    carPlate:    carNum + carLet,
-                    description: desc,
-                    maxWeight:   weight,
-                    days:        days,
-                    pin:         pin,
-                    timestamp:   Date.now()
+                    phone: phone, carPlate: carNum + carLet, description: desc,
+                    maxWeight: weight, days: days, pin: pin, timestamp: Date.now()
                 })
                 alert('Амжилттай бүртгэгдлээ!')
                 e.target.reset()
