@@ -8,6 +8,19 @@
 </head>
 <body>
 
+    <div class="parallax-bg">
+        <div class="parallax-layer layer-1" data-speed="0.2">
+            <div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-2" data-speed="0.5">
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-3" data-speed="1">
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        </div>
+    </div>
+
     <div class="worm-bg">
         <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
@@ -35,7 +48,7 @@
         </footer>
     </div>
 
-    <!-- modal n model shu -->
+    <!-- modal -- class is "model" from old css, too lazy to fix -->
     <div id="editModal" class="model" style="display:none;">
         <div class="model-content">
             <div class="model-header">
@@ -95,14 +108,23 @@
     </style>
 
     <script>
-        // ot
+        // parallax scroll
+        window.addEventListener('scroll', function() {
+            var layers = document.querySelectorAll('.parallax-layer')
+            var scrolled = window.pageYOffset
+            for (var i = 0; i < layers.length; i++) {
+                layers[i].style.transform = 'translateY(' + (-scrolled * layers[i].dataset.speed) + 'px)'
+            }
+        })
+
+        // worm copy paste from index
         var svg2 = document.getElementById('wormSvg')
         for (var wi = 0; wi < 10; wi++) {
             var wd = Math.abs(wi - 4.5)
             var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
             wc.setAttribute('cx', 150)
             wc.setAttribute('cy', 24 + wi * 42)
-            wc.setAttribute('r', 28 + wd * 15)
+            wc.setAttribute('r',  28 + wd * 15)
             wc.setAttribute('fill', 'none')
             wc.setAttribute('stroke', 'white')
             wc.setAttribute('stroke-width', '0.85')
@@ -110,14 +132,14 @@
             svg2.appendChild(wc)
         }
 
-        
+        // hash fn -- stackoverflow dont touch
         async function hashPin(p) {
             const buf = new TextEncoder().encode(p)
             const h = await crypto.subtle.digest('SHA-256', buf)
             return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('')
         }
 
-        // admin codiig hash hisn
+        // master pin "4133"
         var MASTER_HASH = 'a07cf27590e57bf851029cada1b752019189ba52defb3e43401887fcb2489b5e'
     </script>
 
@@ -138,9 +160,7 @@
         const app = initializeApp(cfg)
         const db  = getDatabase(app)
 
-        var allData   = {}
-        var filtered  = {}
-        var editingId = null
+        var allData = {}, filtered = {}, editingId = null
 
         var listEl  = document.getElementById('listContainer')
         var srchEl  = document.getElementById('srchInput')
@@ -163,8 +183,7 @@
             if (!snap.exists()) {
                 listEl.innerHTML = '<div class="no-data">Хүргэгч байхгүй байна.</div>'
                 allData = {}; filtered = {}
-                updateStats()
-                return
+                updateStats(); return
             }
             allData = snap.val()
             filtered = Object.assign({}, allData)
@@ -174,20 +193,13 @@
 
         srchEl.addEventListener('input', function() {
             var q = this.value.toLowerCase().trim()
-            if (!q) {
-                filtered = Object.assign({}, allData)
-                renderList(filtered)
-                updateStats()
-                return
-            }
+            if (!q) { filtered = Object.assign({}, allData); renderList(filtered); updateStats(); return }
             filtered = {}
-            var keys = Object.keys(allData)
-            for (var i = 0; i < keys.length; i++) {
-                var k = keys[i]
+            Object.keys(allData).forEach(function(k) {
                 var c = allData[k]
                 var hay = c.phone + ' ' + c.description + ' ' + (c.days ? c.days.join(' ') : '')
                 if (hay.toLowerCase().includes(q)) filtered[k] = c
-            }
+            })
             renderList(filtered)
             updateStats()
         })
@@ -196,38 +208,30 @@
             listEl.innerHTML = ''
             var keys = Object.keys(data)
             if (!keys.length) { listEl.innerHTML = '<div class="no-data">Олдсонгүй</div>'; return }
-
             keys.forEach(function(id) {
                 var c    = data[id]
                 var card = document.createElement('div')
                 card.className = 'carrier-card'
-
                 var platePart  = c.carPlate ? '<div class="plate-txt">🚗 ' + c.carPlate + '</div>' : ''
                 var daysStr    = c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'
                 var weightPart = c.maxWeight ? '<span class="carrier-weight">⚖️ ' + c.maxWeight + ' кг</span>' : ''
-
                 card.innerHTML =
                     '<div class="card-content">' +
                         '<div class="carrier-phone">' + c.phone + '</div>' +
                         platePart +
                         '<div class="carrier-description">' + c.description + '</div>' +
-                        '<div class="carrier-meta">' +
-                            '<span class="carrier-days">📅 ' + daysStr + '</span>' +
-                            weightPart +
-                        '</div>' +
+                        '<div class="carrier-meta"><span class="carrier-days">📅 ' + daysStr + '</span>' + weightPart + '</div>' +
                     '</div>' +
                     '<div class="card-actions">' +
                         '<button class="btn-small btn-edit" onclick="editCarrier(\'' + id + '\')">Засах</button>' +
                         '<button class="btn-small btn-delete" onclick="deleteCarrier(\'' + id + '\')">Устгах</button>' +
                     '</div>'
-
                 listEl.appendChild(card)
             })
         }
 
         function updateStats() {
-            var total   = Object.keys(allData).length
-            var showing = Object.keys(filtered).length
+            var total = Object.keys(allData).length, showing = Object.keys(filtered).length
             statsEl.textContent = srchEl.value.trim()
                 ? showing + ' хүргэгч олдлоо (Нийт: ' + total + ')'
                 : 'Нийт ' + total + ' хүргэгч'
@@ -236,18 +240,18 @@
         window.editCarrier = async function(id) {
             var pin = prompt('PIN код:')
             if (!pin) return
-            var entered     = await hashPin(pin)
-            var carrierHash = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
-            if (entered !== MASTER_HASH && entered !== carrierHash) { alert('Буруу PIN!'); return }
+            var entered = await hashPin(pin)
+            var ch = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
+            if (entered !== MASTER_HASH && entered !== ch) { alert('Буруу PIN!'); return }
             openModal(id)
         }
 
         window.deleteCarrier = async function(id) {
             var pin = prompt('Устгах PIN:')
             if (!pin) return
-            var entered     = await hashPin(pin)
-            var carrierHash = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
-            if (entered !== MASTER_HASH && entered !== carrierHash) { alert('Буруу PIN!'); return }
+            var entered = await hashPin(pin)
+            var ch = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
+            if (entered !== MASTER_HASH && entered !== ch) { alert('Буруу PIN!'); return }
             if (!confirm('Устгах уу?')) return
             remove(ref(db, 'carriers/' + id))
                 .then(function() { alert('Устгалаа!') })
@@ -259,9 +263,8 @@
             var c = allData[id]
             document.getElementById('ePhone').value = c.phone
             document.getElementById('eDesc').value  = c.description
-            wSlider.value    = c.maxWeight || 10
+            wSlider.value = c.maxWeight || 10
             wVal.textContent = c.maxWeight || 10
-
             if (c.carPlate) {
                 var m = c.carPlate.match(/^(\d+)([А-ЯӨҮa-zA-Z]+)$/)
                 document.getElementById('eCarNum').value = m ? m[1] : ''
@@ -270,7 +273,6 @@
                 document.getElementById('eCarNum').value = ''
                 document.getElementById('eCarLet').value = ''
             }
-
             document.querySelectorAll('input[name="eDays"]').forEach(function(cb) {
                 cb.checked = c.days && c.days.includes(cb.value)
             })
@@ -296,16 +298,13 @@
             document.querySelectorAll('input[name="eDays"]:checked').forEach(function(cb) { days.push(cb.value) })
             var num  = document.getElementById('eCarNum').value.trim()
             var lets = document.getElementById('eCarLet').value.trim()
-
             if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return }
-
             update(ref(db, 'carriers/' + editingId), {
                 phone: phone, description: desc, maxWeight: kg, days: days, carPlate: num + lets
             })
             .then(function() { alert('Хадгаллаа!'); closeModal() })
             .catch(function(err) { alert('Алдаа: ' + err.message) })
         })
-
     </script>
 </body>
 </html>
