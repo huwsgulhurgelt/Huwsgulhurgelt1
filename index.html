@@ -6,79 +6,49 @@
     <title>Мөрөн Хүргэлт</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="home">
-
-    <!-- parallax balls back, b&w now -->
+<body>
+    <!-- i luv parallax<3 -->
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div><div class="ball"></div>
-            <div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
         <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
         <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
     </div>
 
-    <!-- worm still in bg -->
-    <div class="worm-bg">
-        <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
-    </div>
-
-    <nav class="top-nav">
-        <div class="dot-grid">
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-        </div>
-        <div class="nav-right">Menu &nbsp;—</div>
-    </nav>
-
-    <main class="home-main">
-
-        <section class="home-hero">
-            <span class="section-tag">01 — Зуучлах платформ</span>
-            <h1 class="home-title">Мөрөн<br>Хүргэлт</h1>
-            <p class="home-sub">Хурдан, энгийн, найдвартай</p>
-        </section>
-
-        <section class="home-links">
-            <a href="carriers.html" class="home-link">
-                <span class="link-num">01</span>
-                <span class="link-label">Хэрэглэгч — хүргэлт хайх</span>
-                <span class="link-arrow">↗</span>
+    <div class="container">
+        <header class="hero">
+            <h1>Мөрөн Хүргэлт</h1>
+            <p class="subtitle">Энэ бол зөвхөн зуучлах сайт</p>
+        </header>
+        <main class="menu">
+            <a href="carriers.html" class="btn btn-user">
+                <span class="btn-icon">👤</span>
+                Хэрэглэгч
             </a>
-            <a href="signup.html" class="home-link">
-                <span class="link-num">02</span>
-                <span class="link-label">Хүргэгч болох — бүртгүүлэх</span>
-                <span class="link-arrow">↗</span>
+            <a href="signup.html" class="btn btn-carrier">
+                <span class="btn-icon">🚚</span>
+                Хүргэгч
             </a>
-        </section>
-
-        <section class="home-info">
-            <div class="info-block">
-                <span class="info-label">Тухай</span>
-                <p>Мөрөн дэх хүргэлтийн зуучлах цэг. Хэрэглэгч хүргэлт хайж, хүргэгч бүртгүүлнэ.</p>
-            </div>
-        </section>
-
-        <footer class="home-footer">
-            <p>Сургуулийн төсөл • Prototype</p>
+        </main>
+        <footer>
+            <p></p>
         </footer>
-
-    </main>
-
-    <style>
-        @keyframes wormWave {
-            0%, 100% { transform: scale(1); }
-            50%       { transform: scale(0.44); }
-        }
-    </style>
+    </div>
 
     <script>
-        // parallax scroll
+        // parallax scroll turshilt
         window.addEventListener('scroll', function() {
             var layers = document.querySelectorAll('.parallax-layer')
             var scrolled = window.pageYOffset
@@ -87,24 +57,6 @@
                 layers[i].style.transform = 'translateY(' + (-scrolled * spd) + 'px)'
             }
         })
-
-        // worm bg circles -- stagger=dur/N keeps loop seamless
-        var svg     = document.getElementById('wormSvg')
-        var dur     = 4.8
-        var stagger = dur / 10
-
-        for (var i = 0; i < 10; i++) {
-            var dist = Math.abs(i - 4.5)
-            var c    = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-            c.setAttribute('cx', 150)
-            c.setAttribute('cy', 24 + i * 42)
-            c.setAttribute('r',  28 + dist * 15)
-            c.setAttribute('fill', 'none')
-            c.setAttribute('stroke', 'white')
-            c.setAttribute('stroke-width', '0.85')
-            c.style.cssText = 'animation: wormWave ' + dur + 's ease-in-out ' + (i * stagger) + 's infinite; transform-box: fill-box; transform-origin: center center;'
-            svg.appendChild(c)
-        }
     </script>
 </body>
 </html>
