@@ -8,6 +8,19 @@
 </head>
 <body>
 
+    <div class="parallax-bg">
+        <div class="parallax-layer layer-1" data-speed="0.2">
+            <div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-2" data-speed="0.5">
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        </div>
+        <div class="parallax-layer layer-3" data-speed="1">
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        </div>
+    </div>
+
     <div class="worm-bg">
         <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
@@ -82,14 +95,23 @@
     </style>
 
     <script>
-        // worm bg universl
+        // parallax
+        window.addEventListener('scroll', function() {
+            var layers = document.querySelectorAll('.parallax-layer')
+            var scrolled = window.pageYOffset
+            for (var i = 0; i < layers.length; i++) {
+                layers[i].style.transform = 'translateY(' + (-scrolled * layers[i].dataset.speed) + 'px)'
+            }
+        })
+
+        // worm bg same as other pages
         var svg3 = document.getElementById('wormSvg')
         for (var wi = 0; wi < 10; wi++) {
             var wd = Math.abs(wi - 4.5)
             var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
             wc.setAttribute('cx', 150)
             wc.setAttribute('cy', 24 + wi * 42)
-            wc.setAttribute('r', 28 + wd * 15)
+            wc.setAttribute('r',  28 + wd * 15)
             wc.setAttribute('fill', 'none')
             wc.setAttribute('stroke', 'white')
             wc.setAttribute('stroke-width', '0.85')
@@ -97,12 +119,12 @@
             svg3.appendChild(wc)
         }
 
-        // jin gulgaa
-        var weightInput = document.getElementById('weight')
-        var weightValue = document.getElementById('weightValue')
-        weightInput.oninput = function() { weightValue.textContent = this.value }
+        // weight slider
+        document.getElementById('weight').oninput = function() {
+            document.getElementById('weightValue').textContent = this.value
+        }
 
-        // utsnii dugr valdashion
+        // phone -- numbers only
         var phoneInput = document.getElementById('phone')
         var phoneError = document.getElementById('phoneError')
         phoneInput.addEventListener('input', function(e) {
@@ -112,7 +134,7 @@
             phoneError.textContent = '8 оронтой тоо байх ёстой'
         })
 
-        // mashinii dugaar
+        // car inputs
         var carNumInput = document.getElementById('carNumber')
         var carLetInput = document.getElementById('carLetters')
         var carError    = document.getElementById('carError')
@@ -122,7 +144,6 @@
             checkCar()
         })
 
-        // zuwhun mongol heleer bichne auto capslock
         carLetInput.addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3)
             checkCar()
@@ -136,7 +157,7 @@
             return !bad
         }
 
-        // pin
+        // pin -- 4 digits
         var pinInput = document.getElementById('pin')
         var pinError = document.getElementById('pinError')
         pinInput.addEventListener('input', function(e) {
@@ -165,7 +186,6 @@
 
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault()
-
             var phone  = document.getElementById('phone').value.trim()
             var carNum = document.getElementById('carNumber').value.trim()
             var carLet = document.getElementById('carLetters').value.trim()
