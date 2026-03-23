@@ -24,9 +24,100 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-.parallax-bg { display: none !important; }
+.parallax-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
 
-/* utnii backrounds */
+.parallax-layer {
+    position: absolute;
+    width: 100%; height: 100%;
+}
+
+.ball {
+    position: absolute;
+    border-radius: 50%;
+    animation-iteration-count: infinite;
+}
+
+/* layer 1 small ones */
+.layer-1 .ball { width: 40px; height: 40px; }
+
+.layer-1 .ball:nth-child(1) {
+    background: rgba(255,255,255,0.15);
+    top: 12%; left: 17%;
+    animation: f1 19s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(2) {
+    background: rgba(255,255,255,0.12);
+    top: 63%; left: 74%;
+    animation: f2 24s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(3) {
+    background: rgba(255,255,255,0.09);
+    top: 33%; left: 48%;
+    animation: f3 21s ease-in-out infinite;
+}
+.layer-1 .ball:nth-child(4) {
+    background: rgba(255,255,255,0.13);
+    top: 79%; left: 22%;
+    animation: f4 27s ease-in-out infinite;
+}
+
+/* medium */
+.layer-2 .ball { width: 80px; height: 80px; }
+
+.layer-2 .ball:nth-child(1) {
+    background: rgba(255,255,255,0.08);
+    top: 23%; left: 71%;
+    animation: f5 14s ease-in-out infinite;
+}
+.layer-2 .ball:nth-child(2) {
+    background: rgba(255,255,255,0.07);
+    top: 51%; left: 18%;
+    animation: f6 17s ease-in-out infinite;
+}
+.layer-2 .ball:nth-child(3) {
+    background: rgba(255,255,255,0.09);
+    top: 77%; left: 61%;
+    animation: f7 15s ease-in-out infinite;
+}
+
+/* big blurry -- had to bump opacity up a bit they were invisible */
+.layer-3 .ball { width: 150px; height: 150px; filter: blur(8px); }
+
+.layer-3 .ball:nth-child(1) {
+    background: rgba(255,255,255,0.06);
+    top: 14%; left: 6%;
+    animation: f8 11s ease-in-out infinite;
+}
+.layer-3 .ball:nth-child(2) {
+    background: rgba(255,255,255,0.05);
+    top: 67%; left: 79%;
+    animation: f9 13s ease-in-out infinite;
+}
+.layer-3 .ball:nth-child(3) {
+    background: rgba(255,255,255,0.06);
+    top: 41%; left: 53%;
+    animation: f10 10s ease-in-out infinite;
+}
+
+@keyframes f1  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(28px,-38px)} }
+@keyframes f2  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(-43px,31px)} }
+@keyframes f3  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(22px,47px)} }
+@keyframes f4  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(-37px,-22px)} }
+@keyframes f5  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(53px,-58px)} }
+@keyframes f6  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(-51px,49px)} }
+@keyframes f7  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(44px,57px)} }
+@keyframes f8  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(68px,-77px)} }
+@keyframes f9  { 0%,100%{transform:translate(0,0)}  50%{transform:translate(-72px,66px)} }
+@keyframes f10 { 0%,100%{transform:translate(0,0)}  50%{transform:translate(63px,82px)} }
+
+/* worm fixed center bg */
 .worm-bg {
     position: fixed;
     inset: 0;
@@ -44,7 +135,6 @@ body {
     max-width: 400px;
 }
 
-/* nav */
 .top-nav {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -86,7 +176,6 @@ body {
 }
 .nav-right:hover { color: var(--white); }
 
-/* undsen pagr */
 .home-main {
     position: relative;
     z-index: 1;
@@ -199,7 +288,6 @@ body {
     text-transform: uppercase;
 }
 
-
 body:not(.home) {
     display: flex;
     justify-content: center;
@@ -304,7 +392,6 @@ body:not(.home) {
 .btn:hover { background: var(--white); color: #111; transform: none; box-shadow: none; }
 .btn-icon { font-size: 2rem; margin-bottom: 14px; filter: grayscale(1); }
 
-/* haih */
 .search-section {
     padding: 22px 36px 16px;
     border-bottom: 1px solid var(--border);
@@ -340,7 +427,6 @@ body:not(.home) {
     text-transform: uppercase;
 }
 
-/* zuugchid grid */
 .carriers-grid {
     padding: 20px;
     display: grid;
@@ -528,7 +614,6 @@ body:not(.home) {
     margin-top: 8px;
 }
 
-/* udur songoh*/
 .days-selector {
     display: flex;
     flex-wrap: wrap;
@@ -557,7 +642,6 @@ body:not(.home) {
 .day-checkbox input[type="checkbox"]:checked + span { font-weight: 600; color: var(--white); }
 .day-checkbox span { font-size: 0.8rem; color: var(--white); user-select: none; opacity: 0.8; }
 
-/* jin gulgaa */
 .weight-slider-container { margin-top: 14px; }
 
 .weight-slider {
@@ -597,7 +681,6 @@ body:not(.home) {
     color: var(--white);
 }
 
-
 .btn-submit {
     width: 100%;
     padding: 17px;
@@ -616,7 +699,6 @@ body:not(.home) {
 }
 .btn-submit:hover { background: transparent; color: var(--white); transform: none; box-shadow: none; }
 
-/* model */
 .model {
     display: none;
     position: fixed;
@@ -710,8 +792,8 @@ body:not(.home) {
     font-family: var(--font);
 }
 .btn-cancel:hover { background: rgba(255,255,255,0.12); color: var(--white); transform: none; }
-.loading,
-.no-data {
+
+.loading, .no-data {
     text-align: center;
     color: var(--white);
     padding: 80px 32px;
@@ -735,14 +817,7 @@ footer {
 
 @media (max-width: 768px) {
     body:not(.home) { padding: 0; }
-
-    .container {
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-        min-height: 100vh;
-    }
-
+    .container { border-radius: 0; border-left: none; border-right: none; min-height: 100vh; }
     .page-header { padding: 22px 20px 18px; }
     .page-header h1 { font-size: 1.05rem; letter-spacing: 3px; }
     .form-container { padding: 26px 20px; }
