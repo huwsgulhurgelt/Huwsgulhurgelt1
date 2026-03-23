@@ -7,22 +7,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div><div class="ball"></div>
-            <div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
         <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
         <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
-    </div>
-
-    <div class="worm-bg">
-        <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
     <div class="container">
@@ -48,7 +49,7 @@
         </footer>
     </div>
 
-    <!-- modal -- class is "model" from old css, too lazy to fix -->
+    <!-- modal -- class is "model" from old css too lazy to fix -->
     <div id="editModal" class="model" style="display:none;">
         <div class="model-content">
             <div class="model-header">
@@ -100,15 +101,8 @@
         </div>
     </div>
 
-    <style>
-        @keyframes wormWave {
-            0%, 100% { transform: scale(1); }
-            50%       { transform: scale(0.44); }
-        }
-    </style>
-
     <script>
-        // parallax scroll
+        // scrolldon
         window.addEventListener('scroll', function() {
             var layers = document.querySelectorAll('.parallax-layer')
             var scrolled = window.pageYOffset
@@ -117,29 +111,14 @@
             }
         })
 
-        // worm copy paste from index
-        var svg2 = document.getElementById('wormSvg')
-        for (var wi = 0; wi < 10; wi++) {
-            var wd = Math.abs(wi - 4.5)
-            var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-            wc.setAttribute('cx', 150)
-            wc.setAttribute('cy', 24 + wi * 42)
-            wc.setAttribute('r',  28 + wd * 15)
-            wc.setAttribute('fill', 'none')
-            wc.setAttribute('stroke', 'white')
-            wc.setAttribute('stroke-width', '0.85')
-            wc.style.cssText = 'animation: wormWave 4.8s ease-in-out ' + (wi * 0.48) + 's infinite; transform-box: fill-box; transform-origin: center center;'
-            svg2.appendChild(wc)
-        }
-
-        // hash fn -- stackoverflow dont touch
+        // hash fn from stackoverflow dont touch
         async function hashPin(p) {
             const buf = new TextEncoder().encode(p)
             const h = await crypto.subtle.digest('SHA-256', buf)
             return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('')
         }
 
-        // master pin "4133"
+        // master pin "4133" -- echo -n "4133" | sha256sum
         var MASTER_HASH = 'a07cf27590e57bf851029cada1b752019189ba52defb3e43401887fcb2489b5e'
     </script>
 
