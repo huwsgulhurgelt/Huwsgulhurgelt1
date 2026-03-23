@@ -7,22 +7,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div><div class="ball"></div>
-            <div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
         <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
         <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
         </div>
-    </div>
-
-    <div class="worm-bg">
-        <svg id="wormSvg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
     <div class="container">
@@ -87,13 +88,6 @@
         </footer>
     </div>
 
-    <style>
-        @keyframes wormWave {
-            0%, 100% { transform: scale(1); }
-            50%       { transform: scale(0.44); }
-        }
-    </style>
-
     <script>
         // parallax
         window.addEventListener('scroll', function() {
@@ -103,21 +97,6 @@
                 layers[i].style.transform = 'translateY(' + (-scrolled * layers[i].dataset.speed) + 'px)'
             }
         })
-
-        // worm bg same as other pages
-        var svg3 = document.getElementById('wormSvg')
-        for (var wi = 0; wi < 10; wi++) {
-            var wd = Math.abs(wi - 4.5)
-            var wc = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-            wc.setAttribute('cx', 150)
-            wc.setAttribute('cy', 24 + wi * 42)
-            wc.setAttribute('r',  28 + wd * 15)
-            wc.setAttribute('fill', 'none')
-            wc.setAttribute('stroke', 'white')
-            wc.setAttribute('stroke-width', '0.85')
-            wc.style.cssText = 'animation: wormWave 4.8s ease-in-out ' + (wi * 0.48) + 's infinite; transform-box: fill-box; transform-origin: center center;'
-            svg3.appendChild(wc)
-        }
 
         // weight slider
         document.getElementById('weight').oninput = function() {
@@ -134,7 +113,6 @@
             phoneError.textContent = '8 оронтой тоо байх ёстой'
         })
 
-        // car inputs
         var carNumInput = document.getElementById('carNumber')
         var carLetInput = document.getElementById('carLetters')
         var carError    = document.getElementById('carError')
@@ -144,6 +122,7 @@
             checkCar()
         })
 
+        // cyrillic auto caps
         carLetInput.addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3)
             checkCar()
@@ -157,7 +136,7 @@
             return !bad
         }
 
-        // pin -- 4 digits
+        // pin
         var pinInput = document.getElementById('pin')
         var pinError = document.getElementById('pinError')
         pinInput.addEventListener('input', function(e) {
