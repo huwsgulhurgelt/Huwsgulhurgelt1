@@ -104,12 +104,14 @@
     <script>
         // scrolldon
         window.addEventListener('scroll', function() {
-            var layers = document.querySelectorAll('.parallax-layer')
-            var scrolled = window.pageYOffset
-            for (var i = 0; i < layers.length; i++) {
-                layers[i].style.transform = 'translateY(' + (-scrolled * layers[i].dataset.speed) + 'px)'
-            }
-        })
+    var layers = document.querySelectorAll('.parallax-layer')
+    var scrolled = window.pageYOffset
+    for (var i = 0; i < layers.length; i++) {
+        var spd = layers[i].dataset.speed
+        var offset = (scrolled * spd) % window.innerHeight
+        layers[i].style.transform = 'translateY(' + (-offset) + 'px)'
+    }
+})
 
         // hash fn from stackoverflow dont touch
         async function hashPin(p) {
