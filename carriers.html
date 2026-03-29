@@ -3,26 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Хүргэгчид - Мөрөн</title>
+    <title>Боломжит хүргэгчид - Мөрөн Хүргэлт</title>
     <link rel="stylesheet" href="style.css">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        .carrier-plate {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fee140;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        /* ─── Floating map button ─── */
+        .map-fab {
+            position: fixed;
+            bottom: 36px;
+            right: 36px;
+            z-index: 999;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.55);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                        box-shadow 0.3s ease;
+            color: white;
+        }
+
+        .map-fab:hover {
+            transform: scale(1.12) translateY(-3px);
+            box-shadow: 0 14px 40px rgba(102, 126, 234, 0.75);
+        }
+
+        .map-fab:active {
+            transform: scale(0.96);
+        }
+
+        /* Pulse ring */
+        .map-fab::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            animation: fab-pulse 2.5s ease-out infinite;
+        }
+
+        @keyframes fab-pulse {
+            0%   { transform: scale(1);   opacity: 0.8; }
+            70%  { transform: scale(1.35); opacity: 0;   }
+            100% { transform: scale(1.35); opacity: 0;   }
+        }
+
+        /* ─── Map overlay ─── */
+        .map-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1500;
+            background: rgba(5, 8, 22, 0.82);
+            backdrop-filter: blur(8px);
+            animation: overlayIn 0.3s ease;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .map-overlay.active {
+            display: flex;
+        }
+
+        @keyframes overlayIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .map-panel {
+            width: 100%;
+            max-width: 860px;
+            height: min(600px, 85vh);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            animation: panelIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(14, 18, 42, 0.98);
+        }
+
+        @keyframes panelIn {
+            from { transform: translateY(40px) scale(0.96); opacity: 0; }
+            to   { transform: translateY(0)    scale(1);    opacity: 1; }
+        }
+
+        /* Panel header */
+        .map-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            flex-shrink: 0;
+        }
+
+        .map-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .map-panel-title span {
+            font-size: 1.3rem;
+        }
+
+        .map-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.2s;
+            line-height: 1;
+        }
+
+        .map-close:hover {
+            background: rgba(255,255,255,0.35);
+            transform: rotate(90deg);
+        }
+
+        /* The actual map */
+        #moron-map {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Override Leaflet to match dark theme */
+        .leaflet-container {
+            background: #0d1128 !important;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .leaflet-control-zoom a {
+            background: rgba(14, 18, 42, 0.95) !important;
+            color: #e8eaf6 !important;
+            border-color: rgba(255,255,255,0.15) !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: rgba(102, 126, 234, 0.4) !important;
+        }
+
+        .leaflet-control-attribution {
+            background: rgba(14, 18, 42, 0.8) !important;
+            color: #6b7299 !important;
+            font-size: 0.7rem !important;
+        }
+
+        .leaflet-control-attribution a {
+            color: #667eea !important;
+        }
+
+        /* Map hint bar */
+        .map-hint {
+            padding: 10px 20px;
+            background: rgba(10, 14, 35, 0.95);
+            color: #8892b0;
+            font-size: 0.82rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            flex-shrink: 0;
+        }
+
+        .map-hint strong {
+            color: #667eea;
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .map-fab {
+                bottom: 24px;
+                right: 20px;
+                width: 56px;
+                height: 56px;
+                font-size: 1.4rem;
+            }
+
+            .map-panel {
+                height: min(500px, 88vh);
+                border-radius: 18px;
+            }
+
+            .map-panel-header {
+                padding: 14px 18px;
+            }
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Parallax Background -->
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div>
         </div>
         <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
         </div>
         <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
         </div>
     </div>
 
@@ -34,101 +245,245 @@
 
         <div class="search-section">
             <div class="search-container">
-                <input type="text" id="srchInput" class="search-input"
-                    placeholder="🔍 Утас, тайлбар хайх..." autocomplete="off">
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..." autocomplete="off">
+                <div id="searchSuggestions" class="search-suggestions"></div>
             </div>
-            <div id="srchStats" class="search-stats"></div>
+            <div id="searchStats" class="search-stats"></div>
         </div>
 
-        <main id="listContainer" class="carriers-grid">
+        <main id="carriersContainer" class="carriers-grid">
             <div class="loading">Уншиж байна...</div>
         </main>
 
         <footer>
-            <p>хүргэлтийн туршид гарсан гэмтэл болон алдагдлыг манай сайт хариуцахгүй болно</p>
+            <p>Сургуулийн төсөл • Prototype</p>
         </footer>
     </div>
 
-    <!-- edit carriers-->
-    <div id="editModal" class="model" style="display:none;">
+    <!-- ─── Floating Map Button ─── -->
+    <button class="map-fab" id="mapFab" title="Мөрөн хотын газрын зураг">
+        📍
+    </button>
+
+    <!-- ─── Map Overlay ─── -->
+    <div class="map-overlay" id="mapOverlay">
+        <div class="map-panel">
+            <div class="map-panel-header">
+                <div class="map-panel-title">
+                    <span>🗺️</span> Мөрөн хот — Газрын зураг
+                </div>
+                <button class="map-close" id="mapClose" title="Хаах">✕</button>
+            </div>
+
+            <div id="moron-map"></div>
+
+            <div class="map-hint">
+                Хулгана эсвэл хуруугаараа <strong>гүйлгэж</strong> / <strong>томруулж</strong> үзэх боломжтой
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModel" class="model" style="display: none;">
         <div class="model-content">
             <div class="model-header">
                 <h2>Мэдээлэл засах</h2>
-                <span class="close-model" onclick="closeModal()">&times;</span>
+                <span class="close-model" onclick="closeEditModel()">&times;</span>
             </div>
             <form id="editForm">
                 <div class="form-group">
-                    <label for="ePhone">Утасны дугаар</label>
-                    <input type="tel" id="ePhone" required>
+                    <label for="editPhone">Утасны дугаар</label>
+                    <input type="tel" id="editPhone" required>
                 </div>
                 <div class="form-group">
                     <label>Машины дугаар</label>
                     <div class="car-number-container">
-                        <input type="text" id="eCarNum" class="car-number-input" placeholder="1234" maxlength="4">
-                        <input type="text" id="eCarLet" class="car-letters-input" placeholder="ХӨВ" maxlength="3">
+                        <input type="text" id="editCarNumber" class="car-number-input" placeholder="1234" maxlength="4">
+                        <input type="text" id="editCarLetters" class="car-letters-input" placeholder="ХӨВ" maxlength="3">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="eDesc">Юу хүргэж чадах вэ?</label>
-                    <textarea id="eDesc" rows="4" required></textarea>
+                    <label for="editDescription">Юу хүргэж чадах вэ?</label>
+                    <textarea id="editDescription" rows="4" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="eWeight">Хамгийн ихдээ хэдэн кг?</label>
+                    <label for="editWeight">Хамгийн ихдээ хэдэн кг зөөж чадах вэ?</label>
                     <div class="weight-slider-container">
-                        <input type="range" id="eWeight" min="1" max="100" value="10" class="weight-slider">
+                        <input type="range" id="editWeight" min="1" max="100" value="10" class="weight-slider">
                         <div class="weight-display">
-                            <span id="eWeightVal">10</span> кг
+                            <span id="editWeightValue">10</span> кг
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Өдрүүд</label>
+                    <label>Хүргэлт хийх боломжтой өдрүүд</label>
                     <div class="days-selector">
-                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Даваа"><span>Даваа</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Мягмар"><span>Мягмар</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Лхагва"><span>Лхагва</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Пүрэв"><span>Пүрэв</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Баасан"><span>Баасан</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Бямба"><span>Бямба</span></label>
-                        <label class="day-checkbox"><input type="checkbox" name="eDays" value="Ням"><span>Ням</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Даваа"><span>Даваа</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Мягмар"><span>Мягмар</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Лхагва"><span>Лхагва</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Пүрэв"><span>Пүрэв</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Баасан"><span>Баасан</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Бямба"><span>Бямба</span></label>
+                        <label class="day-checkbox"><input type="checkbox" name="editDays" value="Ням"><span>Ням</span></label>
                     </div>
                 </div>
                 <div class="model-actions">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Болих</button>
+                    <button type="button" class="btn-cancel" onclick="closeEditModel()">Болих</button>
                     <button type="submit" class="btn-submit">Хадгалах</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
-        // scrolldon
-        window.addEventListener('scroll', function() {
-    var layers = document.querySelectorAll('.parallax-layer')
-    var scrolled = window.pageYOffset
-    for (var i = 0; i < layers.length; i++) {
-        var spd = layers[i].dataset.speed
-        var offset = (scrolled * spd) % window.innerHeight
-        layers[i].style.transform = 'translateY(' + (-offset) + 'px)'
-    }
-})
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        // hash
-        async function hashPin(p) {
-            const buf = new TextEncoder().encode(p)
-            const h = await crypto.subtle.digest('SHA-256', buf)
-            return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2, '0')).join('')
+    <script>
+        // ─── Parallax ───
+        window.addEventListener('scroll', () => {
+            const layers = document.querySelectorAll('.parallax-layer');
+            const scrolled = window.pageYOffset;
+            layers.forEach(layer => {
+                layer.style.transform = `translateY(${-scrolled * layer.dataset.speed}px)`;
+            });
+        });
+
+        // ─── SHA-256 ───
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // master pin hash hiisn n 
-        var MASTER_HASH = 'a07cf27590e57bf851029cada1b752019189ba52defb3e43401887fcb2489b5e'
+        // SHA-256 hash of master PIN
+        // To generate yours: open browser console and run:
+        // crypto.subtle.digest('SHA-256', new TextEncoder().encode('4133'))
+        //   .then(b => console.log(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')))
+        const MASTER_PIN_HASH = "a7c4e35b2f8d1690e5b3f2a4c6d8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7";
+        // ^^^ REPLACE with your real generated hash
+
+        // ─── Map setup ───
+        let mapInitialized = false;
+        let moronMap = null;
+
+        const MORON = { lat: 49.6356, lng: 100.1614 };
+
+        function initMap() {
+            if (mapInitialized) return;
+            mapInitialized = true;
+
+            moronMap = L.map('moron-map', {
+                center: [MORON.lat, MORON.lng],
+                zoom: 14,
+                zoomControl: true,
+                scrollWheelZoom: true,
+            });
+
+            // Dark tile layer (CartoDB Dark Matter — free, no API key)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19,
+            }).addTo(moronMap);
+
+            // City center marker
+            const pulseIcon = L.divIcon({
+                className: '',
+                html: `
+                    <div style="
+                        width: 18px; height: 18px;
+                        background: #667eea;
+                        border-radius: 50%;
+                        border: 3px solid white;
+                        box-shadow: 0 0 0 6px rgba(102,126,234,0.3),
+                                    0 4px 15px rgba(102,126,234,0.6);
+                        animation: markerPulse 2s ease-out infinite;
+                    "></div>
+                    <style>
+                        @keyframes markerPulse {
+                            0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.5), 0 4px 15px rgba(102,126,234,0.5); }
+                            70%  { box-shadow: 0 0 0 12px rgba(102,126,234,0),   0 4px 15px rgba(102,126,234,0.3); }
+                            100% { box-shadow: 0 0 0 0   rgba(102,126,234,0),   0 4px 15px rgba(102,126,234,0.3); }
+                        }
+                    </style>
+                `,
+                iconSize: [18, 18],
+                iconAnchor: [9, 9],
+            });
+
+            L.marker([MORON.lat, MORON.lng], { icon: pulseIcon })
+                .addTo(moronMap)
+                .bindPopup(`
+                    <div style="
+                        font-family: 'Inter', sans-serif;
+                        color: #e8eaf6;
+                        text-align: center;
+                        padding: 4px 2px;
+                    ">
+                        <div style="font-size:1.4rem; margin-bottom:4px;">🏙️</div>
+                        <strong style="font-size:1rem;">Мөрөн хот</strong><br>
+                        <span style="font-size:0.8rem; color:#9fa8c4;">Хөвсгөл аймгийн төв</span>
+                    </div>
+                `, {
+                    className: 'dark-popup',
+                })
+                .openPopup();
+
+            // Style the popup to match dark theme
+            const style = document.createElement('style');
+            style.textContent = `
+                .dark-popup .leaflet-popup-content-wrapper {
+                    background: rgba(14, 18, 42, 0.97);
+                    border: 1px solid rgba(102,126,234,0.4);
+                    border-radius: 12px;
+                    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+                    color: #e8eaf6;
+                }
+                .dark-popup .leaflet-popup-tip {
+                    background: rgba(14, 18, 42, 0.97);
+                }
+                .dark-popup .leaflet-popup-close-button {
+                    color: #9fa8c4 !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // ─── Map open / close ───
+        const mapFab     = document.getElementById('mapFab');
+        const mapOverlay = document.getElementById('mapOverlay');
+        const mapClose   = document.getElementById('mapClose');
+
+        mapFab.addEventListener('click', () => {
+            mapOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            // Init map on first open (Leaflet needs the container visible)
+            setTimeout(initMap, 60);
+        });
+
+        function closeMap() {
+            mapOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        mapClose.addEventListener('click', closeMap);
+
+        mapOverlay.addEventListener('click', (e) => {
+            if (e.target === mapOverlay) closeMap();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMap();
+        });
     </script>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js'
-        import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js'
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-        const cfg = {
+        const firebaseConfig = {
             apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
             authDomain: "huwsgul-hurgelt.firebaseapp.com",
             databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -136,156 +491,186 @@
             storageBucket: "huwsgul-hurgelt.firebasestorage.app",
             messagingSenderId: "457877716370",
             appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
-        }
+        };
 
-        const app = initializeApp(cfg)
-        const db  = getDatabase(app)
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-        var allData = {}, filtered = {}, editingId = null
+        const carriersContainer = document.getElementById('carriersContainer');
+        const searchInput       = document.getElementById('searchInput');
+        const searchStats       = document.getElementById('searchStats');
+        const editModel         = document.getElementById('editModel');
+        const editForm          = document.getElementById('editForm');
+        const editWeightSlider  = document.getElementById('editWeight');
+        const editWeightValue   = document.getElementById('editWeightValue');
 
-        var listEl  = document.getElementById('listContainer')
-        var srchEl  = document.getElementById('srchInput')
-        var statsEl = document.getElementById('srchStats')
-        var modal   = document.getElementById('editModal')
-        var form    = document.getElementById('editForm')
-        var wSlider = document.getElementById('eWeight')
-        var wVal    = document.getElementById('eWeightVal')
+        let allCarriers = {};
+        let filteredCarriers = {};
+        let currentEditId = null;
 
-        wSlider.oninput = function() { wVal.textContent = this.value }
+        editWeightSlider.addEventListener('input', (e) => {
+            editWeightValue.textContent = e.target.value;
+        });
 
-        document.getElementById('eCarLet').addEventListener('input', function(e) {
-            e.target.value = e.target.value.toUpperCase().slice(0, 3)
-        })
-        document.getElementById('eCarNum').addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4)
-        })
+        document.getElementById('editCarLetters').addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
+        });
 
-        onValue(ref(db, 'carriers'), function(snap) {
-            if (!snap.exists()) {
-                listEl.innerHTML = '<div class="no-data">Хүргэгч байхгүй байна.</div>'
-                allData = {}; filtered = {}
-                updateStats(); return
+        document.getElementById('editCarNumber').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+
+        onValue(ref(database, 'carriers'), (snapshot) => {
+            if (!snapshot.exists()) {
+                carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
+                allCarriers = {};
+                filteredCarriers = {};
+                updateSearchStats();
+                return;
             }
-            allData = snap.val()
-            filtered = Object.assign({}, allData)
-            renderList(filtered)
-            updateStats()
-        })
+            allCarriers = snapshot.val();
+            filteredCarriers = { ...allCarriers };
+            displayCarriers(filteredCarriers);
+            updateSearchStats();
+        });
 
-        srchEl.addEventListener('input', function() {
-            var q = this.value.toLowerCase().trim()
-            if (!q) { filtered = Object.assign({}, allData); renderList(filtered); updateStats(); return }
-            filtered = {}
-            Object.keys(allData).forEach(function(k) {
-                var c = allData[k]
-                var hay = c.phone + ' ' + c.description + ' ' + (c.days ? c.days.join(' ') : '')
-                if (hay.toLowerCase().includes(q)) filtered[k] = c
-            })
-            renderList(filtered)
-            updateStats()
-        })
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            if (!term) {
+                filteredCarriers = { ...allCarriers };
+                displayCarriers(filteredCarriers);
+                updateSearchStats();
+                return;
+            }
+            filteredCarriers = {};
+            Object.keys(allCarriers).forEach(key => {
+                const c = allCarriers[key];
+                if (
+                    c.phone.toLowerCase().includes(term) ||
+                    c.description.toLowerCase().includes(term) ||
+                    (c.days && c.days.join(' ').toLowerCase().includes(term))
+                ) {
+                    filteredCarriers[key] = c;
+                }
+            });
+            displayCarriers(filteredCarriers);
+            updateSearchStats();
+        });
 
-        function renderList(data) {
-            listEl.innerHTML = ''
-            var keys = Object.keys(data)
-            if (!keys.length) { listEl.innerHTML = '<div class="no-data">Олдсонгүй</div>'; return }
-            keys.forEach(function(id) {
-                var c    = data[id]
-                var card = document.createElement('div')
-                card.className = 'carrier-card'
-                var platePart  = c.carPlate ? '<div class="plate-txt">🚗 ' + c.carPlate + '</div>' : ''
-                var daysStr    = c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'
-                var weightPart = c.maxWeight ? '<span class="carrier-weight">⚖️ ' + c.maxWeight + ' кг</span>' : ''
-                card.innerHTML =
-                    '<div class="card-content">' +
-                        '<div class="carrier-phone">' + c.phone + '</div>' +
-                        platePart +
-                        '<div class="carrier-description">' + c.description + '</div>' +
-                        '<div class="carrier-meta"><span class="carrier-days">📅 ' + daysStr + '</span>' + weightPart + '</div>' +
-                    '</div>' +
-                    '<div class="card-actions">' +
-                        '<button class="btn-small btn-edit" onclick="editCarrier(\'' + id + '\')">Засах</button>' +
-                        '<button class="btn-small btn-delete" onclick="deleteCarrier(\'' + id + '\')">Устгах</button>' +
-                    '</div>'
-                listEl.appendChild(card)
-            })
+        function displayCarriers(carriers) {
+            carriersContainer.innerHTML = '';
+            if (!Object.keys(carriers).length) {
+                carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
+                return;
+            }
+            Object.keys(carriers).forEach(id => {
+                const c = carriers[id];
+                const card = document.createElement('div');
+                card.className = 'carrier-card';
+                card.innerHTML = `
+                    <div class="card-content">
+                        <div class="carrier-phone">${c.phone}</div>
+                        ${c.carPlate ? `<div class="carrier-plate">🚗 ${c.carPlate}</div>` : ''}
+                        <div class="carrier-description">${c.description}</div>
+                        <div class="carrier-meta">
+                            <span class="carrier-days">📅 ${c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'}</span>
+                            ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${c.maxWeight} кг</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-small btn-edit"   onclick="editCarrier('${id}')">Засах</button>
+                        <button class="btn-small btn-delete" onclick="deleteCarrier('${id}')">Устгах</button>
+                    </div>
+                `;
+                carriersContainer.appendChild(card);
+            });
         }
 
-        function updateStats() {
-            var total = Object.keys(allData).length, showing = Object.keys(filtered).length
-            statsEl.textContent = srchEl.value.trim()
-                ? showing + ' хүргэгч олдлоо (Нийт: ' + total + ')'
-                : 'Нийт ' + total + ' хүргэгч'
+        function updateSearchStats() {
+            const total   = Object.keys(allCarriers).length;
+            const showing = Object.keys(filteredCarriers).length;
+            searchStats.innerHTML = searchInput.value.trim()
+                ? `${showing} хүргэгч олдлоо (Нийт: ${total})`
+                : `Нийт ${total} хүргэгч`;
         }
 
         window.editCarrier = async function(id) {
-            var pin = prompt('PIN код:')
-            if (!pin) return
-            var entered = await hashPin(pin)
-            var ch = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
-            if (entered !== MASTER_HASH && entered !== ch) { alert('Буруу PIN!'); return }
-            openModal(id)
-        }
+            const pin = prompt('PIN код оруулна уу:');
+            if (!pin) return;
+            const enteredHash    = await sha256(pin);
+            const carrierPinHash = allCarriers[id]?.pin ? await sha256(allCarriers[id].pin) : null;
+            if (enteredHash === MASTER_PIN_HASH || enteredHash === carrierPinHash) {
+                openEditModel(id);
+            } else {
+                alert('Буруу PIN код!');
+            }
+        };
 
         window.deleteCarrier = async function(id) {
-            var pin = prompt('Устгах PIN:')
-            if (!pin) return
-            var entered = await hashPin(pin)
-            var ch = allData[id] && allData[id].pin ? await hashPin(allData[id].pin) : null
-            if (entered !== MASTER_HASH && entered !== ch) { alert('Буруу PIN!'); return }
-            if (!confirm('Устгах уу?')) return
-            remove(ref(db, 'carriers/' + id))
-                .then(function() { alert('Устгалаа!') })
-                .catch(function(err) { alert('Алдаа: ' + err.message) })
-        }
-
-        function openModal(id) {
-            editingId = id
-            var c = allData[id]
-            document.getElementById('ePhone').value = c.phone
-            document.getElementById('eDesc').value  = c.description
-            wSlider.value = c.maxWeight || 10
-            wVal.textContent = c.maxWeight || 10
-            if (c.carPlate) {
-                var m = c.carPlate.match(/^(\d+)([А-ЯӨҮa-zA-Z]+)$/)
-                document.getElementById('eCarNum').value = m ? m[1] : ''
-                document.getElementById('eCarLet').value = m ? m[2] : ''
-            } else {
-                document.getElementById('eCarNum').value = ''
-                document.getElementById('eCarLet').value = ''
+            const pin = prompt('Устгахын тулд PIN код оруулна уу:');
+            if (!pin) return;
+            const enteredHash    = await sha256(pin);
+            const carrierPinHash = allCarriers[id]?.pin ? await sha256(allCarriers[id].pin) : null;
+            if (enteredHash !== MASTER_PIN_HASH && enteredHash !== carrierPinHash) {
+                alert('Буруу PIN код!');
+                return;
             }
-            document.querySelectorAll('input[name="eDays"]').forEach(function(cb) {
-                cb.checked = c.days && c.days.includes(cb.value)
-            })
-            modal.style.display = 'block'
-            document.body.style.overflow = 'hidden'
+            if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
+            remove(ref(database, `carriers/${id}`))
+                .then(() => alert('Амжилттай устгалаа!'))
+                .catch(err => { console.error(err); alert('Алдаа гарлаа!'); });
+        };
+
+        function openEditModel(id) {
+            currentEditId = id;
+            const c = allCarriers[id];
+            document.getElementById('editPhone').value       = c.phone;
+            document.getElementById('editDescription').value = c.description;
+            editWeightSlider.value    = c.maxWeight || 10;
+            editWeightValue.textContent = c.maxWeight || 10;
+            if (c.carPlate) {
+                document.getElementById('editCarNumber').value  = c.carPlate.match(/^\d+/)?.[0]          || '';
+                document.getElementById('editCarLetters').value = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
+            }
+            document.querySelectorAll('input[name="editDays"]').forEach(cb => {
+                cb.checked = c.days && c.days.includes(cb.value);
+            });
+            editModel.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
-        window.closeModal = function() {
-            modal.style.display = 'none'
-            document.body.style.overflow = ''
-            editingId = null
-            form.reset()
-        }
+        window.closeEditModel = function() {
+            editModel.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentEditId = null;
+            editForm.reset();
+        };
 
-        window.onclick = function(e) { if (e.target === modal) closeModal() }
+        window.addEventListener('click', (e) => {
+            if (e.target === editModel) closeEditModel();
+        });
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault()
-            var phone = document.getElementById('ePhone').value.trim()
-            var desc  = document.getElementById('eDesc').value.trim()
-            var kg    = parseInt(wSlider.value)
-            var days  = []
-            document.querySelectorAll('input[name="eDays"]:checked').forEach(function(cb) { days.push(cb.value) })
-            var num  = document.getElementById('eCarNum').value.trim()
-            var lets = document.getElementById('eCarLet').value.trim()
-            if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return }
-            update(ref(db, 'carriers/' + editingId), {
-                phone: phone, description: desc, maxWeight: kg, days: days, carPlate: num + lets
-            })
-            .then(function() { alert('Хадгаллаа!'); closeModal() })
-            .catch(function(err) { alert('Алдаа: ' + err.message) })
-        })
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone      = document.getElementById('editPhone').value.trim();
+            const desc       = document.getElementById('editDescription').value.trim();
+            const weight     = parseInt(editWeightSlider.value);
+            const days       = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
+            const carNumber  = document.getElementById('editCarNumber').value.trim();
+            const carLetters = document.getElementById('editCarLetters').value.trim();
+            if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
+            try {
+                await update(ref(database, `carriers/${currentEditId}`), {
+                    phone, description: desc, maxWeight: weight, days,
+                    carPlate: carNumber + carLetters
+                });
+                alert('Амжилттай шинэчлэгдлээ!');
+                closeEditModel();
+            } catch (err) {
+                console.error(err);
+                alert('Алдаа гарлаа!');
+            }
+        });
     </script>
 </body>
 </html>
