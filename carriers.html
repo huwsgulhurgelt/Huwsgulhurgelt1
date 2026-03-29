@@ -200,6 +200,78 @@
             color: #667eea;
         }
 
+        /* ─── Location button inside map panel header ─── */
+        .map-locate-btn {
+            background: rgba(255,255,255,0.22);
+            border: 1px solid rgba(255,255,255,0.35);
+            color: white;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s, transform 0.2s;
+            white-space: nowrap;
+        }
+        .map-locate-btn:hover {
+            background: rgba(255,255,255,0.35);
+            transform: translateY(-1px);
+        }
+        .map-locate-btn.locating {
+            animation: locateSpin 1s linear infinite;
+        }
+        @keyframes locateSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* ─── Location off banner ─── */
+        .location-banner {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 20px;
+            background: linear-gradient(90deg, rgba(254,193,64,0.18) 0%, rgba(102,126,234,0.12) 100%);
+            border-bottom: 1px solid rgba(254,193,64,0.25);
+            font-size: 0.82rem;
+            color: #e8d88a;
+            flex-shrink: 0;
+        }
+        .location-banner.visible {
+            display: flex;
+        }
+        .location-banner span {
+            flex: 1;
+            line-height: 1.4;
+        }
+        .location-banner-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .banner-dismiss {
+            background: none;
+            border: none;
+            color: #e8d88a;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 4px;
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+        .banner-dismiss:hover { opacity: 1; }
+
+        /* ─── User location marker dot ─── */
+        .user-dot {
+            width: 16px; height: 16px;
+            background: #43e97b;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 5px rgba(67,233,123,0.3), 0 3px 12px rgba(67,233,123,0.5);
+        }
+
         /* Mobile */
         @media (max-width: 600px) {
             .map-fab {
@@ -273,7 +345,19 @@
                 <div class="map-panel-title">
                     <span>🗺️</span> Мөрөн хот — Газрын зураг
                 </div>
-                <button class="map-close" id="mapClose" title="Хаах">✕</button>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <button class="map-locate-btn" id="locateBtn" title="Миний байршил">
+                        📡 Байршил
+                    </button>
+                    <button class="map-close" id="mapClose" title="Хаах">✕</button>
+                </div>
+            </div>
+
+            <!-- Shows when location is denied/unavailable -->
+            <div class="location-banner" id="locationBanner">
+                <span class="location-banner-icon">💡</span>
+                <span>Байршил асаасан тохиолдолд Мөрөн хот дотор таны бодит байршлыг харуулна</span>
+                <button class="banner-dismiss" id="bannerDismiss" title="Хаах">✕</button>
             </div>
 
             <div id="moron-map"></div>
@@ -367,6 +451,7 @@
         // ─── Map setup ───
         let mapInitialized = false;
         let moronMap = null;
+        let userMarker = null;
 
         const MORON = { lat: 49.6356, lng: 100.1614 };
 
@@ -381,10 +466,9 @@
                 scrollWheelZoom: true,
             });
 
-            // Dark tile layer (CartoDB Dark Matter — free, no API key)
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-                subdomains: 'abcd',
+            // Light tile — OpenStreetMap standard (free, no API key, bright & readable)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19,
             }).addTo(moronMap);
 
@@ -397,15 +481,15 @@
                         background: #667eea;
                         border-radius: 50%;
                         border: 3px solid white;
-                        box-shadow: 0 0 0 6px rgba(102,126,234,0.3),
-                                    0 4px 15px rgba(102,126,234,0.6);
+                        box-shadow: 0 0 0 6px rgba(102,126,234,0.25),
+                                    0 4px 15px rgba(102,126,234,0.5);
                         animation: markerPulse 2s ease-out infinite;
                     "></div>
                     <style>
                         @keyframes markerPulse {
-                            0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.5), 0 4px 15px rgba(102,126,234,0.5); }
-                            70%  { box-shadow: 0 0 0 12px rgba(102,126,234,0),   0 4px 15px rgba(102,126,234,0.3); }
-                            100% { box-shadow: 0 0 0 0   rgba(102,126,234,0),   0 4px 15px rgba(102,126,234,0.3); }
+                            0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.5), 0 4px 15px rgba(102,126,234,0.4); }
+                            70%  { box-shadow: 0 0 0 12px rgba(102,126,234,0), 0 4px 15px rgba(102,126,234,0.2); }
+                            100% { box-shadow: 0 0 0 0   rgba(102,126,234,0), 0 4px 15px rgba(102,126,234,0.2); }
                         }
                     </style>
                 `,
@@ -416,39 +500,85 @@
             L.marker([MORON.lat, MORON.lng], { icon: pulseIcon })
                 .addTo(moronMap)
                 .bindPopup(`
-                    <div style="
-                        font-family: 'Inter', sans-serif;
-                        color: #e8eaf6;
-                        text-align: center;
-                        padding: 4px 2px;
-                    ">
+                    <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px 2px; color:#1a1a2e;">
                         <div style="font-size:1.4rem; margin-bottom:4px;">🏙️</div>
-                        <strong style="font-size:1rem;">Мөрөн хот</strong><br>
-                        <span style="font-size:0.8rem; color:#9fa8c4;">Хөвсгөл аймгийн төв</span>
+                        <strong style="font-size:1rem; color:#1a1a2e;">Мөрөн хот</strong><br>
+                        <span style="font-size:0.8rem; color:#555;">Хөвсгөл аймгийн төв</span>
                     </div>
-                `, {
-                    className: 'dark-popup',
-                })
+                `)
                 .openPopup();
 
-            // Style the popup to match dark theme
-            const style = document.createElement('style');
-            style.textContent = `
-                .dark-popup .leaflet-popup-content-wrapper {
-                    background: rgba(14, 18, 42, 0.97);
-                    border: 1px solid rgba(102,126,234,0.4);
-                    border-radius: 12px;
-                    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-                    color: #e8eaf6;
-                }
-                .dark-popup .leaflet-popup-tip {
-                    background: rgba(14, 18, 42, 0.97);
-                }
-                .dark-popup .leaflet-popup-close-button {
-                    color: #9fa8c4 !important;
-                }
-            `;
-            document.head.appendChild(style);
+            // Show banner by default — disappears once user grants location
+            showLocationBanner();
+        }
+
+        // ─── Location banner ───
+        function showLocationBanner() {
+            document.getElementById('locationBanner').classList.add('visible');
+        }
+        function hideLocationBanner() {
+            document.getElementById('locationBanner').classList.remove('visible');
+        }
+
+        document.getElementById('bannerDismiss').addEventListener('click', hideLocationBanner);
+
+        // ─── Locate Me ───
+        document.getElementById('locateBtn').addEventListener('click', locateUser);
+
+        function locateUser() {
+            if (!navigator.geolocation) {
+                alert('Таны төхөөрөмж байршил тогтоохыг дэмждэггүй.');
+                return;
+            }
+
+            const btn = document.getElementById('locateBtn');
+            btn.innerHTML = '⏳ Хайж байна...';
+            btn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude: lat, longitude: lng } = pos.coords;
+
+                    // Remove old user marker
+                    if (userMarker) moronMap.removeLayer(userMarker);
+
+                    const userIcon = L.divIcon({
+                        className: '',
+                        html: `<div class="user-dot"></div>`,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8],
+                    });
+
+                    userMarker = L.marker([lat, lng], { icon: userIcon })
+                        .addTo(moronMap)
+                        .bindPopup(`
+                            <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px; color:#1a1a2e;">
+                                <div style="font-size:1.2rem; margin-bottom:4px;">🟢</div>
+                                <strong>Таны байршил</strong><br>
+                                <span style="font-size:0.75rem; color:#555;">${lat.toFixed(5)}, ${lng.toFixed(5)}</span>
+                            </div>
+                        `)
+                        .openPopup();
+
+                    moronMap.setView([lat, lng], 15, { animate: true });
+                    hideLocationBanner();
+                    btn.innerHTML = '📡 Байршил';
+                    btn.disabled = false;
+                },
+                (err) => {
+                    btn.innerHTML = '📡 Байршил';
+                    btn.disabled = false;
+                    showLocationBanner();
+
+                    if (err.code === err.PERMISSION_DENIED) {
+                        // Show a friendly in-map message
+                        moronMap.setView([MORON.lat, MORON.lng], 14);
+                    } else {
+                        alert('Байршил тогтоох боломжгүй байна. Дахин оролдоно уу.');
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
         }
 
         // ─── Map open / close ───
