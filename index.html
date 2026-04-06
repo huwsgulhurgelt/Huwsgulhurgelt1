@@ -73,19 +73,10 @@
             }
         })
     </script>
-    <script>
+  <script>
 document.addEventListener('DOMContentLoaded', () => {
 
   const balls = [...document.querySelectorAll('.ball')];
-
-  balls.forEach(b => {
-    const match = window.getComputedStyle(b).backgroundColor
-      .match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-    b._r = match ? +match[1] : 100;
-    b._g = match ? +match[2] : 100;
-    b._b = match ? +match[3] : 200;
-  });
-
   let lx = window.innerWidth  / 2;
   let ly = window.innerHeight / 2;
   let scrollY = 0;
@@ -96,11 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ly = window.innerHeight / 2;
   });
 
-  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-
   function tick() {
-    const lightX = lx;
-    const lightY = ly - scrollY * 0.25;
+    const lightY = ly - scrollY * 0.2;
 
     balls.forEach(b => {
       const rect = b.getBoundingClientRect();
@@ -108,38 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const by   = rect.top  + rect.height / 2;
       const rad  = rect.width / 2;
 
-      const dx   = lightX - bx;
-      const dy   = lightY - by;
+      const dx   = bx - lx;
+      const dy   = by - lightY;
       const dist = Math.hypot(dx, dy) || 1;
-      const nx   = dx / dist;
-      const ny   = dy / dist;
 
-      const hlX = (50 + nx * 38).toFixed(1);
-      const hlY = (50 + ny * 38).toFixed(1);
+      const sx = ((dx / dist) * rad * 1.5).toFixed(1);
+      const sy = ((dy / dist) * rad * 1.5).toFixed(1);
+      const blur = (rad * 2).toFixed(1);
+      const op = Math.min(0.55, 0.1 + dist / 800).toFixed(2);
 
-      const r  = b._r;
-      const g  = b._g;
-      const bl = b._b;
-
-      const hi = v => Math.min(255, Math.round(v + 90));
-      const md = v => Math.round(v);
-      const lo = v => Math.max(0,   Math.round(v - 75));
-
-      b.style.background =
-        `radial-gradient(circle at ${hlX}% ${hlY}%,` +
-        `rgb(${hi(r)},${hi(g)},${hi(bl)}) 0%,` +
-        `rgb(${md(r)},${md(g)},${md(bl)}) 45%,` +
-        `rgb(${lo(r)},${lo(g)},${lo(bl)}) 100%)`;
-
-      const proximity  = clamp(dist / 600, 0, 1);
-      const shadowLen  = rad * (0.5 + proximity * 1.2);
-      const shadowBlur = rad * (1.0 + proximity * 1.5);
-      const shadowOp   = (0.15 + proximity * 0.45).toFixed(2);
-      const sx = (-nx * shadowLen).toFixed(1);
-      const sy = (-ny * shadowLen).toFixed(1);
-
-      b.style.boxShadow =
-        `${sx}px ${sy}px ${shadowBlur.toFixed(1)}px rgba(0,0,0,${shadowOp})`;
+      b.style.boxShadow = `${sx}px ${sy}px ${blur}px rgba(0,0,0,${op})`;
     });
 
     requestAnimationFrame(tick);
@@ -147,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   tick();
 });
-</script>
+</script>          
+
 </body>
 </html>
