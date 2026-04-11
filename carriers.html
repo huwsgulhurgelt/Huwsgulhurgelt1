@@ -420,387 +420,359 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script>
-        // ─── Parallax ───
-        window.addEventListener('scroll', () => {
-            const layers = document.querySelectorAll('.parallax-layer');
-            const scrolled = window.pageYOffset;
-            layers.forEach(layer => {
-                layer.style.transform = `translateY(${-scrolled * layer.dataset.speed}px)`;
-            });
+<script>
+    // ─── Parallax ───
+    window.addEventListener('scroll', () => {
+        const layers = document.querySelectorAll('.parallax-layer');
+        const scrolled = window.pageYOffset;
+        layers.forEach(layer => {
+            layer.style.transform = `translateY(${-scrolled * layer.dataset.speed}px)`;
+        });
+    });
+
+    // ─── Map setup ───
+    let mapInitialized = false;
+    let moronMap = null;
+    let userMarker = null;
+
+    const MORON = { lat: 49.6356, lng: 100.1614 };
+
+    function initMap() {
+        if (mapInitialized) return;
+        mapInitialized = true;
+
+        moronMap = L.map('moron-map', {
+            center: [MORON.lat, MORON.lng],
+            zoom: 14,
+            zoomControl: true,
+            scrollWheelZoom: true,
         });
 
-        // ─── SHA-256 ───
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+        }).addTo(moronMap);
 
-        // SHA-256 hash of master PIN
-        // To generate yours: open browser console and run:
-        // crypto.subtle.digest('SHA-256', new TextEncoder().encode('4133'))
-        //   .then(b => console.log(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')))
-        const MASTER_PIN_HASH = "cb1ddeb68a770c93b6a91023d1e4aab32e0d5c2037fbac639f425fdac2162522";
-        // ^^^ REPLACE with your real generated hash
-
-        // ─── Map setup ───
-        let mapInitialized = false;
-        let moronMap = null;
-        let userMarker = null;
-
-        const MORON = { lat: 49.6356, lng: 100.1614 };
-
-        function initMap() {
-            if (mapInitialized) return;
-            mapInitialized = true;
-
-            moronMap = L.map('moron-map', {
-                center: [MORON.lat, MORON.lng],
-                zoom: 14,
-                zoomControl: true,
-                scrollWheelZoom: true,
-            });
-
-            // Light tile — OpenStreetMap standard (free, no API key, bright & readable)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19,
-            }).addTo(moronMap);
-
-            // City center marker
-            const pulseIcon = L.divIcon({
-                className: '',
-                html: `
-                    <div style="
-                        width: 18px; height: 18px;
-                        background: #667eea;
-                        border-radius: 50%;
-                        border: 3px solid white;
-                        box-shadow: 0 0 0 6px rgba(102,126,234,0.25),
-                                    0 4px 15px rgba(102,126,234,0.5);
-                        animation: markerPulse 2s ease-out infinite;
-                    "></div>
-                    <style>
-                        @keyframes markerPulse {
-                            0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.5), 0 4px 15px rgba(102,126,234,0.4); }
-                            70%  { box-shadow: 0 0 0 12px rgba(102,126,234,0), 0 4px 15px rgba(102,126,234,0.2); }
-                            100% { box-shadow: 0 0 0 0   rgba(102,126,234,0), 0 4px 15px rgba(102,126,234,0.2); }
-                        }
-                    </style>
-                `,
-                iconSize: [18, 18],
-                iconAnchor: [9, 9],
-            });
-
-            L.marker([MORON.lat, MORON.lng], { icon: pulseIcon })
-                .addTo(moronMap)
-                .bindPopup(`
-                    <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px 2px; color:#1a1a2e;">
-                        <div style="font-size:1.4rem; margin-bottom:4px;">🏙️</div>
-                        <strong style="font-size:1rem; color:#1a1a2e;">Мөрөн хот</strong><br>
-                        <span style="font-size:0.8rem; color:#555;">Хөвсгөл аймгийн төв</span>
-                    </div>
-                `)
-                .openPopup();
-
-            // Show banner by default — disappears once user grants location
-            showLocationBanner();
-        }
-
-        // ─── Location banner ───
-        function showLocationBanner() {
-            document.getElementById('locationBanner').classList.add('visible');
-        }
-        function hideLocationBanner() {
-            document.getElementById('locationBanner').classList.remove('visible');
-        }
-
-        document.getElementById('bannerDismiss').addEventListener('click', hideLocationBanner);
-
-        // ─── Locate Me ───
-        document.getElementById('locateBtn').addEventListener('click', locateUser);
-
-        function locateUser() {
-            if (!navigator.geolocation) {
-                alert('Таны төхөөрөмж байршил тогтоохыг дэмждэггүй.');
-                return;
-            }
-
-            const btn = document.getElementById('locateBtn');
-            btn.innerHTML = '⏳ Хайж байна...';
-            btn.disabled = true;
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const { latitude: lat, longitude: lng } = pos.coords;
-
-                    // Remove old user marker
-                    if (userMarker) moronMap.removeLayer(userMarker);
-
-                    const userIcon = L.divIcon({
-                        className: '',
-                        html: `<div class="user-dot"></div>`,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8],
-                    });
-
-                    userMarker = L.marker([lat, lng], { icon: userIcon })
-                        .addTo(moronMap)
-                        .bindPopup(`
-                            <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px; color:#1a1a2e;">
-                                <div style="font-size:1.2rem; margin-bottom:4px;">🟢</div>
-                                <strong>Таны байршил</strong><br>
-                                <span style="font-size:0.75rem; color:#555;">${lat.toFixed(5)}, ${lng.toFixed(5)}</span>
-                            </div>
-                        `)
-                        .openPopup();
-
-                    moronMap.setView([lat, lng], 15, { animate: true });
-                    hideLocationBanner();
-                    btn.innerHTML = '📡 Байршил';
-                    btn.disabled = false;
-                },
-                (err) => {
-                    btn.innerHTML = '📡 Байршил';
-                    btn.disabled = false;
-                    showLocationBanner();
-
-                    if (err.code === err.PERMISSION_DENIED) {
-                        // Show a friendly in-map message
-                        moronMap.setView([MORON.lat, MORON.lng], 14);
-                    } else {
-                        alert('Байршил тогтоох боломжгүй байна. Дахин оролдоно уу.');
+        const pulseIcon = L.divIcon({
+            className: '',
+            html: `
+                <div style="
+                    width: 18px; height: 18px;
+                    background: #667eea;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 0 0 6px rgba(102,126,234,0.25), 0 4px 15px rgba(102,126,234,0.5);
+                    animation: markerPulse 2s ease-out infinite;
+                "></div>
+                <style>
+                    @keyframes markerPulse {
+                        0%   { box-shadow: 0 0 0 0   rgba(102,126,234,0.5), 0 4px 15px rgba(102,126,234,0.4); }
+                        70%  { box-shadow: 0 0 0 12px rgba(102,126,234,0), 0 4px 15px rgba(102,126,234,0.2); }
+                        100% { box-shadow: 0 0 0 0   rgba(102,126,234,0), 0 4px 15px rgba(102,126,234,0.2); }
                     }
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
+                </style>
+            `,
+            iconSize: [18, 18],
+            iconAnchor: [9, 9],
+        });
+
+        L.marker([MORON.lat, MORON.lng], { icon: pulseIcon })
+            .addTo(moronMap)
+            .bindPopup(`
+                <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px 2px; color:#1a1a2e;">
+                    <div style="font-size:1.4rem; margin-bottom:4px;">🏙️</div>
+                    <strong style="font-size:1rem; color:#1a1a2e;">Мөрөн хот</strong><br>
+                    <span style="font-size:0.8rem; color:#555;">Хөвсгөл аймгийн төв</span>
+                </div>
+            `)
+            .openPopup();
+
+        showLocationBanner();
+    }
+
+    function showLocationBanner() {
+        document.getElementById('locationBanner').classList.add('visible');
+    }
+    function hideLocationBanner() {
+        document.getElementById('locationBanner').classList.remove('visible');
+    }
+
+    document.getElementById('bannerDismiss').addEventListener('click', hideLocationBanner);
+    document.getElementById('locateBtn').addEventListener('click', locateUser);
+
+    function locateUser() {
+        if (!navigator.geolocation) {
+            alert('Таны төхөөрөмж байршил тогтоохыг дэмждэггүй.');
+            return;
         }
+        const btn = document.getElementById('locateBtn');
+        btn.innerHTML = '⏳ Хайж байна...';
+        btn.disabled = true;
 
-        // ─── Map open / close ───
-        const mapFab     = document.getElementById('mapFab');
-        const mapOverlay = document.getElementById('mapOverlay');
-        const mapClose   = document.getElementById('mapClose');
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude: lat, longitude: lng } = pos.coords;
+                if (userMarker) moronMap.removeLayer(userMarker);
+                const userIcon = L.divIcon({
+                    className: '',
+                    html: `<div class="user-dot"></div>`,
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8],
+                });
+                userMarker = L.marker([lat, lng], { icon: userIcon })
+                    .addTo(moronMap)
+                    .bindPopup(`
+                        <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px; color:#1a1a2e;">
+                            <div style="font-size:1.2rem; margin-bottom:4px;">🟢</div>
+                            <strong>Таны байршил</strong><br>
+                            <span style="font-size:0.75rem; color:#555;">${lat.toFixed(5)}, ${lng.toFixed(5)}</span>
+                        </div>
+                    `)
+                    .openPopup();
+                moronMap.setView([lat, lng], 15, { animate: true });
+                hideLocationBanner();
+                btn.innerHTML = '📡 Байршил';
+                btn.disabled = false;
+            },
+            (err) => {
+                btn.innerHTML = '📡 Байршил';
+                btn.disabled = false;
+                showLocationBanner();
+                if (err.code !== err.PERMISSION_DENIED) {
+                    alert('Байршил тогтоох боломжгүй байна. Дахин оролдоно уу.');
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
 
-        mapFab.addEventListener('click', () => {
-            mapOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            // Init map on first open (Leaflet needs the container visible)
-            setTimeout(initMap, 60);
-        });
+    const mapFab     = document.getElementById('mapFab');
+    const mapOverlay = document.getElementById('mapOverlay');
+    const mapClose   = document.getElementById('mapClose');
 
-        function closeMap() {
-            mapOverlay.classList.remove('active');
-            document.body.style.overflow = 'auto';
+    mapFab.addEventListener('click', () => {
+        mapOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(initMap, 60);
+    });
+
+    function closeMap() {
+        mapOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    mapClose.addEventListener('click', closeMap);
+    mapOverlay.addEventListener('click', (e) => { if (e.target === mapOverlay) closeMap(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMap(); });
+</script>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+    // ─── SHA-256 (moved into module so it's in the same scope) ───
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    const MASTER_PIN_HASH = "cb1ddeb68a770c93b6a91023d1e4aab32e0d5c2037fbac639f425fdac2162522";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+        authDomain: "huwsgul-hurgelt.firebaseapp.com",
+        databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "huwsgul-hurgelt",
+        storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+        messagingSenderId: "457877716370",
+        appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const carriersContainer = document.getElementById('carriersContainer');
+    const searchInput       = document.getElementById('searchInput');
+    const searchStats       = document.getElementById('searchStats');
+    const editModel         = document.getElementById('editModel');
+    const editForm          = document.getElementById('editForm');
+    const editWeightSlider  = document.getElementById('editWeight');
+    const editWeightValue   = document.getElementById('editWeightValue');
+
+    let allCarriers = {};
+    let filteredCarriers = {};
+    let currentEditId = null;
+
+    editWeightSlider.addEventListener('input', (e) => {
+        editWeightValue.textContent = e.target.value;
+    });
+
+    document.getElementById('editCarLetters').addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
+    });
+
+    document.getElementById('editCarNumber').addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    });
+
+    onValue(ref(database, 'carriers'), (snapshot) => {
+        if (!snapshot.exists()) {
+            carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
+            allCarriers = {};
+            filteredCarriers = {};
+            updateSearchStats();
+            return;
         }
+        allCarriers = snapshot.val();
+        filteredCarriers = { ...allCarriers };
+        displayCarriers(filteredCarriers);
+        updateSearchStats();
+    });
 
-        mapClose.addEventListener('click', closeMap);
-
-        mapOverlay.addEventListener('click', (e) => {
-            if (e.target === mapOverlay) closeMap();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeMap();
-        });
-    </script>
-
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-            authDomain: "huwsgul-hurgelt.firebaseapp.com",
-            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "huwsgul-hurgelt",
-            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
-            messagingSenderId: "457877716370",
-            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        const carriersContainer = document.getElementById('carriersContainer');
-        const searchInput       = document.getElementById('searchInput');
-        const searchStats       = document.getElementById('searchStats');
-        const editModel         = document.getElementById('editModel');
-        const editForm          = document.getElementById('editForm');
-        const editWeightSlider  = document.getElementById('editWeight');
-        const editWeightValue   = document.getElementById('editWeightValue');
-
-        let allCarriers = {};
-        let filteredCarriers = {};
-        let currentEditId = null;
-
-        editWeightSlider.addEventListener('input', (e) => {
-            editWeightValue.textContent = e.target.value;
-        });
-
-        document.getElementById('editCarLetters').addEventListener('input', (e) => {
-            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
-        });
-
-        document.getElementById('editCarNumber').addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
-        });
-
-        onValue(ref(database, 'carriers'), (snapshot) => {
-            if (!snapshot.exists()) {
-                carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
-                allCarriers = {};
-                filteredCarriers = {};
-                updateSearchStats();
-                return;
-            }
-            allCarriers = snapshot.val();
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        if (!term) {
             filteredCarriers = { ...allCarriers };
             displayCarriers(filteredCarriers);
             updateSearchStats();
-        });
-
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase().trim();
-            if (!term) {
-                filteredCarriers = { ...allCarriers };
-                displayCarriers(filteredCarriers);
-                updateSearchStats();
-                return;
+            return;
+        }
+        filteredCarriers = {};
+        Object.keys(allCarriers).forEach(key => {
+            const c = allCarriers[key];
+            if (
+                c.phone.toLowerCase().includes(term) ||
+                c.description.toLowerCase().includes(term) ||
+                (c.days && c.days.join(' ').toLowerCase().includes(term))
+            ) {
+                filteredCarriers[key] = c;
             }
-            filteredCarriers = {};
-            Object.keys(allCarriers).forEach(key => {
-                const c = allCarriers[key];
-                if (
-                    c.phone.toLowerCase().includes(term) ||
-                    c.description.toLowerCase().includes(term) ||
-                    (c.days && c.days.join(' ').toLowerCase().includes(term))
-                ) {
-                    filteredCarriers[key] = c;
-                }
-            });
-            displayCarriers(filteredCarriers);
-            updateSearchStats();
         });
+        displayCarriers(filteredCarriers);
+        updateSearchStats();
+    });
 
-        function displayCarriers(carriers) {
-            carriersContainer.innerHTML = '';
-            if (!Object.keys(carriers).length) {
-                carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
-                return;
-            }
-            Object.keys(carriers).forEach(id => {
-                const c = carriers[id];
-                const card = document.createElement('div');
-                card.className = 'carrier-card';
-                card.innerHTML = `
-                    <div class="card-content">
-                        <div class="carrier-phone">${c.phone}</div>
-                        ${c.carPlate ? `<div class="carrier-plate">🚗 ${c.carPlate}</div>` : ''}
-                        <div class="carrier-description">${c.description}</div>
-                        <div class="carrier-meta">
-                            <span class="carrier-days">📅 ${c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'}</span>
-                            ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${c.maxWeight} кг</span>` : ''}
-                        </div>
+    function displayCarriers(carriers) {
+        carriersContainer.innerHTML = '';
+        if (!Object.keys(carriers).length) {
+            carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
+            return;
+        }
+        Object.keys(carriers).forEach(id => {
+            const c = carriers[id];
+            const card = document.createElement('div');
+            card.className = 'carrier-card';
+            card.innerHTML = `
+                <div class="card-content">
+                    <div class="carrier-phone">${c.phone}</div>
+                    ${c.carPlate ? `<div class="carrier-plate">🚗 ${c.carPlate}</div>` : ''}
+                    <div class="carrier-description">${c.description}</div>
+                    <div class="carrier-meta">
+                        <span class="carrier-days">📅 ${c.days ? c.days.join(', ') : 'Өдөр сонгоогүй'}</span>
+                        ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${c.maxWeight} кг</span>` : ''}
                     </div>
-                    <div class="card-actions">
-                        <button class="btn-small btn-edit"   onclick="editCarrier('${id}')">Засах</button>
-                        <button class="btn-small btn-delete" onclick="deleteCarrier('${id}')">Устгах</button>
-                    </div>
-                `;
-                carriersContainer.appendChild(card);
-            });
-        }
-
-        function updateSearchStats() {
-            const total   = Object.keys(allCarriers).length;
-            const showing = Object.keys(filteredCarriers).length;
-            searchStats.innerHTML = searchInput.value.trim()
-                ? `${showing} хүргэгч олдлоо (Нийт: ${total})`
-                : `Нийт ${total} хүргэгч`;
-        }
-
-        window.editCarrier = async function(id) {
-            const pin = prompt('PIN код оруулна уу:');
-            if (!pin) return;
-            const enteredHash    = await sha256(pin);
-            const carrierPinHash = allCarriers[id]?.pin ? await sha256(allCarriers[id].pin) : null;
-            if (enteredHash === MASTER_PIN_HASH || enteredHash === carrierPinHash) {
-                openEditModel(id);
-            } else {
-                alert('Буруу PIN код!');
-            }
-        };
-
-        window.deleteCarrier = async function(id) {
-            const pin = prompt('Устгахын тулд PIN код оруулна уу:');
-            if (!pin) return;
-            const enteredHash    = await sha256(pin);
-            const carrierPinHash = allCarriers[id]?.pin ? await sha256(allCarriers[id].pin) : null;
-            if (enteredHash !== MASTER_PIN_HASH && enteredHash !== carrierPinHash) {
-                alert('Буруу PIN код!');
-                return;
-            }
-            if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
-            remove(ref(database, `carriers/${id}`))
-                .then(() => alert('Амжилттай устгалаа!'))
-                .catch(err => { console.error(err); alert('Алдаа гарлаа!'); });
-        };
-
-        function openEditModel(id) {
-            currentEditId = id;
-            const c = allCarriers[id];
-            document.getElementById('editPhone').value       = c.phone;
-            document.getElementById('editDescription').value = c.description;
-            editWeightSlider.value    = c.maxWeight || 10;
-            editWeightValue.textContent = c.maxWeight || 10;
-            if (c.carPlate) {
-                document.getElementById('editCarNumber').value  = c.carPlate.match(/^\d+/)?.[0]          || '';
-                document.getElementById('editCarLetters').value = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
-            }
-            document.querySelectorAll('input[name="editDays"]').forEach(cb => {
-                cb.checked = c.days && c.days.includes(cb.value);
-            });
-            editModel.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-
-        window.closeEditModel = function() {
-            editModel.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            currentEditId = null;
-            editForm.reset();
-        };
-
-        window.addEventListener('click', (e) => {
-            if (e.target === editModel) closeEditModel();
+                </div>
+                <div class="card-actions">
+                    <button class="btn-small btn-edit"   onclick="window.editCarrier('${id}')">Засах</button>
+                    <button class="btn-small btn-delete" onclick="window.deleteCarrier('${id}')">Устгах</button>
+                </div>
+            `;
+            carriersContainer.appendChild(card);
         });
+    }
 
-        editForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const phone      = document.getElementById('editPhone').value.trim();
-            const desc       = document.getElementById('editDescription').value.trim();
-            const weight     = parseInt(editWeightSlider.value);
-            const days       = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
-            const carNumber  = document.getElementById('editCarNumber').value.trim();
-            const carLetters = document.getElementById('editCarLetters').value.trim();
-            if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
-            try {
-                await update(ref(database, `carriers/${currentEditId}`), {
-                    phone, description: desc, maxWeight: weight, days,
-                    carPlate: carNumber + carLetters
-                });
-                alert('Амжилттай шинэчлэгдлээ!');
-                closeEditModel();
-            } catch (err) {
-                console.error(err);
-                alert('Алдаа гарлаа!');
-            }
+    function updateSearchStats() {
+        const total   = Object.keys(allCarriers).length;
+        const showing = Object.keys(filteredCarriers).length;
+        searchStats.innerHTML = searchInput.value.trim()
+            ? `${showing} хүргэгч олдлоо (Нийт: ${total})`
+            : `Нийт ${total} хүргэгч`;
+    }
+
+    window.editCarrier = async function(id) {
+        const pin = prompt('PIN код оруулна уу:');
+        if (!pin) return;
+        const enteredHash    = await sha256(pin);
+        const carrierPin     = allCarriers[id]?.pin;
+        const carrierPinHash = carrierPin ? await sha256(carrierPin) : null;
+        if (enteredHash === MASTER_PIN_HASH || (carrierPinHash && enteredHash === carrierPinHash)) {
+            openEditModel(id);
+        } else {
+            alert('Буруу PIN код!');
+        }
+    };
+
+    window.deleteCarrier = async function(id) {
+        const pin = prompt('Устгахын тулд PIN код оруулна уу:');
+        if (!pin) return;
+        const enteredHash    = await sha256(pin);
+        const carrierPin     = allCarriers[id]?.pin;
+        const carrierPinHash = carrierPin ? await sha256(carrierPin) : null;
+        if (enteredHash !== MASTER_PIN_HASH && enteredHash !== carrierPinHash) {
+            alert('Буруу PIN код!');
+            return;
+        }
+        if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
+        remove(ref(database, `carriers/${id}`))
+            .then(() => alert('Амжилттай устгалаа!'))
+            .catch(err => { console.error(err); alert('Алдаа гарлаа!'); });
+    };
+
+    function openEditModel(id) {
+        currentEditId = id;
+        const c = allCarriers[id];
+        document.getElementById('editPhone').value       = c.phone;
+        document.getElementById('editDescription').value = c.description;
+        editWeightSlider.value      = c.maxWeight || 10;
+        editWeightValue.textContent = c.maxWeight || 10;
+        if (c.carPlate) {
+            document.getElementById('editCarNumber').value  = c.carPlate.match(/^\d+/)?.[0]             || '';
+            document.getElementById('editCarLetters').value = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
+        }
+        document.querySelectorAll('input[name="editDays"]').forEach(cb => {
+            cb.checked = c.days && c.days.includes(cb.value);
         });
-    </script>
+        editModel.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.closeEditModel = function() {
+        editModel.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        currentEditId = null;
+        editForm.reset();
+    };
+
+    window.addEventListener('click', (e) => {
+        if (e.target === editModel) window.closeEditModel();
+    });
+
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const phone      = document.getElementById('editPhone').value.trim();
+        const desc       = document.getElementById('editDescription').value.trim();
+        const weight     = parseInt(editWeightSlider.value);
+        const days       = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
+        const carNumber  = document.getElementById('editCarNumber').value.trim();
+        const carLetters = document.getElementById('editCarLetters').value.trim();
+        if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
+        try {
+            await update(ref(database, `carriers/${currentEditId}`), {
+                phone, description: desc, maxWeight: weight, days,
+                carPlate: carNumber + carLetters
+            });
+            alert('Амжилттай шинэчлэгдлээ!');
+            window.closeEditModel();
+        } catch (err) {
+            console.error(err);
+            alert('Алдаа гарлаа!');
+        }
+    });
+</script>
 </body>
 </html>
