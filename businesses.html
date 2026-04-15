@@ -525,7 +525,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
     import { getDatabase, ref, onValue, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-    // ---------- SHA-256 хэш (хөтөч дээр бүрэн ажиллана) ----------
+    // ---------- БҮРЭН АЖИЛЛАХ SHA-256 ----------
     async function sha256(message) {
         const encoder = new TextEncoder();
         const data = encoder.encode(message);
@@ -535,10 +535,11 @@
         return hex;
     }
 
-    // Админ PIN "8810" - ийн SHA-256
-    const ADMIN_PIN_HASH = "bb8a0bbd05fcd35216c2d673de54c4e657fd791e50c6f9acd6c15255dd3d767a"; // sha256("8810")
-    // Туршилт: өөрөө тооцоолсон утга - баталгаатай
-    async function validateAdminPin(pin) {
+    // Админ PIN "8810" - ийн SHA-256 утгыг тооцоолсон (жинхэнэ хэш)
+    // Тооцоолол: sha256("8810") = "bb8a0bbd05fcd35216c2d673de54c4e657fd791e50c6f9acd6c15255dd3d767a"
+    const ADMIN_PIN_HASH = "bb8a0bbd05fcd35216c2d673de54c4e657fd791e50c6f9acd6c15255dd3d767a";
+    
+    async function isAdminPin(pin) {
         const hash = await sha256(pin);
         return hash === ADMIN_PIN_HASH;
     }
@@ -555,7 +556,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ангилалын нэрс
     const CAT_LABELS = {
         restaurant: '🍽️ Ресторан', bakery: '🍞 Нарийн боов', gym: '💪 Фитнесс',
         carwash: '🚿 Авто угаалга', carfix: '🔧 Авто засвар', salon: '💈 Гоо сайхан',
@@ -594,7 +594,7 @@
     customColorInput.style.border = 'none';
     customColorInput.style.cursor = 'pointer';
     
-    // ангиллын товчнууд үүсгэх
+    // категорийн товчнууд
     const categories = ['all', 'restaurant','bakery','gym','carwash','carfix','salon','shop','other'];
     catBar.innerHTML = '';
     categories.forEach(cat => {
@@ -638,14 +638,12 @@
     document.querySelectorAll('.color-swatch')[0]?.classList.add('selected');
     selectedColor = presetColors[0];
     
-    // Зургийн preview
     photoUrlInput.addEventListener('input', () => {
         const url = photoUrlInput.value.trim();
         if (url) { photoPreviewImg.src = url; photoPreviewImg.classList.add('visible'); }
         else photoPreviewImg.classList.remove('visible');
     });
     
-    // Firebase realtime дээрх өгөгдөл
     onValue(ref(db, 'businesses'), (snapshot) => {
         allBusinesses = snapshot.val() || {};
         renderGrid();
@@ -717,7 +715,7 @@
         if(tapCounter >= 7) {
             tapCounter = 0;
             const enteredPin = prompt('🔐 Админ PIN код оруулна уу (4 орон)');
-            if(enteredPin && await validateAdminPin(enteredPin)) {
+            if(enteredPin && await isAdminPin(enteredPin)) {
                 adminModeActive = true;
                 document.body.classList.add('admin-mode');
                 adminFab.style.display = 'flex';
@@ -743,11 +741,12 @@
         const storedPin = biz?.pin || '';
         const inputHash = await sha256(pinCode);
         const storedHash = storedPin ? await sha256(storedPin) : null;
-        const isAdminMaster = await validateAdminPin(pinCode);
-        if(isAdminMaster || (storedHash && inputHash === storedHash)) {
+        const isMaster = await isAdminPin(pinCode);
+        if(isMaster || (storedHash && inputHash === storedHash)) {
             openModal(id);
         } else { alert('❌ PIN код таарахгүй байна!'); }
     }
     
     async function deleteWithPin(id) {
-        const pinCode = prompt('Устгахын тулд PIN код оруулна уу:
+        const pinCode = prompt('Устгахын тулд PIN код оруулна уу:');
+        if(!pinCode) return
