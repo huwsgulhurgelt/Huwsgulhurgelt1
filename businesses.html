@@ -483,148 +483,333 @@
             l.style.transform = `translateY(${-window.pageYOffset * l.dataset.speed}px)`;
         });
     });
-   <!-- ONLY SCRIPT PART CHANGED — everything else same -->
-
-<script type="module">
-import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getDatabase, ref, onValue, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-
-async function sha256(msg) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-    return Array.from(new Uint8Array(buf))
-        .map(b => b.toString(16).padStart(2,'0'))
-        .join('');
-}
-
-const MASTER_HASH = "cb1ddeb68a770c93b6a91023d1e4aab32e0d5c2037fbac639f425fdac2162522";
-
-const app = initializeApp({
-    apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-    authDomain: "huwsgul-hurgelt.firebaseapp.com",
-    databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "huwsgul-hurgelt",
-    storageBucket: "huwsgul-hurgelt.firebasestorage.app",
-    messagingSenderId: "457877716370",
-    appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
-});
-const db = getDatabase(app);
-
-let allBiz  = {};
-let editingId  = null;
-let selectedColor = '#667eea';
-
-const bizForm = document.getElementById('bizForm');
-const adminFab = document.getElementById('adminFab');
-
-onValue(ref(db, 'businesses'), snap => {
-    allBiz = snap.exists() ? snap.val() : {};
-});
-
-/* ================= ADMIN LOGIN ================= */
-async function promptAdminPin() {
-    const pin = prompt('🔐 Админ PIN оруулна уу:');
-    if (!pin) return;
-
-    const cleanPin = pin.trim();
-    const hashed = await sha256(cleanPin);
-
-    if (hashed === MASTER_HASH) {
-        document.body.classList.add('admin-mode');
-        adminFab.classList.add('visible');
-        alert('✅ Админ горим идэвхжлээ!');
-    } else {
-        alert('❌ Буруу PIN!');
-    }
-}
-
-/* ================= EDIT ================= */
-window._editBiz = async (id) => {
-    const pin = prompt('PIN код оруулна уу:');
-    if (!pin) return;
-
-    const cleanPin = pin.trim();
-    const h = await sha256(cleanPin);
-    const bHash = allBiz[id]?.pin;
-
-    if (h === MASTER_HASH || h === bHash) {
-        openModal(id);
-    } else {
-        alert('❌ Буруу PIN!');
-    }
-};
-
-/* ================= DELETE ================= */
-window._deleteBiz = async (id) => {
-    const pin = prompt('Устгахын тулд PIN код оруулна уу:');
-    if (!pin) return;
-
-    const cleanPin = pin.trim();
-    const h = await sha256(cleanPin);
-    const bHash = allBiz[id]?.pin;
-
-    if (h !== MASTER_HASH && h !== bHash) {
-        alert('❌ Буруу PIN!');
-        return;
-    }
-
-    if (!confirm('Энэ бизнесийг устгах уу?')) return;
-
-    remove(ref(db, `businesses/${id}`))
-        .then(() => alert('✅ Амжилттай устгалаа!'))
-        .catch(err => alert('Алдаа: ' + err.message));
-};
-
-/* ================= SAVE ================= */
-bizForm.addEventListener('submit', async e => {
-    e.preventDefault();
-
-    const name    = document.getElementById('fName').value.trim();
-    const cat     = document.getElementById('fCat').value;
-    const desc    = document.getElementById('fDesc').value.trim();
-    const phone   = document.getElementById('fPhone').value.trim();
-    const address = document.getElementById('fAddress').value.trim();
-    const mapUrl  = document.getElementById('fMapUrl').value.trim();
-    const photoUrl= document.getElementById('fPhoto').value.trim();
-    const pin     = document.getElementById('fPin').value.trim();
-
-    if (!name || !cat) {
-        alert('Нэр болон ангилалыг заавал бөглөнө үү!');
-        return;
-    }
-
-    const payload = {
-        name,
-        category: cat,
-        description: desc,
-        phone,
-        address,
-        mapUrl,
-        photoUrl,
-        color: selectedColor,
-        timestamp: Date.now()
-    };
-
-    /* 🔥 FIX: HASH PIN BEFORE SAVE */
-    if (pin) {
-        payload.pin = await sha256(pin);
-    }
-
-    try {
-        if (editingId) {
-            await update(ref(db, `businesses/${editingId}`), payload);
-            alert('✅ Амжилттай шинэчлэгдлээ!');
-        } else {
-            await push(ref(db, 'businesses'), payload);
-            alert('✅ Амжилттай нэмэгдлээ!');
-        }
-        window.closeModal();
-    } catch (err) {
-        alert('Алдаа: ' + err.message);
-    }
-});
-</script> 
 </script>
 
+<script type="module">
+    import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getDatabase, ref, onValue, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
+    async function sha256(msg) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    const MASTER_HASH = "cb1ddeb68a770c93b6a91023d1e4aab32e0d5c2037fbac639f425fdac2162522";
+
+    const app = initializeApp({
+        apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+        authDomain: "huwsgul-hurgelt.firebaseapp.com",
+        databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "huwsgul-hurgelt",
+        storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+        messagingSenderId: "457877716370",
+        appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
+    });
+    const db = getDatabase(app);
+
+    const CAT_LABELS = {
+        restaurant: '🍽️ Ресторан',
+        bakery:     '🍞 Нарийн боов',
+        gym:        '💪 Фитнесс',
+        carwash:    '🚿 Авто угаалга',
+        carfix:     '🔧 Авто засвар',
+        salon:      '💈 Гоо сайхан',
+        shop:       '🏪 Дэлгүүр',
+        other:      '📦 Бусад',
+    };
+    const CAT_ICONS = {
+        restaurant:'🍽️', bakery:'🍞', gym:'💪', carwash:'🚿',
+        carfix:'🔧', salon:'💈', shop:'🏪', other:'📦'
+    };
+
+    let allBiz  = {};
+    let activeCat = 'all';
+    let searchTerm = '';
+    let editingId  = null;
+    let selectedColor = '#667eea';
+
+    const grid       = document.getElementById('bizGrid');
+    const statsEl    = document.getElementById('searchStats');
+    const searchInp  = document.getElementById('searchInput');
+    const bizModal   = document.getElementById('bizModal');
+    const bizForm    = document.getElementById('bizForm');
+    const adminFab   = document.getElementById('adminFab');
+    const photoInput = document.getElementById('fPhoto');
+    const photoPreview = document.getElementById('photoPreview');
+
+    // ── Live data ──
+    onValue(ref(db, 'businesses'), snap => {
+        allBiz = snap.exists() ? snap.val() : {};
+        renderGrid();
+    });
+
+    // ── Render ──
+    function renderGrid() {
+        const keys = Object.keys(allBiz).filter(id => {
+            const b = allBiz[id];
+            const matchCat  = activeCat === 'all' || b.category === activeCat;
+            const matchTerm = !searchTerm ||
+                b.name.toLowerCase().includes(searchTerm) ||
+                (b.description || '').toLowerCase().includes(searchTerm) ||
+                (b.phone || '').includes(searchTerm) ||
+                (b.address || '').toLowerCase().includes(searchTerm);
+            return matchCat && matchTerm;
+        });
+
+        const total   = Object.keys(allBiz).length;
+        statsEl.textContent = searchTerm || activeCat !== 'all'
+            ? `${keys.length} бизнес олдлоо (Нийт: ${total})`
+            : `Нийт ${total} бизнес`;
+
+        if (!keys.length) {
+            grid.innerHTML = '<div class="no-data">Хайлтад тохирох бизнес олдсонгүй</div>';
+            return;
+        }
+
+        grid.innerHTML = '';
+        keys.forEach(id => {
+            const b = allBiz[id];
+            const color = b.color || '#667eea';
+            const card  = document.createElement('div');
+            card.className = 'biz-card';
+            card.style.setProperty('--card-color', color);
+
+            card.innerHTML = `
+                <div class="biz-card-accent" style="background:${color};"></div>
+                ${b.photoUrl
+                    ? `<img class="biz-photo" src="${escHtml(b.photoUrl)}" alt="${escHtml(b.name)}" loading="lazy" onerror="this.style.display='none'">`
+                    : `<div class="biz-photo-placeholder">${CAT_ICONS[b.category] || '📦'}</div>`
+                }
+                <div class="biz-body">
+                    <div class="biz-cat-badge">${CAT_LABELS[b.category] || '📦 Бусад'}</div>
+                    <div class="biz-name">${escHtml(b.name)}</div>
+                    ${b.description ? `<div class="biz-desc">${escHtml(b.description)}</div>` : ''}
+                    <div class="biz-meta">
+                        ${b.phone   ? `<div class="biz-meta-row"><span class="biz-meta-icon">📞</span>${escHtml(b.phone)}</div>` : ''}
+                        ${b.address ? `<div class="biz-meta-row"><span class="biz-meta-icon">📍</span>${escHtml(b.address)}</div>` : ''}
+                    </div>
+                    <div class="biz-actions">
+                        ${b.phone
+                            ? `<a href="tel:${escHtml(b.phone)}" class="biz-btn-call">📞 Залгах</a>`
+                            : `<div style="flex:1"></div>`
+                        }
+                        ${b.mapUrl
+                            ? `<a href="${escHtml(b.mapUrl)}" target="_blank" rel="noopener" class="biz-btn-map" title="Газрын зураг">🗺️</a>`
+                            : ''
+                        }
+                    </div>
+                </div>
+                <div class="admin-card-actions">
+                    <button class="btn-small btn-edit"   onclick="window._editBiz('${id}')">Засах</button>
+                    <button class="btn-small btn-delete" onclick="window._deleteBiz('${id}')">Устгах</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function escHtml(s) {
+        return String(s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Filters ──
+    searchInp.addEventListener('input', e => {
+        searchTerm = e.target.value.toLowerCase().trim();
+        renderGrid();
+    });
+
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeCat = btn.dataset.cat;
+            renderGrid();
+        });
+    });
+
+    // ── SECRET: click page title 7 times fast ──
+    let tapCount  = 0;
+    let tapTimer  = null;
+    const titleEl = document.getElementById('pageTitle');
+    const hintEl  = document.getElementById('tapHint');
+    let adminUnlocked = false;
+
+    titleEl.addEventListener('click', () => {
+        if (adminUnlocked) return;
+        tapCount++;
+        clearTimeout(tapTimer);
+
+        if (tapCount >= 5) {
+            hintEl.style.color = 'rgba(192,57,43,0.6)';
+            hintEl.textContent = `${tapCount}/7`;
+        }
+
+        tapTimer = setTimeout(() => {
+            tapCount = 0;
+            hintEl.style.color = 'transparent';
+        }, 2000);
+
+        if (tapCount >= 7) {
+            tapCount = 0;
+            hintEl.style.color = 'transparent';
+            promptAdminPin();
+        }
+    });
+
+    async function promptAdminPin() {
+        const pin = prompt('🔐 Админ PIN оруулна уу:');
+        if (!pin) return;
+        if (await sha256(pin) === MASTER_HASH) {
+            adminUnlocked = true;
+            document.body.classList.add('admin-mode');
+            adminFab.classList.add('visible');
+            alert('✅ Админ горим идэвхжлээ!');
+        } else {
+            alert('❌ Буруу PIN!');
+        }
+    }
+
+    window.exitAdmin = () => {
+        adminUnlocked = false;
+        document.body.classList.remove('admin-mode');
+        adminFab.classList.remove('visible');
+        editingId = null;
+    };
+
+    // ── Admin FAB → open add modal ──
+    adminFab.addEventListener('click', () => openModal(null));
+
+    // ── Color swatches ──
+    document.querySelectorAll('.color-swatch').forEach(sw => {
+        sw.addEventListener('click', () => {
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+            sw.classList.add('selected');
+            selectedColor = sw.dataset.color;
+            document.getElementById('customColor').value = selectedColor;
+        });
+    });
+
+    document.getElementById('customColor').addEventListener('input', e => {
+        selectedColor = e.target.value;
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    });
+
+    // ── Photo preview ──
+    photoInput.addEventListener('input', e => {
+        const url = e.target.value.trim();
+        if (url) {
+            photoPreview.src = url;
+            photoPreview.classList.add('visible');
+            photoPreview.onerror = () => photoPreview.classList.remove('visible');
+        } else {
+            photoPreview.classList.remove('visible');
+        }
+    });
+
+    // ── Open add/edit modal ──
+    function openModal(id) {
+        editingId = id;
+        bizForm.reset();
+        photoPreview.classList.remove('visible');
+        document.getElementById('modalTitle').textContent = id ? 'Бизнес засах' : 'Бизнес нэмэх';
+        selectedColor = '#667eea';
+        document.querySelectorAll('.color-swatch').forEach(s => {
+            s.classList.toggle('selected', s.dataset.color === selectedColor);
+        });
+
+        if (id && allBiz[id]) {
+            const b = allBiz[id];
+            document.getElementById('fName').value    = b.name        || '';
+            document.getElementById('fCat').value     = b.category    || '';
+            document.getElementById('fDesc').value    = b.description || '';
+            document.getElementById('fPhone').value   = b.phone       || '';
+            document.getElementById('fAddress').value = b.address     || '';
+            document.getElementById('fMapUrl').value  = b.mapUrl      || '';
+            document.getElementById('fPhoto').value   = b.photoUrl    || '';
+            document.getElementById('fPin').value     = '';
+            if (b.photoUrl) {
+                photoPreview.src = b.photoUrl;
+                photoPreview.classList.add('visible');
+            }
+            selectedColor = b.color || '#667eea';
+            document.getElementById('customColor').value = selectedColor;
+            document.querySelectorAll('.color-swatch').forEach(s => {
+                s.classList.toggle('selected', s.dataset.color === selectedColor);
+            });
+        }
+
+        bizModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.closeModal = () => {
+        bizModal.classList.remove('open');
+        document.body.style.overflow = 'auto';
+        editingId = null;
+    };
+
+    window.addEventListener('click', e => { if (e.target === bizModal) window.closeModal(); });
+
+    // ── Edit / Delete (exposed to inline onclick) ──
+    window._editBiz = async (id) => {
+        const pin = prompt('PIN код оруулна уу:');
+        if (!pin) return;
+        const h = await sha256(pin);
+        const bPin = allBiz[id]?.pin;
+        const bHash = bPin ? await sha256(bPin) : null;
+        if (h === MASTER_HASH || (bHash && h === bHash)) {
+            openModal(id);
+        } else {
+            alert('❌ Буруу PIN!');
+        }
+    };
+
+    window._deleteBiz = async (id) => {
+        const pin = prompt('Устгахын тулд PIN код оруулна уу:');
+        if (!pin) return;
+        const h = await sha256(pin);
+        const bPin = allBiz[id]?.pin;
+        const bHash = bPin ? await sha256(bPin) : null;
+        if (h !== MASTER_HASH && h !== bHash) { alert('❌ Буруу PIN!'); return; }
+        if (!confirm('Энэ бизнесийг устгах уу?')) return;
+        remove(ref(db, `businesses/${id}`))
+            .then(() => alert('✅ Амжилттай устгалаа!'))
+            .catch(err => alert('Алдаа: ' + err.message));
+    };
+
+    // ── Form submit ──
+    bizForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const name    = document.getElementById('fName').value.trim();
+        const cat     = document.getElementById('fCat').value;
+        const desc    = document.getElementById('fDesc').value.trim();
+        const phone   = document.getElementById('fPhone').value.trim();
+        const address = document.getElementById('fAddress').value.trim();
+        const mapUrl  = document.getElementById('fMapUrl').value.trim();
+        const photoUrl= document.getElementById('fPhoto').value.trim();
+        const pin     = document.getElementById('fPin').value.trim();
+
+        if (!name || !cat) { alert('Нэр болон ангилалыг заавал бөглөнө үү!'); return; }
+
+        const payload = { name, category: cat, description: desc, phone, address,
+                          mapUrl, photoUrl, color: selectedColor, timestamp: Date.now() };
+        if (pin) payload.pin = pin;
+
+        try {
+            if (editingId) {
+                await update(ref(db, `businesses/${editingId}`), payload);
+                alert('✅ Амжилттай шинэчлэгдлээ!');
+            } else {
+                await push(ref(db, 'businesses'), payload);
+                alert('✅ Амжилттай нэмэгдлээ!');
+            }
+            window.closeModal();
+        } catch (err) {
+            alert('Алдаа: ' + err.message);
+        }
+    });
+</script>
 </body>
 </html>
