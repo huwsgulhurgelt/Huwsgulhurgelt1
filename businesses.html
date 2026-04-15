@@ -489,19 +489,20 @@
     import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
     import { getDatabase, ref, onValue, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-    // ========== FIXED SHA-256 FUNCTION (FULLY WORKING) ==========
-    async function sha256(message) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hex;
-    }
+   // ========== WORKING SHA-256 FUNCTION ==========
+async function sha256(message) {
+    // Convert string to UTF-8 bytes
+    const msgBuffer = new TextEncoder().encode(message);
+    // Hash with SHA-256
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    // Convert to hex string
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+} 
 
-    // Admin PIN "8810" hashed with SHA-256
-    // Pre-computed hash for "8810" to avoid async issues
-    const MASTER_HASH = "bb8a0bbd05fcd35216c2d673de54c4e657fd791e50c6f9acd6c15255dd3d767a";
+   // Admin PIN "8810" - SHA-256 hash (pre-computed for speed)
+const MASTER_HASH = "bb8a0bbd05fcd35216c2d673de54c4e657fd791e50c6f9acd6c15255dd3d767a"; 
 
     const app = initializeApp({
         apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
