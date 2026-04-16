@@ -1,785 +1,476 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бизнес лавлах — Мөрөн</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .cat-bar {
-            padding: 24px 40px 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .cat-btn {
-            padding: 9px 18px;
-            border-radius: 50px;
-            border: 2px solid rgba(0,0,0,0.12);
-            background: rgba(255,255,255,0.55);
-            font-size: 0.88rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            font-family: inherit;
-            color: #333;
-            backdrop-filter: blur(6px);
-        }
-        .cat-btn:hover { border-color: #333; background: rgba(255,255,255,0.85); transform: translateY(-2px); }
-        .cat-btn.active { background: linear-gradient(135deg,#333,#111); color: #fff; border-color: transparent; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бизнес лавлах — Мөрөн</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .biz-grid {
-            padding: 30px 40px 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 28px;
-            background: transparent;
-        }
+  :root {
+    --bg: #f0ede8;
+    --card: rgba(255,255,255,0.72);
+    --border: rgba(0,0,0,0.09);
+    --text: #1a1a1a;
+    --muted: #666;
+    --accent: #2d2d2d;
+  }
 
-        .biz-card {
-            background: rgba(255,255,255,0.62);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(0,0,0,0.08);
-            border-radius: 22px;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            position: relative;
-        }
-        .biz-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(0,0,0,0.14); border-color: rgba(0,0,0,0.18); }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+  }
 
-        .biz-card-accent { height: 5px; }
+  /* ── Background blobs ── */
+  .bg-blobs {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  }
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.25;
+  }
+  .blob-1 { width: 500px; height: 500px; background: #a8d8ea; top: -100px; left: -100px; }
+  .blob-2 { width: 400px; height: 400px; background: #ffb3c6; bottom: 10%; right: -80px; }
+  .blob-3 { width: 350px; height: 350px; background: #b5e2a8; top: 40%; left: 30%; }
 
-        .biz-photo { width: 100%; height: 190px; object-fit: cover; display: block; }
-        .biz-photo-placeholder {
-            width: 100%; height: 130px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3.5rem; background: rgba(0,0,0,0.05);
-        }
+  .wrap { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding: 0 24px 60px; }
 
-        .biz-body { padding: 22px 24px 18px; }
-        .biz-cat-badge {
-            display: inline-block; padding: 4px 12px; border-radius: 50px;
-            font-size: 0.78rem; font-weight: 700; margin-bottom: 10px;
-            background: rgba(0,0,0,0.07); color: #444;
-        }
-        .biz-name { font-size: 1.3rem; font-weight: 800; color: #111; margin-bottom: 8px; line-height: 1.2; }
-        .biz-desc { font-size: 0.92rem; color: #555; line-height: 1.6; margin-bottom: 14px; }
-        .biz-meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-        .biz-meta-row { display: flex; align-items: center; gap: 8px; font-size: 0.87rem; color: #444; }
-        .biz-meta-icon { font-size: 1rem; flex-shrink: 0; }
-        .biz-actions { display: flex; gap: 10px; margin-top: 4px; }
+  /* ── Header ── */
+  header {
+    padding: 40px 0 28px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .back-link {
+    font-size: 0.85rem; font-weight: 700; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s;
+    width: fit-content;
+  }
+  .back-link:hover { color: var(--text); }
+  .page-title {
+    font-size: clamp(2rem, 5vw, 3rem); font-weight: 900;
+    letter-spacing: -0.03em; line-height: 1.1; color: var(--text);
+  }
+  .page-sub { font-size: 0.95rem; color: var(--muted); font-weight: 600; }
 
-        .biz-btn-call {
-            flex: 1; padding: 11px 16px;
-            background: linear-gradient(135deg,#333,#111); color: #fff;
-            border: none; border-radius: 10px; font-size: 0.88rem; font-weight: 700;
-            cursor: pointer; text-decoration: none; text-align: center;
-            transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .biz-btn-call:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
+  /* ── Search ── */
+  .search-row {
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .search-icon {
+    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+    font-size: 1.1rem; pointer-events: none;
+  }
+  .search-input {
+    width: 100%; padding: 14px 18px 14px 46px;
+    background: rgba(255,255,255,0.8);
+    border: 2px solid var(--border);
+    border-radius: 50px; font-size: 0.97rem;
+    font-family: 'Nunito', sans-serif; color: var(--text);
+    transition: all 0.25s;
+  }
+  .search-input:focus { outline: none; border-color: var(--accent); background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .search-stats { text-align: center; font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-top: 8px; height: 20px; }
 
-        .biz-btn-map {
-            padding: 11px 14px; background: rgba(0,0,0,0.07); color: #333;
-            border: 2px solid rgba(0,0,0,0.1); border-radius: 10px; font-size: 1rem;
-            cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center;
-            transition: all 0.25s ease;
-        }
-        .biz-btn-map:hover { background: rgba(0,0,0,0.13); transform: translateY(-2px); }
+  /* ── Cat pills ── */
+  .cat-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+  .cat-btn {
+    padding: 9px 18px; border-radius: 50px;
+    border: 2px solid var(--border);
+    background: rgba(255,255,255,0.55);
+    font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    transition: all 0.22s; font-family: 'Nunito', sans-serif; color: #444;
+    backdrop-filter: blur(6px);
+  }
+  .cat-btn:hover { border-color: #999; background: rgba(255,255,255,0.85); transform: translateY(-2px); }
+  .cat-btn.active { background: var(--accent); color: #fff; border-color: transparent; box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
 
-        .admin-card-actions { display: none; gap: 8px; padding: 0 24px 18px; }
-        body.admin-mode .admin-card-actions { display: flex; }
+  /* ── Grid ── */
+  .biz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
 
-        .admin-fab {
-            position: fixed; bottom: 36px; right: 36px; z-index: 999;
-            width: 62px; height: 62px; border-radius: 50%;
-            background: linear-gradient(135deg,#c0392b,#922b21);
-            border: none; cursor: pointer; display: none;
-            align-items: center; justify-content: center; font-size: 1.5rem;
-            box-shadow: 0 8px 30px rgba(192,57,43,0.5); color: white;
-            transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.3s;
-        }
-        .admin-fab.visible { display: flex; }
-        .admin-fab:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 14px 40px rgba(192,57,43,0.7); }
-        .admin-fab::after {
-            content: '';
-            position: absolute; inset: -4px; border-radius: 50%;
-            border: 2px solid rgba(192,57,43,0.4);
-            animation: fab-pulse 2.5s ease-out infinite;
-        }
-        @keyframes fab-pulse {
-            0%   { transform: scale(1);    opacity: 0.8; }
-            70%  { transform: scale(1.35); opacity: 0;   }
-            100% { transform: scale(1.35); opacity: 0;   }
-        }
+  /* ── Card ── */
+  .biz-card {
+    background: var(--card);
+    backdrop-filter: blur(18px);
+    border: 2px solid var(--border);
+    border-radius: 22px; overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s;
+    position: relative;
+  }
+  .biz-card:hover { transform: translateY(-8px); box-shadow: 0 28px 60px rgba(0,0,0,0.13); border-color: rgba(0,0,0,0.15); }
 
-        .admin-bar {
-            display: none; align-items: center; justify-content: space-between;
-            padding: 10px 24px;
-            background: linear-gradient(90deg,rgba(192,57,43,0.12),rgba(146,43,33,0.08));
-            border-bottom: 1px solid rgba(192,57,43,0.2);
-            font-size: 0.85rem; color: #c0392b; font-weight: 700; flex-shrink: 0;
-        }
-        body.admin-mode .admin-bar { display: flex; }
-        .admin-bar-btn {
-            background: rgba(192,57,43,0.12); border: 1px solid rgba(192,57,43,0.3);
-            color: #c0392b; padding: 5px 14px; border-radius: 20px;
-            font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: inherit;
-        }
-        .admin-bar-btn:hover { background: rgba(192,57,43,0.22); }
+  .card-accent { height: 5px; }
+  .card-photo { width: 100%; height: 180px; object-fit: cover; display: block; }
+  .card-placeholder {
+    width: 100%; height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.2rem; background: rgba(0,0,0,0.04);
+  }
 
-        /* 7-tap hint under the title */
-        .tap-hint {
-            font-size: 0.75rem;
-            color: transparent;
-            user-select: none;
-            text-align: center;
-            margin-top: -8px;
-            margin-bottom: 8px;
-            transition: color 0.4s;
-            height: 18px;
-        }
+  .card-body { padding: 20px 22px 16px; }
 
-        /* Google login overlay */
-        .google-overlay {
-            display: none; position: fixed; inset: 0; z-index: 3000;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-            align-items: center; justify-content: center;
-        }
-        .google-overlay.open { display: flex; }
-        .google-popup {
-            background: white; border-radius: 20px; padding: 40px 36px;
-            max-width: 360px; width: 90%; text-align: center;
-            box-shadow: 0 24px 70px rgba(0,0,0,0.25);
-            animation: slideIn 0.3s ease;
-        }
-        .google-popup h3 { font-size: 1.4rem; font-weight: 700; color: #111; margin-bottom: 8px; }
-        .google-popup p  { font-size: 0.9rem; color: #666; margin-bottom: 28px; line-height: 1.5; }
-        .google-signin-btn {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            width: 100%; padding: 14px 20px; background: white;
-            border: 2px solid rgba(0,0,0,0.15); border-radius: 12px;
-            font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; color: #333;
-            transition: all 0.25s; box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-        .google-signin-btn:hover { border-color: #4285F4; box-shadow: 0 4px 20px rgba(66,133,244,0.2); transform: translateY(-1px); }
-        .google-signin-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .google-icon { width: 22px; height: 22px; flex-shrink: 0; }
-        .google-cancel { margin-top: 14px; background: none; border: none; color: #999; font-size: 0.88rem; cursor: pointer; font-family: inherit; }
-        .google-cancel:hover { color: #333; }
+  .card-badge {
+    display: inline-block; padding: 4px 12px; border-radius: 50px;
+    font-size: 0.75rem; font-weight: 800; margin-bottom: 10px;
+    background: rgba(0,0,0,0.06); color: #444; letter-spacing: 0.02em;
+  }
+  .card-name { font-size: 1.25rem; font-weight: 900; color: #111; margin-bottom: 7px; line-height: 1.2; }
+  .card-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
 
-        /* Spinner inside button */
-        .spinner {
-            width: 18px; height: 18px; border: 2px solid rgba(0,0,0,0.15);
-            border-top-color: #4285F4; border-radius: 50%;
-            animation: spin 0.7s linear infinite; flex-shrink: 0;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+  .card-meta { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+  .meta-row { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: #444; }
 
-        /* Add/Edit modal */
-        .biz-modal {
-            display: none; position: fixed; inset: 0; z-index: 2000;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-            overflow-y: auto; padding: 20px 0;
-        }
-        .biz-modal.open { display: block; }
-        .biz-modal-content {
-            background: rgba(255,255,255,0.97); margin: 20px auto;
-            border-radius: 22px; width: 90%; max-width: 620px;
-            box-shadow: 0 24px 70px rgba(0,0,0,0.22); overflow: hidden;
-            animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-40px); opacity: 0; }
-            to   { transform: translateY(0);     opacity: 1; }
-        }
-        .biz-modal-header {
-            padding: 28px 36px; background: linear-gradient(135deg,#333,#111);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .biz-modal-header h2 { color: white; font-size: 1.6rem; font-weight: 700; margin: 0; }
-        .biz-modal-close { color: white; font-size: 2rem; font-weight: bold; cursor: pointer; transition: transform 0.3s; line-height: 1; background: none; border: none; }
-        .biz-modal-close:hover { transform: rotate(90deg); }
-        .biz-modal-body { padding: 32px 36px; }
+  .card-actions { display: flex; gap: 10px; }
+  .btn-call {
+    flex: 1; padding: 11px 14px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 10px; font-size: 0.88rem; font-weight: 700;
+    cursor: pointer; text-decoration: none; text-align: center;
+    transition: all 0.22s; display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: 'Nunito', sans-serif;
+  }
+  .btn-call:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.2); }
+  .btn-map {
+    padding: 11px 14px; background: rgba(0,0,0,0.07); color: #333;
+    border: 2px solid rgba(0,0,0,0.1); border-radius: 10px; font-size: 1rem;
+    cursor: pointer; text-decoration: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.22s;
+  }
+  .btn-map:hover { background: rgba(0,0,0,0.14); transform: translateY(-2px); }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #111; font-size: 0.95rem; }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%; padding: 12px 14px; border: 2px solid rgba(0,0,0,0.12);
-            border-radius: 10px; font-family: inherit; font-size: 0.95rem;
-            transition: all 0.3s; background: rgba(255,255,255,0.7); color: #111;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus { outline: none; border-color: #333; background: rgba(255,255,255,0.95); box-shadow: 0 0 12px rgba(0,0,0,0.08); }
-        .form-group textarea { resize: vertical; min-height: 90px; }
+  .no-data {
+    grid-column: 1/-1; text-align: center; padding: 70px 20px;
+    color: var(--muted); font-size: 1.05rem; font-weight: 700;
+  }
+  .no-data span { font-size: 2.5rem; display: block; margin-bottom: 12px; }
 
-        .cat-select {
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23333' stroke-width='2' fill='none'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 16px center;
-            background-color: rgba(255,255,255,0.7); padding-right: 40px; cursor: pointer;
-        }
+  footer { margin-top: 60px; text-align: center; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
 
-        .color-picker-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
-        .color-swatch { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: transform 0.2s, border-color 0.2s; flex-shrink: 0; }
-        .color-swatch:hover { transform: scale(1.15); }
-        .color-swatch.selected { border-color: #111; transform: scale(1.18); }
-        .color-custom { width: 36px; height: 36px; border-radius: 50%; border: 2px dashed #999; overflow: hidden; cursor: pointer; }
-        .color-custom input[type="color"] { width: 200%; height: 200%; margin: -50%; border: none; cursor: pointer; }
-
-        .photo-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; border: 2px solid rgba(0,0,0,0.1); }
-        .photo-preview.visible { display: block; }
-
-        .biz-modal-actions { display: flex; gap: 14px; margin-top: 24px; }
-        .btn-cancel { flex: 1; padding: 13px 20px; background: rgba(0,0,0,0.07); color: #333; border: 2px solid rgba(0,0,0,0.12); border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-        .btn-cancel:hover { background: rgba(0,0,0,0.13); }
-        .btn-submit { flex: 1; padding: 13px 20px; background: linear-gradient(135deg,#333,#111); color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.25s; }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
-
-        .btn-small { flex: 1; padding: 8px 12px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.2s; border: 1px solid; }
-        .btn-edit   { background: rgba(52,152,219,0.1); color: #2980b9; border-color: rgba(52,152,219,0.3); }
-        .btn-edit:hover   { background: rgba(52,152,219,0.2); }
-        .btn-delete { background: rgba(192,57,43,0.1); color: #c0392b; border-color: rgba(192,57,43,0.3); }
-        .btn-delete:hover { background: rgba(192,57,43,0.2); }
-
-        .no-data { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #999; font-size: 1.1rem; }
-        .search-section { padding: 24px 40px 10px; }
-        .search-input { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.7); border: 2px solid rgba(0,0,0,0.1); border-radius: 50px; font-size: 1rem; font-family: inherit; color: #111; transition: all 0.3s; }
-        .search-input:focus { outline: none; border-color: #333; background: rgba(255,255,255,0.95); }
-        .search-stats { margin-top: 10px; font-size: 0.9rem; color: #777; text-align: center; }
-
-        @media (max-width: 768px) {
-            .cat-bar { padding: 20px 20px 0; }
-            .biz-grid { grid-template-columns: 1fr; padding: 20px; }
-            .biz-modal-body { padding: 24px 20px; }
-            .biz-modal-header { padding: 22px 24px; }
-            .admin-fab { bottom: 24px; right: 20px; width: 54px; height: 54px; font-size: 1.3rem; }
-            .search-section { padding: 20px 20px 10px; }
-        }
-    </style>
+  @media (max-width: 640px) {
+    .biz-grid { grid-template-columns: 1fr; }
+    .page-title { font-size: 1.9rem; }
+  }
+</style>
 </head>
 <body>
 
-<div class="parallax-bg">
-    <div class="parallax-layer layer-1" data-speed="0.2">
-        <div class="ball"></div><div class="ball"></div><div class="ball"></div><div class="ball"></div>
-    </div>
-    <div class="parallax-layer layer-2" data-speed="0.5">
-        <div class="ball"></div><div class="ball"></div><div class="ball"></div>
-    </div>
-    <div class="parallax-layer layer-3" data-speed="1">
-        <div class="ball"></div><div class="ball"></div><div class="ball"></div>
-    </div>
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 </div>
 
-<div class="container">
+<div class="wrap">
+  <header>
+    <a href="index.html" class="back-link">← Буцах</a>
+    <h1 class="page-title">Бизнес лавлах</h1>
+    <p class="page-sub" id="pageSubtitle"></p>
+  </header>
 
-    <div class="admin-bar">
-        <span>🔐 Админ горим — <span id="adminEmail"></span></span>
-        <button class="admin-bar-btn" onclick="exitAdmin()">Гарах</button>
-    </div>
+  <div class="search-row">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" class="search-input"
+      placeholder="Нэр, утас эсвэл хаягаар хайх..." autocomplete="off">
+    <div id="searchStats" class="search-stats"></div>
+  </div>
 
-    <header class="page-header">
-        <a href="index.html" class="back-link">← Буцах</a>
-        <!-- Tap this title 7 times to trigger admin login -->
-        <h1 id="pageTitle" style="cursor:default;user-select:none;">Бизнес лавлах</h1>
-        <p class="tap-hint" id="tapHint"></p>
-    </header>
+  <div class="cat-bar" id="catBar">
+    <button class="cat-btn active" data-cat="all">🏙️ Бүгд</button>
+    <button class="cat-btn" data-cat="restaurant">🍽️ Ресторан</button>
+    <button class="cat-btn" data-cat="bakery">🍞 Нарийн боов</button>
+    <button class="cat-btn" data-cat="gym">💪 Фитнесс</button>
+    <button class="cat-btn" data-cat="carwash">🚿 Авто угаалга</button>
+    <button class="cat-btn" data-cat="carfix">🔧 Авто засвар</button>
+    <button class="cat-btn" data-cat="salon">💈 Гоо сайхан</button>
+    <button class="cat-btn" data-cat="shop">🏪 Дэлгүүр</button>
+    <button class="cat-btn" data-cat="other">📦 Бусад</button>
+  </div>
 
-    <div class="search-section">
-        <input type="text" id="searchInput" class="search-input"
-            placeholder="🔍 Бизнесийн нэр, утас, хаягаар хайх..." autocomplete="off">
-        <div id="searchStats" class="search-stats"></div>
-    </div>
+  <main id="bizGrid" class="biz-grid"></main>
 
-    <div class="cat-bar">
-        <button class="cat-btn active" data-cat="all">🏙️ Бүгд</button>
-        <button class="cat-btn" data-cat="restaurant">🍽️ Ресторан</button>
-        <button class="cat-btn" data-cat="bakery">🍞 Нарийн боов</button>
-        <button class="cat-btn" data-cat="gym">💪 Фитнесс</button>
-        <button class="cat-btn" data-cat="carwash">🚿 Авто угаалга</button>
-        <button class="cat-btn" data-cat="carfix">🔧 Авто засвар</button>
-        <button class="cat-btn" data-cat="salon">💈 Гоо сайхан</button>
-        <button class="cat-btn" data-cat="shop">🏪 Дэлгүүр</button>
-        <button class="cat-btn" data-cat="other">📦 Бусад</button>
-    </div>
-
-    <main id="bizGrid" class="biz-grid">
-        <div class="loading">Уншиж байна...</div>
-    </main>
-
-    <footer><p>Мөрөн Хүргэлт • 2025</p></footer>
-</div>
-
-<!-- Red + FAB, only visible after login -->
-<button class="admin-fab" id="adminFab">＋</button>
-
-<!-- Google login popup (shown after 7 taps) -->
-<div class="google-overlay" id="googleOverlay">
-    <div class="google-popup">
-        <h3>🔐 Нэвтрэх</h3>
-        <p>Зөвхөн зөвшөөрөгдсөн хэрэглэгч нэвтрэх боломжтой</p>
-        <button class="google-signin-btn" id="googleSignInBtn">
-            <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Google-ээр нэвтрэх
-        </button>
-        <button class="google-cancel" id="googleCancelBtn">Болих</button>
-    </div>
-</div>
-
-<!-- Add / Edit Modal -->
-<div class="biz-modal" id="bizModal">
-    <div class="biz-modal-content">
-        <div class="biz-modal-header">
-            <h2 id="modalTitle">Бизнес нэмэх</h2>
-            <button class="biz-modal-close" onclick="closeModal()">✕</button>
-        </div>
-        <div class="biz-modal-body">
-            <form id="bizForm">
-                <div class="form-group">
-                    <label>Бизнесийн нэр *</label>
-                    <input type="text" id="fName" placeholder="Жишээ: Алтан Талх" required>
-                </div>
-                <div class="form-group">
-                    <label>Ангилал *</label>
-                    <select id="fCat" class="cat-select" required>
-                        <option value="">— Сонгох —</option>
-                        <option value="restaurant">🍽️ Ресторан / Кафе</option>
-                        <option value="bakery">🍞 Нарийн боов / Талх</option>
-                        <option value="gym">💪 Фитнесс</option>
-                        <option value="carwash">🚿 Авто угаалга</option>
-                        <option value="carfix">🔧 Авто засвар</option>
-                        <option value="salon">💈 Гоо сайхан / Үсчин</option>
-                        <option value="shop">🏪 Дэлгүүр</option>
-                        <option value="other">📦 Бусад</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Тайлбар</label>
-                    <textarea id="fDesc" placeholder="Бизнесийнхээ талаар товч бичнэ үү..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Утасны дугаар</label>
-                    <input type="tel" id="fPhone" placeholder="99001122" maxlength="8">
-                </div>
-                <div class="form-group">
-                    <label>Хаяг</label>
-                    <input type="text" id="fAddress" placeholder="Жишээ: 1-р хороо, Баянзүрх гудамж">
-                </div>
-                <div class="form-group">
-                    <label>Google Maps холбоос</label>
-                    <input type="url" id="fMapUrl" placeholder="https://maps.google.com/...">
-                </div>
-                <div class="form-group">
-                    <label>Зургийн холбоос (URL)</label>
-                    <input type="url" id="fPhotoUrl" placeholder="https://example.com/photo.jpg">
-                    <img id="photoPreview" class="photo-preview" alt="Preview">
-                </div>
-                <div class="form-group">
-                    <label>Картын өнгө</label>
-                    <div class="color-picker-row" id="colorPicker">
-                        <div class="color-swatch selected" data-color="#667eea" style="background:#667eea;"></div>
-                        <div class="color-swatch" data-color="#43e97b" style="background:#43e97b;"></div>
-                        <div class="color-swatch" data-color="#fa709a" style="background:#fa709a;"></div>
-                        <div class="color-swatch" data-color="#fee140" style="background:#fee140;"></div>
-                        <div class="color-swatch" data-color="#4facfe" style="background:#4facfe;"></div>
-                        <div class="color-swatch" data-color="#f093fb" style="background:#f093fb;"></div>
-                        <div class="color-swatch" data-color="#ff6b6b" style="background:#ff6b6b;"></div>
-                        <div class="color-swatch" data-color="#1a1a2e" style="background:#1a1a2e;"></div>
-                        <div class="color-custom">
-                            <input type="color" id="customColor" value="#667eea">
-                        </div>
-                    </div>
-                </div>
-                <div class="biz-modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Болих</button>
-                    <button type="submit" class="btn-submit">Хадгалах</button>
-                </div>
-            </form>
-        </div>
-    </div>
+  <footer><p>Мөрөн Хүргэлт • 2025</p></footer>
 </div>
 
 <script>
-    window.addEventListener('scroll', () => {
-        document.querySelectorAll('.parallax-layer').forEach(l => {
-            l.style.transform = `translateY(${-window.pageYOffset * l.dataset.speed}px)`;
-        });
-    });
-</script>
+/* ==========================================================
+   ╔══════════════════════════════════════════════════════╗
+   ║           БИЗНЕС ЖАГСААЛТ — ЗАСВАРЛАХ ХЭСЭГ         ║
+   ╚══════════════════════════════════════════════════════╝
 
-<script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, onValue, push, remove, update }
-        from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-    import {
-        getAuth,
-        signInWithPopup,
-        signInWithRedirect,
-        getRedirectResult,
-        GoogleAuthProvider,
-        signOut,
-        onAuthStateChanged
-    } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+   НЭМЭХ: Доорх BUSINESSES массивт шинэ {} блок нэмнэ
+   УСТГАХ: Тухайн {} блокийг бүтнээр нь устгана
 
-    // ── Your UID — only this account gets admin access ──
-    const ALLOWED_UID = 'bwUxV1xFk3U4HNfDP3s9U0COXx13';
+   БҮТЭЦ:
+   {
+     name:        "Бизнесийн нэр",           ← ЗААВАЛ
+     category:    "restaurant",               ← ЗААВАЛ (доорх жагсаалтаас сонгоно)
+     color:       "#ff6b6b",                  ← Картын дээд өнгөт зурвас (hex өнгө)
+     description: "Товч тайлбар...",          ← Заавал биш
+     phone:       "99001122",                 ← Заавал биш (8 оронтой)
+     address:     "1-р хороо, ...",           ← Заавал биш
+     mapUrl:      "https://maps.google.com/...",  ← Заавал биш
+     photoUrl:    "https://example.com/img.jpg",  ← Заавал биш (зургийн URL)
+   },
 
-    const app = initializeApp({
-        apiKey:            "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-        authDomain:        "huwsgul-hurgelt.firebaseapp.com",
-        databaseURL:       "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId:         "huwsgul-hurgelt",
-        storageBucket:     "huwsgul-hurgelt.firebasestorage.app",
-        messagingSenderId: "457877716370",
-        appId:             "1:457877716370:web:5bc6e08801e36010c3d54b"
-    });
+   АНГИЛАЛ (category утга):
+     "restaurant"  → 🍽️ Ресторан / Кафе
+     "bakery"      → 🍞 Нарийн боов / Талх
+     "gym"         → 💪 Фитнесс
+     "carwash"     → 🚿 Авто угаалга
+     "carfix"      → 🔧 Авто засвар
+     "salon"       → 💈 Гоо сайхан / Үсчин
+     "shop"        → 🏪 Дэлгүүр
+     "other"       → 📦 Бусад
 
-    const db       = getDatabase(app);
-    const auth     = getAuth(app);
-    const provider = new GoogleAuthProvider();
+   ӨНГӨ ЖИШЭЭ:
+     Улаан:    #ff6b6b   Ногоон:   #43e97b   Цэнхэр:  #4facfe
+     Шар:      #fee140   Ягаан:    #fa709a   Нил:     #667eea
+     Хар:      #1a1a2e   Жигд:     #f093fb   Хүрэн:   #c0864a
 
-    // ── Handle redirect result on page load
-    // (this is what fixes the white-flash: when popup is blocked,
-    //  Firebase redirects. We catch the result here on return.)
-    getRedirectResult(auth).then(result => {
-        if (result?.user) {
-            // handled by onAuthStateChanged below
-        }
-    }).catch(e => {
-        if (e.code !== 'auth/cancelled-popup-request') {
-            console.error('Redirect result error:', e.code);
-        }
-    });
+   ── НЭГ ЖИШЭЭ ХЭРХЭН ХАРАГДАХ ВЭ ──────────────────────
+   {
+     name:        "Алтан Талх",
+     category:    "bakery",
+     color:       "#fee140",
+     description: "Өдөр бүр шинэхэн талх, нарийн боов. Захиалгаар бэлтгэнэ.",
+     phone:       "99112233",
+     address:     "1-р хороо, Захын гудамж 12",
+     mapUrl:      "https://maps.app.goo.gl/example",
+     photoUrl:    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Fresh_made_bread_05.jpg/1280px-Fresh_made_bread_05.jpg",
+   },
+   ══════════════════════════════════════════════════════ */
 
-    const CAT_LABELS = {
-        restaurant:'🍽️ Ресторан', bakery:'🍞 Нарийн боов',
-        gym:'💪 Фитнесс',         carwash:'🚿 Авто угаалга',
-        carfix:'🔧 Авто засвар',  salon:'💈 Гоо сайхан',
-        shop:'🏪 Дэлгүүр',        other:'📦 Бусад',
-    };
-    const CAT_ICONS = {
-        restaurant:'🍽️', bakery:'🍞', gym:'💪', carwash:'🚿',
-        carfix:'🔧', salon:'💈', shop:'🏪', other:'📦'
-    };
+const BUSINESSES = [
 
-    let allBiz        = {};
-    let activeCat     = 'all';
-    let searchTerm    = '';
-    let editingId     = null;
-    let selectedColor = '#667eea';
-    let currentUser   = null;
-    let tapCount      = 0;
-    let tapTimer      = null;
+  /* ── РЕСТОРАН / КАФЕ ──────────────────────────── */
+  {
+    name:        "Эрдэнэ Зул Ресторан",
+    category:    "restaurant",
+    color:       "#ff6b6b",
+    description: "Монгол болон европ хоол. Захиалгаар хүргэлт хийнэ.",
+    phone:       "99001122",
+    address:     "Мөрөн хот, Төв зам 5",
+    mapUrl:      "https://maps.google.com",
+    photoUrl:    "",
+  },
+  {
+    name:        "Тал Нутгийн Кафе",
+    category:    "restaurant",
+    color:       "#f093fb",
+    description: "Өглөөний цай, кофе, хөнгөн зууш. 08:00–22:00.",
+    phone:       "88223344",
+    address:     "2-р хороо, Нийгмийн төв",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-    const grid          = document.getElementById('bizGrid');
-    const statsEl       = document.getElementById('searchStats');
-    const searchInp     = document.getElementById('searchInput');
-    const bizModal      = document.getElementById('bizModal');
-    const bizForm       = document.getElementById('bizForm');
-    const adminFab      = document.getElementById('adminFab');
-    const photoInput    = document.getElementById('fPhotoUrl');
-    const photoPreview  = document.getElementById('photoPreview');
-    const googleOverlay = document.getElementById('googleOverlay');
-    const adminEmailEl  = document.getElementById('adminEmail');
-    const titleEl       = document.getElementById('pageTitle');
-    const hintEl        = document.getElementById('tapHint');
-    const signInBtn     = document.getElementById('googleSignInBtn');
+  /* ── НАРИЙН БООВ ──────────────────────────────── */
+  {
+    name:        "Алтан Талх",
+    category:    "bakery",
+    color:       "#fee140",
+    description: "Өдөр бүр шинэхэн талх, нарийн боов. Захиалгаар бэлтгэнэ.",
+    phone:       "99112233",
+    address:     "1-р хороо, Захын гудамж 12",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-    // ── Auth state ──
-    onAuthStateChanged(auth, user => {
-        if (user && user.uid === ALLOWED_UID) {
-            currentUser = user;
-            document.body.classList.add('admin-mode');
-            adminFab.classList.add('visible');
-            adminEmailEl.textContent = user.email;
-            googleOverlay.classList.remove('open');
-            // reset tap counter so it can be used to log out and back in
-            tapCount = 0;
-            hintEl.style.color = 'transparent';
-        } else {
-            if (user) {
-                // Wrong Google account — boot silently
-                signOut(auth);
-                alert('⛔ Энэ бүртгэл зөвшөөрөгдөөгүй.');
-            }
-            currentUser = null;
-            document.body.classList.remove('admin-mode');
-            adminFab.classList.remove('visible');
-            adminEmailEl.textContent = '';
-        }
-    });
+  /* ── ФИТНЕСС ──────────────────────────────────── */
+  {
+    name:        "Мөрөн Фитнесс",
+    category:    "gym",
+    color:       "#43e97b",
+    description: "Дасгалын заал, персонал тренер. 06:00–22:00 ажилладаг.",
+    phone:       "99445566",
+    address:     "3-р хороо, Спортын зам",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-    // ── 7-tap on title → show Google login popup ──
-    titleEl.addEventListener('click', () => {
-        if (currentUser) return; // already logged in
-        tapCount++;
-        clearTimeout(tapTimer);
+  /* ── АВТО УГААЛГА ─────────────────────────────── */
+  {
+    name:        "Хурдан Авто Угаалга",
+    category:    "carwash",
+    color:       "#4facfe",
+    description: "Гар болон машинаар угаалга. Дотор цэвэрлэгээ багтана.",
+    phone:       "88556677",
+    address:     "4-р хороо, Замын хажуу",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-        if (tapCount >= 5) {
-            hintEl.style.color = 'rgba(192,57,43,0.65)';
-            hintEl.textContent = `${tapCount} / 7`;
-        }
+  /* ── АВТО ЗАСВАР ──────────────────────────────── */
+  {
+    name:        "Эрдэнэ Авто Засвар",
+    category:    "carfix",
+    color:       "#c0864a",
+    description: "Бүх төрлийн машины засвар, ТО үйлчилгээ.",
+    phone:       "99778899",
+    address:     "5-р хороо, Аж үйлдвэрийн бүс",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-        tapTimer = setTimeout(() => {
-            tapCount = 0;
-            hintEl.style.color = 'transparent';
-            hintEl.textContent = '';
-        }, 2000);
+  /* ── ГОО САЙХАН ───────────────────────────────── */
+  {
+    name:        "Гоёл Салон",
+    category:    "salon",
+    color:       "#fa709a",
+    description: "Үс засалт, маникюр, арьс арчилгаа. Захиалгаар ажиллана.",
+    phone:       "88990011",
+    address:     "1-р хороо, Төвийн гудамж",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-        if (tapCount >= 7) {
-            tapCount = 0;
-            clearTimeout(tapTimer);
-            hintEl.style.color = 'transparent';
-            hintEl.textContent = '';
-            googleOverlay.classList.add('open');
-        }
-    });
+  /* ── ДЭЛГҮҮР ──────────────────────────────────── */
+  {
+    name:        "Мөнх Дэлгүүр",
+    category:    "shop",
+    color:       "#667eea",
+    description: "Хүнсний болон ахуйн бараа. 08:00–23:00 нээлттэй.",
+    phone:       "99001234",
+    address:     "2-р хороо, Зах",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-    // ── Sign in button ──
-    // Tries popup first. If browser blocks it, falls back to redirect.
-Update the sign-in button click handler (lines 549-577):
+  /* ── БУСАД ────────────────────────────────────── */
+  {
+    name:        "Хурдан Хүргэлт",
+    category:    "other",
+    color:       "#1a1a2e",
+    description: "Хот доторх хурдан хүргэлт. 24/7 ажилладаг.",
+    phone:       "88007799",
+    address:     "Мөрөн хот",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
 
-signInBtn.addEventListener('click', async () => {
-    signInBtn.disabled = true;
-    signInBtn.innerHTML = '<div class="spinner"></div> Нэвтэрч байна...';
-    try {
-        await signInWithPopup(auth, provider);
-        // onAuthStateChanged handles the rest
-    } catch(e) {
-        if (e.code === 'auth/popup-blocked') {
-            // Instead of redirect, ask user to allow popups
-            alert('⚠️ Popup блокирован. Браузерийн popup зөвшөөрөлийг идэвхжүүлнэ үү.');
-            signInBtn.disabled = false;
-            signInBtn.innerHTML = `
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Google-ээр нэвтрэх`;
-            return;
-        } else if (e.code !== 'auth/popup-closed-by-user') {
-            alert('Нэвтрэх алдаа: ' + e.message);
-        }
-    } finally {
-        signInBtn.disabled = false;
-        if (!signInBtn.innerHTML.includes('Нэвтэрч')) {
-            signInBtn.innerHTML = `
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Google-ээр нэвтрэх`;
-        }
-    }
+  /*
+  ── ШИНЭ БИЗНЕС НЭМЭХИЙН ТУЛД ЭНЭ МӨРИЙН ДАРАА {} БЛОК НЭМНЭ ──────
+
+  {
+    name:        "Таны бизнесийн нэр",
+    category:    "restaurant",
+    color:       "#ff6b6b",
+    description: "Тайлбар...",
+    phone:       "99000000",
+    address:     "Хаяг...",
+    mapUrl:      "",
+    photoUrl:    "",
+  },
+
+  ────────────────────────────────────────────────────────────────────── */
+
+];
+
+/* ==========================================================
+   ДООРХ КОДЫГ ӨӨРЧЛӨХ ШААРДЛАГАГҮЙ
+   ========================================================== */
+
+const CAT_LABELS = {
+  restaurant:'🍽️ Ресторан', bakery:'🍞 Нарийн боов',
+  gym:'💪 Фитнесс',         carwash:'🚿 Авто угаалга',
+  carfix:'🔧 Авто засвар',  salon:'💈 Гоо сайхан',
+  shop:'🏪 Дэлгүүр',        other:'📦 Бусад',
+};
+const CAT_ICONS = {
+  restaurant:'🍽️', bakery:'🍞', gym:'💪', carwash:'🚿',
+  carfix:'🔧', salon:'💈', shop:'🏪', other:'📦'
+};
+
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let activeCat  = 'all';
+let searchTerm = '';
+
+const grid     = document.getElementById('bizGrid');
+const statsEl  = document.getElementById('searchStats');
+const searchIn = document.getElementById('searchInput');
+const subtitle = document.getElementById('pageSubtitle');
+
+subtitle.textContent = `Мөрөн хот — ${BUSINESSES.length} бизнес бүртгэлтэй`;
+
+function renderGrid() {
+  const filtered = BUSINESSES.filter(b => {
+    const matchCat  = activeCat === 'all' || b.category === activeCat;
+    const matchText = !searchTerm ||
+      (b.name||'').toLowerCase().includes(searchTerm) ||
+      (b.description||'').toLowerCase().includes(searchTerm) ||
+      (b.phone||'').includes(searchTerm) ||
+      (b.address||'').toLowerCase().includes(searchTerm);
+    return matchCat && matchText;
+  });
+
+  statsEl.textContent = (searchTerm || activeCat !== 'all')
+    ? `${filtered.length} бизнес олдлоо (нийт ${BUSINESSES.length})`
+    : `Нийт ${BUSINESSES.length} бизнес`;
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="no-data"><span>🔍</span>Хайлтад тохирох бизнес олдсонгүй</div>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  filtered.forEach(b => {
+    const color = b.color || '#667eea';
+    const card  = document.createElement('div');
+    card.className = 'biz-card';
+    card.innerHTML = `
+      <div class="card-accent" style="background:${esc(color)};"></div>
+      ${b.photoUrl
+        ? `<img class="card-photo" src="${esc(b.photoUrl)}" alt="${esc(b.name)}" loading="lazy" onerror="this.style.display='none'">`
+        : `<div class="card-placeholder">${CAT_ICONS[b.category]||'📦'}</div>`
+      }
+      <div class="card-body">
+        <div class="card-badge">${CAT_LABELS[b.category]||'📦 Бусад'}</div>
+        <div class="card-name">${esc(b.name)}</div>
+        ${b.description ? `<div class="card-desc">${esc(b.description)}</div>` : ''}
+        <div class="card-meta">
+          ${b.phone   ? `<div class="meta-row">📞 ${esc(b.phone)}</div>` : ''}
+          ${b.address ? `<div class="meta-row">📍 ${esc(b.address)}</div>` : ''}
+        </div>
+        <div class="card-actions">
+          ${b.phone
+            ? `<a href="tel:${esc(b.phone)}" class="btn-call">📞 Залгах</a>`
+            : '<div style="flex:1"></div>'
+          }
+          ${b.mapUrl ? `<a href="${esc(b.mapUrl)}" target="_blank" rel="noopener" class="btn-map">🗺️</a>` : ''}
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+searchIn.addEventListener('input', e => {
+  searchTerm = e.target.value.toLowerCase().trim();
+  renderGrid();
 });
-    
 
-    document.getElementById('googleCancelBtn').addEventListener('click', () => {
-        googleOverlay.classList.remove('open');
-        tapCount = 0;
-    });
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    renderGrid();
+  });
+});
 
-    window.exitAdmin = async () => { await signOut(auth); };
-
-    // ── Live data ──
-    onValue(ref(db, 'businesses'), snap => {
-        allBiz = snap.exists() ? snap.val() : {};
-        renderGrid();
-    });
-
-    // ── Render cards ──
-    function renderGrid() {
-        const keys = Object.keys(allBiz).filter(id => {
-            const b = allBiz[id];
-            const matchCat  = activeCat === 'all' || b.category === activeCat;
-            const matchTerm = !searchTerm ||
-                b.name.toLowerCase().includes(searchTerm) ||
-                (b.description||'').toLowerCase().includes(searchTerm) ||
-                (b.phone||'').includes(searchTerm) ||
-                (b.address||'').toLowerCase().includes(searchTerm);
-            return matchCat && matchTerm;
-        });
-
-        const total = Object.keys(allBiz).length;
-        statsEl.textContent = (searchTerm || activeCat !== 'all')
-            ? `${keys.length} бизнес олдлоо (Нийт: ${total})`
-            : `Нийт ${total} бизнес`;
-
-        if (!keys.length) {
-            grid.innerHTML = '<div class="no-data">Хайлтад тохирох бизнес олдсонгүй</div>';
-            return;
-        }
-
-        grid.innerHTML = '';
-        keys.forEach(id => {
-            const b     = allBiz[id];
-            const color = b.color || '#667eea';
-            const card  = document.createElement('div');
-            card.className = 'biz-card';
-            card.innerHTML = `
-                <div class="biz-card-accent" style="background:${color};"></div>
-                ${b.photoUrl
-                    ? `<img class="biz-photo" src="${esc(b.photoUrl)}" alt="${esc(b.name)}" loading="lazy" onerror="this.style.display='none'">`
-                    : `<div class="biz-photo-placeholder">${CAT_ICONS[b.category]||'📦'}</div>`
-                }
-                <div class="biz-body">
-                    <div class="biz-cat-badge">${CAT_LABELS[b.category]||'📦 Бусад'}</div>
-                    <div class="biz-name">${esc(b.name)}</div>
-                    ${b.description ? `<div class="biz-desc">${esc(b.description)}</div>` : ''}
-                    <div class="biz-meta">
-                        ${b.phone   ? `<div class="biz-meta-row"><span class="biz-meta-icon">📞</span>${esc(b.phone)}</div>` : ''}
-                        ${b.address ? `<div class="biz-meta-row"><span class="biz-meta-icon">📍</span>${esc(b.address)}</div>` : ''}
-                    </div>
-                    <div class="biz-actions">
-                        ${b.phone
-                            ? `<a href="tel:${esc(b.phone)}" class="biz-btn-call">📞 Залгах</a>`
-                            : '<div style="flex:1"></div>'
-                        }
-                        ${b.mapUrl ? `<a href="${esc(b.mapUrl)}" target="_blank" rel="noopener" class="biz-btn-map">🗺️</a>` : ''}
-                    </div>
-                </div>
-                <div class="admin-card-actions">
-                    <button class="btn-small btn-edit"   onclick="window._editBiz('${id}')">✏️ Засах</button>
-                    <button class="btn-small btn-delete" onclick="window._deleteBiz('${id}')">🗑️ Устгах</button>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    function esc(s) {
-        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    // ── Search & filter ──
-    searchInp.addEventListener('input', e => {
-        searchTerm = e.target.value.toLowerCase().trim();
-        renderGrid();
-    });
-
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            activeCat = btn.dataset.cat;
-            renderGrid();
-        });
-    });
-
-    // ── Admin FAB ──
-    adminFab.addEventListener('click', () => { if (currentUser) openModal(null); });
-
-    // ── Color swatches ──
-    document.querySelectorAll('.color-swatch').forEach(sw => {
-        sw.addEventListener('click', () => {
-            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-            sw.classList.add('selected');
-            selectedColor = sw.dataset.color;
-            document.getElementById('customColor').value = selectedColor;
-        });
-    });
-    document.getElementById('customColor').addEventListener('input', e => {
-        selectedColor = e.target.value;
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-    });
-
-    // ── Photo preview ──
-    photoInput.addEventListener('input', e => {
-        const url = e.target.value.trim();
-        if (url) {
-            photoPreview.src = url;
-            photoPreview.classList.add('visible');
-            photoPreview.onerror = () => photoPreview.classList.remove('visible');
-        } else {
-            photoPreview.classList.remove('visible');
-        }
-    });
-
-    // ── Open modal ──
-    function openModal(id) {
-        editingId = id;
-        bizForm.reset();
-        photoPreview.classList.remove('visible');
-        document.getElementById('modalTitle').textContent = id ? 'Бизнес засах' : 'Бизнес нэмэх';
-        selectedColor = '#667eea';
-        document.querySelectorAll('.color-swatch').forEach(s =>
-            s.classList.toggle('selected', s.dataset.color === selectedColor)
-        );
-        if (id && allBiz[id]) {
-            const b = allBiz[id];
-            document.getElementById('fName').value     = b.name        || '';
-            document.getElementById('fCat').value      = b.category    || '';
-            document.getElementById('fDesc').value     = b.description || '';
-            document.getElementById('fPhone').value    = b.phone       || '';
-            document.getElementById('fAddress').value  = b.address     || '';
-            document.getElementById('fMapUrl').value   = b.mapUrl      || '';
-            document.getElementById('fPhotoUrl').value = b.photoUrl    || '';
-            if (b.photoUrl) { photoPreview.src = b.photoUrl; photoPreview.classList.add('visible'); }
-            selectedColor = b.color || '#667eea';
-            document.getElementById('customColor').value = selectedColor;
-            document.querySelectorAll('.color-swatch').forEach(s =>
-                s.classList.toggle('selected', s.dataset.color === selectedColor)
-            );
-        }
-        bizModal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-
-    window.closeModal = () => {
-        bizModal.classList.remove('open');
-        document.body.style.overflow = 'auto';
-        editingId = null;
-    };
-
-    window.addEventListener('click', e => {
-        if (e.target === bizModal)      window.closeModal();
-        if (e.target === googleOverlay) googleOverlay.classList.remove('open');
-    });
-
-    // ── Edit / Delete ──
-    window._editBiz   = (id) => { if (currentUser) openModal(id); };
-    window._deleteBiz = async (id) => {
-        if (!currentUser) return;
-        if (!confirm(`"${allBiz[id]?.name}" бизнесийг устгах уу?`)) return;
-        try { await remove(ref(db, `businesses/${id}`)); }
-        catch(e) { alert('Алдаа: ' + e.message); }
-    };
-
-    // ── Save ──
-    bizForm.addEventListener('submit', async e => {
-        e.preventDefault();
-        if (!currentUser) return;
-        const name     = document.getElementById('fName').value.trim();
-        const cat      = document.getElementById('fCat').value;
-        if (!name || !cat) { alert('Нэр болон ангилалыг заавал бөглөнө үү!'); return; }
-        const payload = {
-            name, category: cat,
-            description: document.getElementById('fDesc').value.trim(),
-            phone:    document.getElementById('fPhone').value.trim(),
-            address:  document.getElementById('fAddress').value.trim(),
-            mapUrl:   document.getElementById('fMapUrl').value.trim(),
-            photoUrl: document.getElementById('fPhotoUrl').value.trim(),
-            color: selectedColor, timestamp: Date.now()
-        };
-        try {
-            if (editingId) { await update(ref(db, `businesses/${editingId}`), payload); }
-            else           { await push(ref(db, 'businesses'), payload); }
-            window.closeModal();
-        } catch(e) { alert('Алдаа: ' + e.message); }
-    });
+renderGrid();
 </script>
 </body>
 </html>
