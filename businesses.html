@@ -6,7 +6,6 @@
     <title>Бизнес лавлах — Мөрөн</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ── Category filter bar ── */
         .cat-bar {
             padding: 24px 40px 0;
             display: flex;
@@ -30,7 +29,6 @@
         .cat-btn:hover { border-color: #333; background: rgba(255,255,255,0.85); transform: translateY(-2px); }
         .cat-btn.active { background: linear-gradient(135deg,#333,#111); color: #fff; border-color: transparent; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
 
-        /* ── Business grid ── */
         .biz-grid {
             padding: 30px 40px 40px;
             display: grid;
@@ -39,7 +37,6 @@
             background: transparent;
         }
 
-        /* ── Business card ── */
         .biz-card {
             background: rgba(255,255,255,0.62);
             backdrop-filter: blur(20px);
@@ -51,192 +48,144 @@
         }
         .biz-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(0,0,0,0.14); border-color: rgba(0,0,0,0.18); }
 
-        .biz-card-accent {
-            height: 5px;
-            background: var(--card-color, linear-gradient(90deg,#667eea,#764ba2));
-        }
+        .biz-card-accent { height: 5px; }
 
-        .biz-photo {
-            width: 100%;
-            height: 190px;
-            object-fit: cover;
-            display: block;
-        }
+        .biz-photo { width: 100%; height: 190px; object-fit: cover; display: block; }
         .biz-photo-placeholder {
-            width: 100%;
-            height: 130px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            background: rgba(0,0,0,0.05);
+            width: 100%; height: 130px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3.5rem; background: rgba(0,0,0,0.05);
         }
 
         .biz-body { padding: 22px 24px 18px; }
 
         .biz-cat-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: rgba(0,0,0,0.07);
-            color: #444;
-            letter-spacing: 0.3px;
+            display: inline-block; padding: 4px 12px; border-radius: 50px;
+            font-size: 0.78rem; font-weight: 700; margin-bottom: 10px;
+            background: rgba(0,0,0,0.07); color: #444;
         }
-
-        .biz-name {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #111;
-            margin-bottom: 8px;
-            line-height: 1.2;
-        }
-
-        .biz-desc {
-            font-size: 0.92rem;
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 14px;
-        }
-
+        .biz-name { font-size: 1.3rem; font-weight: 800; color: #111; margin-bottom: 8px; line-height: 1.2; }
+        .biz-desc { font-size: 0.92rem; color: #555; line-height: 1.6; margin-bottom: 14px; }
         .biz-meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-        .biz-meta-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.87rem;
-            color: #444;
-        }
+        .biz-meta-row { display: flex; align-items: center; gap: 8px; font-size: 0.87rem; color: #444; }
         .biz-meta-icon { font-size: 1rem; flex-shrink: 0; }
-
         .biz-actions { display: flex; gap: 10px; margin-top: 4px; }
 
         .biz-btn-call {
-            flex: 1;
-            padding: 11px 16px;
-            background: linear-gradient(135deg,#333,#111);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.88rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            flex: 1; padding: 11px 16px;
+            background: linear-gradient(135deg,#333,#111); color: #fff;
+            border: none; border-radius: 10px; font-size: 0.88rem; font-weight: 700;
+            cursor: pointer; text-decoration: none; text-align: center;
+            transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .biz-btn-call:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
 
         .biz-btn-map {
-            padding: 11px 14px;
-            background: rgba(0,0,0,0.07);
-            color: #333;
-            border: 2px solid rgba(0,0,0,0.1);
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 11px 14px; background: rgba(0,0,0,0.07); color: #333;
+            border: 2px solid rgba(0,0,0,0.1); border-radius: 10px; font-size: 1rem;
+            cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center;
             transition: all 0.25s ease;
         }
         .biz-btn-map:hover { background: rgba(0,0,0,0.13); transform: translateY(-2px); }
 
-        .admin-card-actions {
-            display: none;
-            gap: 8px;
-            padding: 0 24px 18px;
-        }
+        .admin-card-actions { display: none; gap: 8px; padding: 0 24px 18px; }
         body.admin-mode .admin-card-actions { display: flex; }
-        body.admin-mode .biz-actions { margin-bottom: 0; }
 
         .admin-fab {
-            position: fixed;
-            bottom: 36px;
-            right: 36px;
-            z-index: 999;
-            width: 62px;
-            height: 62px;
-            border-radius: 50%;
+            position: fixed; bottom: 36px; right: 36px; z-index: 999;
+            width: 62px; height: 62px; border-radius: 50%;
             background: linear-gradient(135deg,#c0392b,#922b21);
-            border: none;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 8px 30px rgba(192,57,43,0.5);
+            border: none; cursor: pointer; display: none;
+            align-items: center; justify-content: center; font-size: 1.5rem;
+            box-shadow: 0 8px 30px rgba(192,57,43,0.5); color: white;
             transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.3s;
-            color: white;
         }
         .admin-fab.visible { display: flex; }
         .admin-fab:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 14px 40px rgba(192,57,43,0.7); }
 
         .admin-bar {
-            display: none;
-            align-items: center;
-            justify-content: space-between;
+            display: none; align-items: center; justify-content: space-between;
             padding: 10px 24px;
             background: linear-gradient(90deg,rgba(192,57,43,0.12),rgba(146,43,33,0.08));
             border-bottom: 1px solid rgba(192,57,43,0.2);
-            font-size: 0.85rem;
-            color: #c0392b;
-            font-weight: 700;
-            flex-shrink: 0;
+            font-size: 0.85rem; color: #c0392b; font-weight: 700; flex-shrink: 0;
         }
         body.admin-mode .admin-bar { display: flex; }
 
-        .admin-bar-exit {
-            background: rgba(192,57,43,0.12);
-            border: 1px solid rgba(192,57,43,0.3);
-            color: #c0392b;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
+        .admin-bar-btn {
+            background: rgba(192,57,43,0.12); border: 1px solid rgba(192,57,43,0.3);
+            color: #c0392b; padding: 5px 14px; border-radius: 20px;
+            font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: inherit;
         }
-        .admin-bar-exit:hover { background: rgba(192,57,43,0.22); }
+        .admin-bar-btn:hover { background: rgba(192,57,43,0.22); }
 
+        /* Tiny secret dot bottom-left */
+        .secret-login {
+            position: fixed; bottom: 14px; left: 14px;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.08);
+            cursor: pointer; z-index: 998;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; color: rgba(0,0,0,0.15); transition: background 0.2s;
+        }
+        .secret-login:hover { background: rgba(0,0,0,0.1); }
+        body.admin-mode .secret-login { display: none; }
+
+        /* Google login overlay */
+        .google-overlay {
+            display: none; position: fixed; inset: 0; z-index: 3000;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+        }
+        .google-overlay.open { display: flex; }
+        .google-popup {
+            background: white; border-radius: 20px; padding: 40px 36px;
+            max-width: 360px; width: 90%; text-align: center;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.25);
+            animation: slideIn 0.3s ease;
+        }
+        .google-popup h3 { font-size: 1.4rem; font-weight: 700; color: #111; margin-bottom: 8px; }
+        .google-popup p  { font-size: 0.9rem; color: #666; margin-bottom: 28px; line-height: 1.5; }
+
+        .google-signin-btn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 14px 20px; background: white;
+            border: 2px solid rgba(0,0,0,0.15); border-radius: 12px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; color: #333;
+            transition: all 0.25s; box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .google-signin-btn:hover { border-color: #4285F4; box-shadow: 0 4px 20px rgba(66,133,244,0.2); transform: translateY(-1px); }
+        .google-icon { width: 22px; height: 22px; flex-shrink: 0; }
+
+        .google-cancel {
+            margin-top: 14px; background: none; border: none;
+            color: #999; font-size: 0.88rem; cursor: pointer; font-family: inherit;
+        }
+        .google-cancel:hover { color: #333; }
+
+        /* Add/Edit modal */
         .biz-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 2000;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            overflow-y: auto;
-            padding: 20px 0;
-            animation: fadeIn 0.3s ease;
+            display: none; position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            overflow-y: auto; padding: 20px 0;
         }
         .biz-modal.open { display: block; }
 
         .biz-modal-content {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            margin: 20px auto;
-            border-radius: 22px;
-            width: 90%;
-            max-width: 620px;
-            box-shadow: 0 24px 70px rgba(0,0,0,0.22);
+            background: rgba(255,255,255,0.97); margin: 20px auto;
+            border-radius: 22px; width: 90%; max-width: 620px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.22); overflow: hidden;
             animation: slideIn 0.3s ease;
-            overflow: hidden;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-40px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
         }
 
         .biz-modal-header {
-            padding: 28px 36px;
-            background: linear-gradient(135deg,#333,#111);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 28px 36px; background: linear-gradient(135deg,#333,#111);
+            display: flex; justify-content: space-between; align-items: center;
         }
         .biz-modal-header h2 { color: white; font-size: 1.6rem; font-weight: 700; margin: 0; }
         .biz-modal-close {
@@ -244,168 +193,83 @@
             transition: transform 0.3s; line-height: 1; background: none; border: none;
         }
         .biz-modal-close:hover { transform: rotate(90deg); }
+        .biz-modal-body { padding: 32px 36px; }
 
-        .biz-modal-body { padding: 36px; }
-
-        .form-group {
-            margin-bottom: 22px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #111;
-            font-size: 0.95rem;
-        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #111; font-size: 0.95rem; }
         .form-group input,
         .form-group textarea,
         .form-group select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid rgba(0,0,0,0.12);
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-            background: rgba(255,255,255,0.7);
+            width: 100%; padding: 12px 14px; border: 2px solid rgba(0,0,0,0.12);
+            border-radius: 10px; font-family: inherit; font-size: 0.95rem;
+            transition: all 0.3s; background: rgba(255,255,255,0.7); color: #111;
         }
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
-            outline: none;
-            border-color: #333;
-            background: rgba(255,255,255,0.95);
-            box-shadow: 0 0 12px rgba(0,0,0,0.08);
+            outline: none; border-color: #333;
+            background: rgba(255,255,255,0.95); box-shadow: 0 0 12px rgba(0,0,0,0.08);
+        }
+        .form-group textarea { resize: vertical; min-height: 90px; }
+
+        .cat-select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23333' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 16px center;
+            background-color: rgba(255,255,255,0.7); padding-right: 40px; cursor: pointer;
         }
 
-        .color-picker-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
+        .color-picker-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
         .color-swatch {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-            flex-shrink: 0;
+            width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent;
+            cursor: pointer; transition: transform 0.2s, border-color 0.2s; flex-shrink: 0;
         }
         .color-swatch:hover { transform: scale(1.15); }
-        .color-swatch.selected { border-color: #333; transform: scale(1.15); }
-        .color-custom { width: 36px; height: 36px; border-radius: 50%; border: 2px dashed #999; cursor: pointer; padding: 0; overflow: hidden; }
+        .color-swatch.selected { border-color: #111; transform: scale(1.18); }
+        .color-custom { width: 36px; height: 36px; border-radius: 50%; border: 2px dashed #999; overflow: hidden; cursor: pointer; }
         .color-custom input[type="color"] { width: 200%; height: 200%; margin: -50%; border: none; cursor: pointer; }
 
         .photo-preview {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-top: 10px;
-            display: none;
-            border: 2px solid rgba(0,0,0,0.1);
+            width: 100%; height: 160px; object-fit: cover; border-radius: 12px;
+            margin-top: 10px; display: none; border: 2px solid rgba(0,0,0,0.1);
         }
         .photo-preview.visible { display: block; }
 
-        .biz-modal-actions { display: flex; gap: 14px; margin-top: 28px; }
-
-        .btn-cancel, .btn-submit, .btn-small {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.3s;
-        }
+        .biz-modal-actions { display: flex; gap: 14px; margin-top: 24px; }
 
         .btn-cancel {
-            flex: 1;
-            background: rgba(0,0,0,0.08);
-            color: #333;
-            border: 2px solid rgba(0,0,0,0.12);
+            flex: 1; padding: 13px 20px; background: rgba(0,0,0,0.07); color: #333;
+            border: 2px solid rgba(0,0,0,0.12); border-radius: 10px;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s;
         }
-        .btn-cancel:hover { background: rgba(0,0,0,0.14); }
+        .btn-cancel:hover { background: rgba(0,0,0,0.13); }
 
         .btn-submit {
-            flex: 1;
-            background: linear-gradient(135deg,#333,#111);
-            color: white;
+            flex: 1; padding: 13px 20px; background: linear-gradient(135deg,#333,#111); color: white;
+            border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.25s;
         }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
 
         .btn-small {
-            flex: 1;
-            padding: 8px 12px;
-            font-size: 0.82rem;
+            flex: 1; padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
+            border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.2s; border: 1px solid;
         }
+        .btn-edit   { background: rgba(52,152,219,0.1);  color: #2980b9; border-color: rgba(52,152,219,0.3); }
+        .btn-edit:hover   { background: rgba(52,152,219,0.2); }
+        .btn-delete { background: rgba(192,57,43,0.1);   color: #c0392b; border-color: rgba(192,57,43,0.3); }
+        .btn-delete:hover { background: rgba(192,57,43,0.2); }
 
-        .btn-edit {
-            background: rgba(52,152,219,0.12);
-            color: #3498db;
-            border: 1px solid rgba(52,152,219,0.3);
-        }
-        .btn-edit:hover { background: rgba(52,152,219,0.22); }
+        .no-data { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #999; font-size: 1.1rem; }
 
-        .btn-delete {
-            background: rgba(192,57,43,0.12);
-            color: #c0392b;
-            border: 1px solid rgba(192,57,43,0.3);
-        }
-        .btn-delete:hover { background: rgba(192,57,43,0.22); }
-
-        .cat-select {
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23333' stroke-width='2' fill='none'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 40px;
-        }
-
-        .tap-hint {
-            font-size: 0.75rem;
-            color: transparent;
-            user-select: none;
-            text-align: center;
-            margin-top: -10px;
-            margin-bottom: 10px;
-            transition: color 0.5s;
-        }
-
-        .no-data {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-            font-size: 1.1rem;
-        }
-
-        .search-section {
-            padding: 24px 40px;
-        }
-
+        .search-section { padding: 24px 40px 10px; }
         .search-input {
-            width: 100%;
-            padding: 14px 18px;
-            background: rgba(255,255,255,0.7);
-            border: 2px solid rgba(0,0,0,0.12);
-            border-radius: 12px;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: all 0.3s;
+            width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.7);
+            border: 2px solid rgba(0,0,0,0.1); border-radius: 50px;
+            font-size: 1rem; font-family: inherit; color: #111; transition: all 0.3s;
         }
-        .search-input:focus { outline: none; border-color: #333; background: rgba(255,255,255,0.9); }
-
-        .search-stats {
-            margin-top: 12px;
-            font-size: 0.9rem;
-            color: #666;
-            text-align: center;
-        }
+        .search-input:focus { outline: none; border-color: #333; background: rgba(255,255,255,0.95); }
+        .search-stats { margin-top: 10px; font-size: 0.9rem; color: #777; text-align: center; }
 
         @media (max-width: 768px) {
             .cat-bar { padding: 20px 20px 0; }
@@ -413,7 +277,7 @@
             .biz-modal-body { padding: 24px 20px; }
             .biz-modal-header { padding: 22px 24px; }
             .admin-fab { bottom: 24px; right: 20px; width: 54px; height: 54px; font-size: 1.3rem; }
-            .search-section { padding: 20px; }
+            .search-section { padding: 20px 20px 10px; }
         }
     </style>
 </head>
@@ -431,25 +295,25 @@
     </div>
 </div>
 
-<div class="container" id="mainContainer">
+<div class="container">
 
     <div class="admin-bar">
-        <span>🔐 Админ горим идэвхтэй</span>
-        <button class="admin-bar-exit" onclick="exitAdmin()">Гарах</button>
+        <span>🔐 Админ горим — <span id="adminEmail"></span></span>
+        <button class="admin-bar-btn" onclick="exitAdmin()">Гарах</button>
     </div>
 
     <header class="page-header">
         <a href="index.html" class="back-link">← Буцах</a>
-        <h1 id="pageTitle" style="cursor:default;user-select:none;">Бизнес лавлах</h1>
-        <p class="tap-hint" id="tapHint"></p>
+        <h1>Бизнес лавлах</h1>
     </header>
 
     <div class="search-section">
-        <input type="text" id="searchInput" class="search-input" autocomplete="off">
+        <input type="text" id="searchInput" class="search-input"
+            placeholder="🔍 Бизнесийн нэр, утас, хаягаар хайх..." autocomplete="off">
         <div id="searchStats" class="search-stats"></div>
     </div>
 
-    <div class="cat-bar" id="catBar">
+    <div class="cat-bar">
         <button class="cat-btn active" data-cat="all">🏙️ Бүгд</button>
         <button class="cat-btn" data-cat="restaurant">🍽️ Ресторан</button>
         <button class="cat-btn" data-cat="bakery">🍞 Нарийн боов</button>
@@ -461,13 +325,38 @@
         <button class="cat-btn" data-cat="other">📦 Бусад</button>
     </div>
 
-    <main id="bizGrid" class="biz-grid"><div class="loading">Уншиж байна...</div></main>
+    <main id="bizGrid" class="biz-grid">
+        <div class="loading">Уншиж байна...</div>
+    </main>
 
-    <footer><p>Сургуулийн төсөл • Prototype</p></footer>
+    <footer><p>Мөрөн Хүргэлт • 2025</p></footer>
 </div>
 
+<!-- Secret tiny dot — bottom-left corner, almost invisible -->
+<button class="secret-login" id="secretLoginBtn" title="">·</button>
+
+<!-- Red + button, only appears after you log in -->
 <button class="admin-fab" id="adminFab">＋</button>
 
+<!-- Google login popup -->
+<div class="google-overlay" id="googleOverlay">
+    <div class="google-popup">
+        <h3>🔐 Нэвтрэх</h3>
+        <p>Зөвхөн зөвшөөрөгдсөн хэрэглэгч нэвтрэх боломжтой</p>
+        <button class="google-signin-btn" id="googleSignInBtn">
+            <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Google-ээр нэвтрэх
+        </button>
+        <button class="google-cancel" id="googleCancelBtn">Болих</button>
+    </div>
+</div>
+
+<!-- Add / Edit Modal -->
 <div class="biz-modal" id="bizModal">
     <div class="biz-modal-content">
         <div class="biz-modal-header">
@@ -477,13 +366,13 @@
         <div class="biz-modal-body">
             <form id="bizForm">
                 <div class="form-group">
-                    <label>Бизнесийн нэр</label>
-                    <input type="text" id="fName" required>
+                    <label>Бизнесийн нэр *</label>
+                    <input type="text" id="fName" placeholder="Жишээ: Алтан Талх" required>
                 </div>
                 <div class="form-group">
-                    <label>Ангилал</label>
+                    <label>Ангилал *</label>
                     <select id="fCat" class="cat-select" required>
-                        <option value=""></option>
+                        <option value="">— Сонгох —</option>
                         <option value="restaurant">🍽️ Ресторан / Кафе</option>
                         <option value="bakery">🍞 Нарийн боов / Талх</option>
                         <option value="gym">💪 Фитнесс</option>
@@ -496,23 +385,23 @@
                 </div>
                 <div class="form-group">
                     <label>Тайлбар</label>
-                    <textarea id="fDesc" rows="3"></textarea>
+                    <textarea id="fDesc" placeholder="Бизнесийнхээ талаар товч бичнэ үү..."></textarea>
                 </div>
                 <div class="form-group">
                     <label>Утасны дугаар</label>
-                    <input type="tel" id="fPhone" maxlength="8">
+                    <input type="tel" id="fPhone" placeholder="99001122" maxlength="8">
                 </div>
                 <div class="form-group">
                     <label>Хаяг</label>
-                    <input type="text" id="fAddress">
+                    <input type="text" id="fAddress" placeholder="Жишээ: 1-р хороо, Баянзүрх гудамж">
                 </div>
                 <div class="form-group">
                     <label>Google Maps холбоос</label>
-                    <input type="url" id="fMapUrl">
+                    <input type="url" id="fMapUrl" placeholder="https://maps.google.com/...">
                 </div>
                 <div class="form-group">
                     <label>Зургийн холбоос (URL)</label>
-                    <input type="url" id="fPhoto">
+                    <input type="url" id="fPhotoUrl" placeholder="https://example.com/photo.jpg">
                     <img id="photoPreview" class="photo-preview" alt="Preview">
                 </div>
                 <div class="form-group">
@@ -526,12 +415,10 @@
                         <div class="color-swatch" data-color="#f093fb" style="background:#f093fb;"></div>
                         <div class="color-swatch" data-color="#ff6b6b" style="background:#ff6b6b;"></div>
                         <div class="color-swatch" data-color="#1a1a2e" style="background:#1a1a2e;"></div>
-                        <div class="color-custom"><input type="color" id="customColor" value="#667eea"></div>
+                        <div class="color-custom">
+                            <input type="color" id="customColor" value="#667eea">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>PIN код</label>
-                    <input type="password" id="fPin" maxlength="4">
                 </div>
                 <div class="biz-modal-actions">
                     <button type="button" class="btn-cancel" onclick="closeModal()">Болих</button>
@@ -552,95 +439,122 @@
 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-    import { getDatabase, ref, onValue, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+    import { getDatabase, ref, onValue, push, remove, update }
+        from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
+        from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
-    async function sha256(msg) {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
-        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-    }
+    // ═══════════════════════════════════════════════════════
+    //  🔴 STEP 6: PASTE YOUR UID HERE (see instructions)
+    const ALLOWED_UID = 'PASTE_YOUR_UID_HERE';
+    // ═══════════════════════════════════════════════════════
 
     const app = initializeApp({
-        apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-        authDomain: "huwsgul-hurgelt.firebaseapp.com",
-        databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "huwsgul-hurgelt",
-        storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+        apiKey:            "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+        authDomain:        "huwsgul-hurgelt.firebaseapp.com",
+        databaseURL:       "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId:         "huwsgul-hurgelt",
+        storageBucket:     "huwsgul-hurgelt.firebasestorage.app",
         messagingSenderId: "457877716370",
-        appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
+        appId:             "1:457877716370:web:5bc6e08801e36010c3d54b"
     });
-    const db = getDatabase(app);
 
-    /* ✅ FIREBASE AUTH - REPLACES SHA-256 SYSTEM */
-    const auth = getAuth(app);
-    signInAnonymously(auth).catch(console.error);
-
-    let isAuthed = false;
-
-    onAuthStateChanged(auth, (user) => {
-        isAuthed = !!user;
-        if (!user) {
-            document.body.classList.remove('admin-mode');
-            document.getElementById('adminFab').classList.remove('visible');
-            adminUnlocked = false;
-        }
-    });
+    const db       = getDatabase(app);
+    const auth     = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
     const CAT_LABELS = {
-        restaurant: '🍽️ Ресторан',
-        bakery:     '🍞 Нарийн боов',
-        gym:        '💪 Фитнесс',
-        carwash:    '🚿 Авто угаалга',
-        carfix:     '🔧 Авто засвар',
-        salon:      '💈 Гоо сайхан',
-        shop:       '🏪 Дэлгүүр',
-        other:      '📦 Бусад',
+        restaurant:'🍽️ Ресторан', bakery:'🍞 Нарийн боов',
+        gym:'💪 Фитнесс',         carwash:'🚿 Авто угаалга',
+        carfix:'🔧 Авто засвар',  salon:'💈 Гоо сайхан',
+        shop:'🏪 Дэлгүүр',        other:'📦 Бусад',
     };
     const CAT_ICONS = {
         restaurant:'🍽️', bakery:'🍞', gym:'💪', carwash:'🚿',
         carfix:'🔧', salon:'💈', shop:'🏪', other:'📦'
     };
 
-    let allBiz = {};
-    let activeCat = 'all';
-    let searchTerm = '';
-    let editingId = null;
+    let allBiz        = {};
+    let activeCat     = 'all';
+    let searchTerm    = '';
+    let editingId     = null;
     let selectedColor = '#667eea';
-    let adminUnlocked = false;
-    let tapCount = 0;
-    let tapTimer = null;
-    const MASTER_HASH = "cb1ddeb68a770c93b6a91023d1e4aab32e0d5c2037fbac639f425fdac2162522";
+    let currentUser   = null;
 
-    const grid = document.getElementById('bizGrid');
-    const statsEl = document.getElementById('searchStats');
-    const searchInp = document.getElementById('searchInput');
-    const bizModal = document.getElementById('bizModal');
-    const bizForm = document.getElementById('bizForm');
-    const adminFab = document.getElementById('adminFab');
-    const photoInput = document.getElementById('fPhoto');
-    const photoPreview = document.getElementById('photoPreview');
-    const titleEl = document.getElementById('pageTitle');
-    const hintEl = document.getElementById('tapHint');
+    const grid          = document.getElementById('bizGrid');
+    const statsEl       = document.getElementById('searchStats');
+    const searchInp     = document.getElementById('searchInput');
+    const bizModal      = document.getElementById('bizModal');
+    const bizForm       = document.getElementById('bizForm');
+    const adminFab      = document.getElementById('adminFab');
+    const photoInput    = document.getElementById('fPhotoUrl');
+    const photoPreview  = document.getElementById('photoPreview');
+    const googleOverlay = document.getElementById('googleOverlay');
+    const adminEmailEl  = document.getElementById('adminEmail');
 
+    // ── Watch auth state ──
+    onAuthStateChanged(auth, user => {
+        if (user && user.uid === ALLOWED_UID) {
+            currentUser = user;
+            document.body.classList.add('admin-mode');
+            adminFab.classList.add('visible');
+            adminEmailEl.textContent = user.email;
+            googleOverlay.classList.remove('open');
+        } else {
+            if (user) {
+                // Someone signed in but it's not your account — boot them out
+                signOut(auth);
+                alert('⛔ Энэ бүртгэл зөвшөөрөгдөөгүй.');
+            }
+            currentUser = null;
+            document.body.classList.remove('admin-mode');
+            adminFab.classList.remove('visible');
+            adminEmailEl.textContent = '';
+        }
+    });
+
+    // ── Secret button → show login popup ──
+    document.getElementById('secretLoginBtn').addEventListener('click', () => {
+        googleOverlay.classList.add('open');
+    });
+
+    document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+        try {
+            await signInWithPopup(auth, provider);
+        } catch(e) {
+            if (e.code !== 'auth/popup-closed-by-user') {
+                alert('Нэвтрэх алдаа: ' + e.message);
+            }
+        }
+    });
+
+    document.getElementById('googleCancelBtn').addEventListener('click', () => {
+        googleOverlay.classList.remove('open');
+    });
+
+    window.exitAdmin = async () => { await signOut(auth); };
+
+    // ── Live data ──
     onValue(ref(db, 'businesses'), snap => {
         allBiz = snap.exists() ? snap.val() : {};
         renderGrid();
     });
 
+    // ── Render ──
     function renderGrid() {
         const keys = Object.keys(allBiz).filter(id => {
             const b = allBiz[id];
-            const matchCat = activeCat === 'all' || b.category === activeCat;
+            const matchCat  = activeCat === 'all' || b.category === activeCat;
             const matchTerm = !searchTerm ||
                 b.name.toLowerCase().includes(searchTerm) ||
-                (b.description || '').toLowerCase().includes(searchTerm) ||
-                (b.phone || '').includes(searchTerm) ||
-                (b.address || '').toLowerCase().includes(searchTerm);
+                (b.description||'').toLowerCase().includes(searchTerm) ||
+                (b.phone||'').includes(searchTerm) ||
+                (b.address||'').toLowerCase().includes(searchTerm);
             return matchCat && matchTerm;
         });
 
         const total = Object.keys(allBiz).length;
-        statsEl.textContent = searchTerm || activeCat !== 'all'
+        statsEl.textContent = (searchTerm || activeCat !== 'all')
             ? `${keys.length} бизнес олдлоо (Нийт: ${total})`
             : `Нийт ${total} бизнес`;
 
@@ -651,44 +565,48 @@
 
         grid.innerHTML = '';
         keys.forEach(id => {
-            const b = allBiz[id];
+            const b     = allBiz[id];
             const color = b.color || '#667eea';
-            const card = document.createElement('div');
+            const card  = document.createElement('div');
             card.className = 'biz-card';
-            card.style.setProperty('--card-color', color);
-
             card.innerHTML = `
                 <div class="biz-card-accent" style="background:${color};"></div>
                 ${b.photoUrl
-                    ? `<img class="biz-photo" src="${escHtml(b.photoUrl)}" alt="${escHtml(b.name)}" loading="lazy" onerror="this.style.display='none'">`
-                    : `<div class="biz-photo-placeholder">${CAT_ICONS[b.category] || '📦'}</div>`
+                    ? `<img class="biz-photo" src="${esc(b.photoUrl)}" alt="${esc(b.name)}" loading="lazy" onerror="this.style.display='none'">`
+                    : `<div class="biz-photo-placeholder">${CAT_ICONS[b.category]||'📦'}</div>`
                 }
                 <div class="biz-body">
-                    <div class="biz-cat-badge">${CAT_LABELS[b.category] || '📦 Бусад'}</div>
-                    <div class="biz-name">${escHtml(b.name)}</div>
-                    ${b.description ? `<div class="biz-desc">${escHtml(b.description)}</div>` : ''}
+                    <div class="biz-cat-badge">${CAT_LABELS[b.category]||'📦 Бусад'}</div>
+                    <div class="biz-name">${esc(b.name)}</div>
+                    ${b.description ? `<div class="biz-desc">${esc(b.description)}</div>` : ''}
                     <div class="biz-meta">
-                        ${b.phone ? `<div class="biz-meta-row"><span class="biz-meta-icon">📞</span>${escHtml(b.phone)}</div>` : ''}
-                        ${b.address ? `<div class="biz-meta-row"><span class="biz-meta-icon">📍</span>${escHtml(b.address)}</div>` : ''}
+                        ${b.phone   ? `<div class="biz-meta-row"><span class="biz-meta-icon">📞</span>${esc(b.phone)}</div>` : ''}
+                        ${b.address ? `<div class="biz-meta-row"><span class="biz-meta-icon">📍</span>${esc(b.address)}</div>` : ''}
                     </div>
                     <div class="biz-actions">
-                        ${b.phone ? `<a href="tel:${escHtml(b.phone)}" class="biz-btn-call">📞 Залгах</a>` : '<div style="flex:1"></div>'}
-                        ${b.mapUrl ? `<a href="${escHtml(b.mapUrl)}" target="_blank" rel="noopener" class="biz-btn-map">🗺️</a>` : ''}
+                        ${b.phone
+                            ? `<a href="tel:${esc(b.phone)}" class="biz-btn-call">📞 Залгах</a>`
+                            : '<div style="flex:1"></div>'
+                        }
+                        ${b.mapUrl ? `<a href="${esc(b.mapUrl)}" target="_blank" rel="noopener" class="biz-btn-map">🗺️</a>` : ''}
                     </div>
                 </div>
                 <div class="admin-card-actions">
-                    <button class="btn-small btn-edit" onclick="window._editBiz('${id}')">Засах</button>
-                    <button class="btn-small btn-delete" onclick="window._deleteBiz('${id}')">Устгах</button>
+                    <button class="btn-small btn-edit"   onclick="window._editBiz('${id}')">✏️ Засах</button>
+                    <button class="btn-small btn-delete" onclick="window._deleteBiz('${id}')">🗑️ Устгах</button>
                 </div>
             `;
             grid.appendChild(card);
         });
     }
 
-    function escHtml(s) {
-        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function esc(s) {
+        return String(s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // ── Search & filter ──
     searchInp.addEventListener('input', e => {
         searchTerm = e.target.value.toLowerCase().trim();
         renderGrid();
@@ -703,55 +621,10 @@
         });
     });
 
-    /* ✅ ADMIN UNLOCK WITH FIREBASE AUTH CHECK */
-    titleEl.addEventListener('click', async () => {
-        if (adminUnlocked) return;
-        tapCount++;
-        clearTimeout(tapTimer);
+    // ── Admin FAB → open add modal ──
+    adminFab.addEventListener('click', () => { if (currentUser) openModal(null); });
 
-        if (tapCount >= 5) {
-            hintEl.style.color = 'rgba(192,57,43,0.6)';
-            hintEl.textContent = `${tapCount}/7`;
-        }
-
-        tapTimer = setTimeout(() => {
-            tapCount = 0;
-            hintEl.style.color = 'transparent';
-        }, 2000);
-
-        if (tapCount >= 7) {
-            tapCount = 0;
-            hintEl.style.color = 'transparent';
-            
-            if (!isAuthed) {
-                alert('Auth шаардлагатай');
-                return;
-            }
-            
-            const pin = prompt('PIN:');
-            if (!pin) return;
-            
-            const hash = await sha256(pin);
-            if (hash === MASTER_HASH) {
-                adminUnlocked = true;
-                document.body.classList.add('admin-mode');
-                adminFab.classList.add('visible');
-                alert('Admin ON');
-            } else {
-                alert('Wrong PIN');
-            }
-        }
-    });
-
-    window.exitAdmin = () => {
-        adminUnlocked = false;
-        document.body.classList.remove('admin-mode');
-        adminFab.classList.remove('visible');
-        editingId = null;
-    };
-
-    adminFab.addEventListener('click', () => openModal(null));
-
+    // ── Color swatches ──
     document.querySelectorAll('.color-swatch').forEach(sw => {
         sw.addEventListener('click', () => {
             document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
@@ -760,12 +633,12 @@
             document.getElementById('customColor').value = selectedColor;
         });
     });
-
     document.getElementById('customColor').addEventListener('input', e => {
         selectedColor = e.target.value;
         document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
     });
 
+    // ── Photo preview ──
     photoInput.addEventListener('input', e => {
         const url = e.target.value.trim();
         if (url) {
@@ -777,33 +650,32 @@
         }
     });
 
+    // ── Open modal ──
     function openModal(id) {
         editingId = id;
         bizForm.reset();
         photoPreview.classList.remove('visible');
         document.getElementById('modalTitle').textContent = id ? 'Бизнес засах' : 'Бизнес нэмэх';
         selectedColor = '#667eea';
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.dataset.color === selectedColor));
-
+        document.querySelectorAll('.color-swatch').forEach(s =>
+            s.classList.toggle('selected', s.dataset.color === selectedColor)
+        );
         if (id && allBiz[id]) {
             const b = allBiz[id];
-            document.getElementById('fName').value = b.name || '';
-            document.getElementById('fCat').value = b.category || '';
-            document.getElementById('fDesc').value = b.description || '';
-            document.getElementById('fPhone').value = b.phone || '';
-            document.getElementById('fAddress').value = b.address || '';
-            document.getElementById('fMapUrl').value = b.mapUrl || '';
-            document.getElementById('fPhoto').value = b.photoUrl || '';
-            document.getElementById('fPin').value = '';
-            if (b.photoUrl) {
-                photoPreview.src = b.photoUrl;
-                photoPreview.classList.add('visible');
-            }
+            document.getElementById('fName').value     = b.name        || '';
+            document.getElementById('fCat').value      = b.category    || '';
+            document.getElementById('fDesc').value     = b.description || '';
+            document.getElementById('fPhone').value    = b.phone       || '';
+            document.getElementById('fAddress').value  = b.address     || '';
+            document.getElementById('fMapUrl').value   = b.mapUrl      || '';
+            document.getElementById('fPhotoUrl').value = b.photoUrl    || '';
+            if (b.photoUrl) { photoPreview.src = b.photoUrl; photoPreview.classList.add('visible'); }
             selectedColor = b.color || '#667eea';
             document.getElementById('customColor').value = selectedColor;
-            document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.dataset.color === selectedColor));
+            document.querySelectorAll('.color-swatch').forEach(s =>
+                s.classList.toggle('selected', s.dataset.color === selectedColor)
+            );
         }
-
         bizModal.classList.add('open');
         document.body.style.overflow = 'hidden';
     }
@@ -814,60 +686,39 @@
         editingId = null;
     };
 
-    window.addEventListener('click', e => { if (e.target === bizModal) window.closeModal(); });
+    window.addEventListener('click', e => {
+        if (e.target === bizModal)      window.closeModal();
+        if (e.target === googleOverlay) googleOverlay.classList.remove('open');
+    });
 
-    window._editBiz = async (id) => {
-        const pin = prompt('PIN:');
-        if (!pin) return;
-        const h = await sha256(pin);
-        const bPin = allBiz[id]?.pin;
-        const bHash = bPin ? await sha256(bPin) : null;
-        if (h === MASTER_HASH || (bHash && h === bHash)) {
-            openModal(id);
-        } else {
-            alert('Wrong PIN');
-        }
-    };
+    // ── Edit / Delete ──
+    window._editBiz = (id) => { if (currentUser) openModal(id); };
 
     window._deleteBiz = async (id) => {
-        const pin = prompt('PIN:');
-        if (!pin) return;
-        const h = await sha256(pin);
-        const bPin = allBiz[id]?.pin;
-        const bHash = bPin ? await sha256(bPin) : null;
-        if (h !== MASTER_HASH && h !== bHash) { alert('Wrong PIN'); return; }
-        if (!confirm('OK?')) return;
-        remove(ref(db, `businesses/${id}`)).catch(err => alert('Error: ' + err.message));
+        if (!currentUser) return;
+        if (!confirm(`"${allBiz[id]?.name}" бизнесийг устгах уу?`)) return;
+        try { await remove(ref(db, `businesses/${id}`)); }
+        catch(e) { alert('Алдаа: ' + e.message); }
     };
 
+    // ── Save ──
     bizForm.addEventListener('submit', async e => {
         e.preventDefault();
-        const name = document.getElementById('fName').value.trim();
-        const cat = document.getElementById('fCat').value;
-        const desc = document.getElementById('fDesc').value.trim();
-        const phone = document.getElementById('fPhone').value.trim();
-        const address = document.getElementById('fAddress').value.trim();
-        const mapUrl = document.getElementById('fMapUrl').value.trim();
-        const photoUrl = document.getElementById('fPhoto').value.trim();
-        const pin = document.getElementById('fPin').value.trim();
-
-        if (!name || !cat) { alert('Fill all!'); return; }
-
+        if (!currentUser) return;
+        const name     = document.getElementById('fName').value.trim();
+        const cat      = document.getElementById('fCat').value;
+        const desc     = document.getElementById('fDesc').value.trim();
+        const phone    = document.getElementById('fPhone').value.trim();
+        const address  = document.getElementById('fAddress').value.trim();
+        const mapUrl   = document.getElementById('fMapUrl').value.trim();
+        const photoUrl = document.getElementById('fPhotoUrl').value.trim();
+        if (!name || !cat) { alert('Нэр болон ангилалыг заавал бөглөнө үү!'); return; }
         const payload = { name, category: cat, description: desc, phone, address, mapUrl, photoUrl, color: selectedColor, timestamp: Date.now() };
-        if (pin) payload.pin = pin;
-
         try {
-            if (editingId) {
-                await update(ref(db, `businesses/${editingId}`), payload);
-                alert('OK');
-            } else {
-                await push(ref(db, 'businesses'), payload);
-                alert('OK');
-            }
+            if (editingId) { await update(ref(db, `businesses/${editingId}`), payload); }
+            else           { await push(ref(db, 'businesses'), payload); }
             window.closeModal();
-        } catch (err) {
-            alert('Error: ' + err.message);
-        }
+        } catch(e) { alert('Алдаа: ' + e.message); }
     });
 </script>
 </body>
