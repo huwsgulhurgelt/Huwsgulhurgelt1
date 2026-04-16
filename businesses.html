@@ -58,7 +58,6 @@
         }
 
         .biz-body { padding: 22px 24px 18px; }
-
         .biz-cat-badge {
             display: inline-block; padding: 4px 12px; border-radius: 50px;
             font-size: 0.78rem; font-weight: 700; margin-bottom: 10px;
@@ -102,6 +101,17 @@
         }
         .admin-fab.visible { display: flex; }
         .admin-fab:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 14px 40px rgba(192,57,43,0.7); }
+        .admin-fab::after {
+            content: '';
+            position: absolute; inset: -4px; border-radius: 50%;
+            border: 2px solid rgba(192,57,43,0.4);
+            animation: fab-pulse 2.5s ease-out infinite;
+        }
+        @keyframes fab-pulse {
+            0%   { transform: scale(1);    opacity: 0.8; }
+            70%  { transform: scale(1.35); opacity: 0;   }
+            100% { transform: scale(1.35); opacity: 0;   }
+        }
 
         .admin-bar {
             display: none; align-items: center; justify-content: space-between;
@@ -111,7 +121,6 @@
             font-size: 0.85rem; color: #c0392b; font-weight: 700; flex-shrink: 0;
         }
         body.admin-mode .admin-bar { display: flex; }
-
         .admin-bar-btn {
             background: rgba(192,57,43,0.12); border: 1px solid rgba(192,57,43,0.3);
             color: #c0392b; padding: 5px 14px; border-radius: 20px;
@@ -119,17 +128,17 @@
         }
         .admin-bar-btn:hover { background: rgba(192,57,43,0.22); }
 
-        /* Tiny secret dot bottom-left */
-        .secret-login {
-            position: fixed; bottom: 14px; left: 14px;
-            width: 26px; height: 26px; border-radius: 50%;
-            background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.08);
-            cursor: pointer; z-index: 998;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.6rem; color: rgba(0,0,0,0.15); transition: background 0.2s;
+        /* 7-tap hint under the title */
+        .tap-hint {
+            font-size: 0.75rem;
+            color: transparent;
+            user-select: none;
+            text-align: center;
+            margin-top: -8px;
+            margin-bottom: 8px;
+            transition: color 0.4s;
+            height: 18px;
         }
-        .secret-login:hover { background: rgba(0,0,0,0.1); }
-        body.admin-mode .secret-login { display: none; }
 
         /* Google login overlay */
         .google-overlay {
@@ -146,7 +155,6 @@
         }
         .google-popup h3 { font-size: 1.4rem; font-weight: 700; color: #111; margin-bottom: 8px; }
         .google-popup p  { font-size: 0.9rem; color: #666; margin-bottom: 28px; line-height: 1.5; }
-
         .google-signin-btn {
             display: flex; align-items: center; justify-content: center; gap: 12px;
             width: 100%; padding: 14px 20px; background: white;
@@ -155,13 +163,18 @@
             transition: all 0.25s; box-shadow: 0 2px 10px rgba(0,0,0,0.08);
         }
         .google-signin-btn:hover { border-color: #4285F4; box-shadow: 0 4px 20px rgba(66,133,244,0.2); transform: translateY(-1px); }
+        .google-signin-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .google-icon { width: 22px; height: 22px; flex-shrink: 0; }
-
-        .google-cancel {
-            margin-top: 14px; background: none; border: none;
-            color: #999; font-size: 0.88rem; cursor: pointer; font-family: inherit;
-        }
+        .google-cancel { margin-top: 14px; background: none; border: none; color: #999; font-size: 0.88rem; cursor: pointer; font-family: inherit; }
         .google-cancel:hover { color: #333; }
+
+        /* Spinner inside button */
+        .spinner {
+            width: 18px; height: 18px; border: 2px solid rgba(0,0,0,0.15);
+            border-top-color: #4285F4; border-radius: 50%;
+            animation: spin 0.7s linear infinite; flex-shrink: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Add/Edit modal */
         .biz-modal {
@@ -170,28 +183,22 @@
             overflow-y: auto; padding: 20px 0;
         }
         .biz-modal.open { display: block; }
-
         .biz-modal-content {
             background: rgba(255,255,255,0.97); margin: 20px auto;
             border-radius: 22px; width: 90%; max-width: 620px;
             box-shadow: 0 24px 70px rgba(0,0,0,0.22); overflow: hidden;
             animation: slideIn 0.3s ease;
         }
-
         @keyframes slideIn {
             from { transform: translateY(-40px); opacity: 0; }
-            to   { transform: translateY(0); opacity: 1; }
+            to   { transform: translateY(0);     opacity: 1; }
         }
-
         .biz-modal-header {
             padding: 28px 36px; background: linear-gradient(135deg,#333,#111);
             display: flex; justify-content: space-between; align-items: center;
         }
         .biz-modal-header h2 { color: white; font-size: 1.6rem; font-weight: 700; margin: 0; }
-        .biz-modal-close {
-            color: white; font-size: 2rem; font-weight: bold; cursor: pointer;
-            transition: transform 0.3s; line-height: 1; background: none; border: none;
-        }
+        .biz-modal-close { color: white; font-size: 2rem; font-weight: bold; cursor: pointer; transition: transform 0.3s; line-height: 1; background: none; border: none; }
         .biz-modal-close:hover { transform: rotate(90deg); }
         .biz-modal-body { padding: 32px 36px; }
 
@@ -206,10 +213,7 @@
         }
         .form-group input:focus,
         .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none; border-color: #333;
-            background: rgba(255,255,255,0.95); box-shadow: 0 0 12px rgba(0,0,0,0.08);
-        }
+        .form-group select:focus { outline: none; border-color: #333; background: rgba(255,255,255,0.95); box-shadow: 0 0 12px rgba(0,0,0,0.08); }
         .form-group textarea { resize: vertical; min-height: 90px; }
 
         .cat-select {
@@ -220,54 +224,30 @@
         }
 
         .color-picker-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
-        .color-swatch {
-            width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent;
-            cursor: pointer; transition: transform 0.2s, border-color 0.2s; flex-shrink: 0;
-        }
+        .color-swatch { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: transform 0.2s, border-color 0.2s; flex-shrink: 0; }
         .color-swatch:hover { transform: scale(1.15); }
         .color-swatch.selected { border-color: #111; transform: scale(1.18); }
         .color-custom { width: 36px; height: 36px; border-radius: 50%; border: 2px dashed #999; overflow: hidden; cursor: pointer; }
         .color-custom input[type="color"] { width: 200%; height: 200%; margin: -50%; border: none; cursor: pointer; }
 
-        .photo-preview {
-            width: 100%; height: 160px; object-fit: cover; border-radius: 12px;
-            margin-top: 10px; display: none; border: 2px solid rgba(0,0,0,0.1);
-        }
+        .photo-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; border: 2px solid rgba(0,0,0,0.1); }
         .photo-preview.visible { display: block; }
 
         .biz-modal-actions { display: flex; gap: 14px; margin-top: 24px; }
-
-        .btn-cancel {
-            flex: 1; padding: 13px 20px; background: rgba(0,0,0,0.07); color: #333;
-            border: 2px solid rgba(0,0,0,0.12); border-radius: 10px;
-            font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s;
-        }
+        .btn-cancel { flex: 1; padding: 13px 20px; background: rgba(0,0,0,0.07); color: #333; border: 2px solid rgba(0,0,0,0.12); border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
         .btn-cancel:hover { background: rgba(0,0,0,0.13); }
-
-        .btn-submit {
-            flex: 1; padding: 13px 20px; background: linear-gradient(135deg,#333,#111); color: white;
-            border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700;
-            cursor: pointer; font-family: inherit; transition: all 0.25s;
-        }
+        .btn-submit { flex: 1; padding: 13px 20px; background: linear-gradient(135deg,#333,#111); color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.25s; }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.22); }
 
-        .btn-small {
-            flex: 1; padding: 8px 12px; font-size: 0.82rem; font-weight: 700;
-            border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.2s; border: 1px solid;
-        }
-        .btn-edit   { background: rgba(52,152,219,0.1);  color: #2980b9; border-color: rgba(52,152,219,0.3); }
+        .btn-small { flex: 1; padding: 8px 12px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.2s; border: 1px solid; }
+        .btn-edit   { background: rgba(52,152,219,0.1); color: #2980b9; border-color: rgba(52,152,219,0.3); }
         .btn-edit:hover   { background: rgba(52,152,219,0.2); }
-        .btn-delete { background: rgba(192,57,43,0.1);   color: #c0392b; border-color: rgba(192,57,43,0.3); }
+        .btn-delete { background: rgba(192,57,43,0.1); color: #c0392b; border-color: rgba(192,57,43,0.3); }
         .btn-delete:hover { background: rgba(192,57,43,0.2); }
 
         .no-data { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #999; font-size: 1.1rem; }
-
         .search-section { padding: 24px 40px 10px; }
-        .search-input {
-            width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.7);
-            border: 2px solid rgba(0,0,0,0.1); border-radius: 50px;
-            font-size: 1rem; font-family: inherit; color: #111; transition: all 0.3s;
-        }
+        .search-input { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.7); border: 2px solid rgba(0,0,0,0.1); border-radius: 50px; font-size: 1rem; font-family: inherit; color: #111; transition: all 0.3s; }
         .search-input:focus { outline: none; border-color: #333; background: rgba(255,255,255,0.95); }
         .search-stats { margin-top: 10px; font-size: 0.9rem; color: #777; text-align: center; }
 
@@ -304,7 +284,9 @@
 
     <header class="page-header">
         <a href="index.html" class="back-link">← Буцах</a>
-        <h1>Бизнес лавлах</h1>
+        <!-- Tap this title 7 times to trigger admin login -->
+        <h1 id="pageTitle" style="cursor:default;user-select:none;">Бизнес лавлах</h1>
+        <p class="tap-hint" id="tapHint"></p>
     </header>
 
     <div class="search-section">
@@ -332,13 +314,10 @@
     <footer><p>Мөрөн Хүргэлт • 2025</p></footer>
 </div>
 
-<!-- Secret tiny dot — bottom-left corner, almost invisible -->
-<button class="secret-login" id="secretLoginBtn" title="">·</button>
-
-<!-- Red + button, only appears after you log in -->
+<!-- Red + FAB, only visible after login -->
 <button class="admin-fab" id="adminFab">＋</button>
 
-<!-- Google login popup -->
+<!-- Google login popup (shown after 7 taps) -->
 <div class="google-overlay" id="googleOverlay">
     <div class="google-popup">
         <h3>🔐 Нэвтрэх</h3>
@@ -441,13 +420,18 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
     import { getDatabase, ref, onValue, push, remove, update }
         from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
-        from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+    import {
+        getAuth,
+        signInWithPopup,
+        signInWithRedirect,
+        getRedirectResult,
+        GoogleAuthProvider,
+        signOut,
+        onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
-    // ═══════════════════════════════════════════════════════
-    //  🔴 STEP 6: PASTE YOUR UID HERE (see instructions)
+    // ── Your UID — only this account gets admin access ──
     const ALLOWED_UID = 'bwUxV1xFk3U4HNfDP3s9U0COXx13';
-    // ═══════════════════════════════════════════════════════
 
     const app = initializeApp({
         apiKey:            "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
@@ -462,6 +446,19 @@
     const db       = getDatabase(app);
     const auth     = getAuth(app);
     const provider = new GoogleAuthProvider();
+
+    // ── Handle redirect result on page load
+    // (this is what fixes the white-flash: when popup is blocked,
+    //  Firebase redirects. We catch the result here on return.)
+    getRedirectResult(auth).then(result => {
+        if (result?.user) {
+            // handled by onAuthStateChanged below
+        }
+    }).catch(e => {
+        if (e.code !== 'auth/cancelled-popup-request') {
+            console.error('Redirect result error:', e.code);
+        }
+    });
 
     const CAT_LABELS = {
         restaurant:'🍽️ Ресторан', bakery:'🍞 Нарийн боов',
@@ -480,6 +477,8 @@
     let editingId     = null;
     let selectedColor = '#667eea';
     let currentUser   = null;
+    let tapCount      = 0;
+    let tapTimer      = null;
 
     const grid          = document.getElementById('bizGrid');
     const statsEl       = document.getElementById('searchStats');
@@ -491,8 +490,11 @@
     const photoPreview  = document.getElementById('photoPreview');
     const googleOverlay = document.getElementById('googleOverlay');
     const adminEmailEl  = document.getElementById('adminEmail');
+    const titleEl       = document.getElementById('pageTitle');
+    const hintEl        = document.getElementById('tapHint');
+    const signInBtn     = document.getElementById('googleSignInBtn');
 
-    // ── Watch auth state ──
+    // ── Auth state ──
     onAuthStateChanged(auth, user => {
         if (user && user.uid === ALLOWED_UID) {
             currentUser = user;
@@ -500,9 +502,12 @@
             adminFab.classList.add('visible');
             adminEmailEl.textContent = user.email;
             googleOverlay.classList.remove('open');
+            // reset tap counter so it can be used to log out and back in
+            tapCount = 0;
+            hintEl.style.color = 'transparent';
         } else {
             if (user) {
-                // Someone signed in but it's not your account — boot them out
+                // Wrong Google account — boot silently
                 signOut(auth);
                 alert('⛔ Энэ бүртгэл зөвшөөрөгдөөгүй.');
             }
@@ -513,23 +518,67 @@
         }
     });
 
-    // ── Secret button → show login popup ──
-    document.getElementById('secretLoginBtn').addEventListener('click', () => {
-        googleOverlay.classList.add('open');
+    // ── 7-tap on title → show Google login popup ──
+    titleEl.addEventListener('click', () => {
+        if (currentUser) return; // already logged in
+        tapCount++;
+        clearTimeout(tapTimer);
+
+        if (tapCount >= 5) {
+            hintEl.style.color = 'rgba(192,57,43,0.65)';
+            hintEl.textContent = `${tapCount} / 7`;
+        }
+
+        tapTimer = setTimeout(() => {
+            tapCount = 0;
+            hintEl.style.color = 'transparent';
+            hintEl.textContent = '';
+        }, 2000);
+
+        if (tapCount >= 7) {
+            tapCount = 0;
+            clearTimeout(tapTimer);
+            hintEl.style.color = 'transparent';
+            hintEl.textContent = '';
+            googleOverlay.classList.add('open');
+        }
     });
 
-    document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+    // ── Sign in button ──
+    // Tries popup first. If browser blocks it, falls back to redirect.
+    signInBtn.addEventListener('click', async () => {
+        signInBtn.disabled = true;
+        signInBtn.innerHTML = '<div class="spinner"></div> Нэвтэрч байна...';
         try {
             await signInWithPopup(auth, provider);
+            // onAuthStateChanged handles the rest
         } catch(e) {
-            if (e.code !== 'auth/popup-closed-by-user') {
+            if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
+                // Popup was blocked — fall back to full redirect
+                // This is what caused the white flash before; now we handle it gracefully
+                if (e.code === 'auth/popup-blocked') {
+                    await signInWithRedirect(auth, provider);
+                    // page will reload — getRedirectResult() at top catches the return
+                }
+            } else {
                 alert('Нэвтрэх алдаа: ' + e.message);
             }
+        } finally {
+            signInBtn.disabled = false;
+            signInBtn.innerHTML = `
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google-ээр нэвтрэх`;
         }
     });
 
     document.getElementById('googleCancelBtn').addEventListener('click', () => {
         googleOverlay.classList.remove('open');
+        tapCount = 0;
     });
 
     window.exitAdmin = async () => { await signOut(auth); };
@@ -540,7 +589,7 @@
         renderGrid();
     });
 
-    // ── Render ──
+    // ── Render cards ──
     function renderGrid() {
         const keys = Object.keys(allBiz).filter(id => {
             const b = allBiz[id];
@@ -601,9 +650,7 @@
     }
 
     function esc(s) {
-        return String(s)
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     // ── Search & filter ──
@@ -621,7 +668,7 @@
         });
     });
 
-    // ── Admin FAB → open add modal ──
+    // ── Admin FAB ──
     adminFab.addEventListener('click', () => { if (currentUser) openModal(null); });
 
     // ── Color swatches ──
@@ -692,8 +739,7 @@
     });
 
     // ── Edit / Delete ──
-    window._editBiz = (id) => { if (currentUser) openModal(id); };
-
+    window._editBiz   = (id) => { if (currentUser) openModal(id); };
     window._deleteBiz = async (id) => {
         if (!currentUser) return;
         if (!confirm(`"${allBiz[id]?.name}" бизнесийг устгах уу?`)) return;
@@ -707,13 +753,16 @@
         if (!currentUser) return;
         const name     = document.getElementById('fName').value.trim();
         const cat      = document.getElementById('fCat').value;
-        const desc     = document.getElementById('fDesc').value.trim();
-        const phone    = document.getElementById('fPhone').value.trim();
-        const address  = document.getElementById('fAddress').value.trim();
-        const mapUrl   = document.getElementById('fMapUrl').value.trim();
-        const photoUrl = document.getElementById('fPhotoUrl').value.trim();
         if (!name || !cat) { alert('Нэр болон ангилалыг заавал бөглөнө үү!'); return; }
-        const payload = { name, category: cat, description: desc, phone, address, mapUrl, photoUrl, color: selectedColor, timestamp: Date.now() };
+        const payload = {
+            name, category: cat,
+            description: document.getElementById('fDesc').value.trim(),
+            phone:    document.getElementById('fPhone').value.trim(),
+            address:  document.getElementById('fAddress').value.trim(),
+            mapUrl:   document.getElementById('fMapUrl').value.trim(),
+            photoUrl: document.getElementById('fPhotoUrl').value.trim(),
+            color: selectedColor, timestamp: Date.now()
+        };
         try {
             if (editingId) { await update(ref(db, `businesses/${editingId}`), payload); }
             else           { await push(ref(db, 'businesses'), payload); }
