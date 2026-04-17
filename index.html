@@ -1,25 +1,72 @@
 <!DOCTYPE html>
 <html lang="mn">
-    <!-- why are u inspecting i didnt used ai to make this script  -->
-    <head>
-        <title>мөрөн бизнес лавлах </title>
-
-<meta name="description" content="мөрөн суман доторх бизнес байгуулагуудын нэгдсэн сан">
-
-<meta name="keywords" content="hurgelt, murun hurgelt, hovsgol hurgelt, хүргэлт, Мөрөн хүргэлт, Хөвсгөл хүргэлт, ачаа тээвэр, тээш, илгээмж, hurgelt dugaar, murun achaa, hiwgl, hugrlt, hovsgol hurgelt dugaar, moron hurgelt, hvwsgvl hvrgelt, хүргэлт мөрөн, хүргэлтийн дугаар">
-
-<link rel="canonical" href="https://huwsgulhurgelt1.vercel.app">
-
-<meta property="og:title" content="Мөрөн Хотын Хүргэлтийн Нэгдсэн Сан">
-<meta property="og:description" content="Хүргэгчдийн утасны дугаар, чиглэлийг эндээс харна уу.">
-<meta property="og:url" content="https://чиний-сайтын-нэр.vercel.app/">
-<meta property="og:type" content="website">
-    </head>
 <head>
+    <title>мөрөн бизнес лавлах</title>
+    <meta name="description" content="мөрөн суман доторх бизнес байгуулагуудын нэгдсэн сан">
+    <meta name="keywords" content="hurgelt, murun hurgelt, hovsgol hurgelt, хүргэлт, Мөрөн хүргэлт, Хөвсгөл хүргэлт, ачаа тээвэр, тээш, илгээмж, hurgelt dugaar, murun achaa, hiwgl, hugrlt, hovsgol hurgelt dugaar, moron hurgelt, hvwsgvl hvrgelt, хүргэлт мөрөн, хүргэлтийн дугаар">
+    <link rel="canonical" href="https://huwsgulhurgelt1.vercel.app">
+    <meta property="og:title" content="Мөрөн Хотын Хүргэлтийн Нэгдсэн Сан">
+    <meta property="og:description" content="Хүргэгчдийн утасны дугаар, чиглэлийг эндээс харна уу.">
+    <meta property="og:url" content="https://чиний-сайтын-нэр.vercel.app/">
+    <meta property="og:type" content="website">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мөрөн Хүргэлт</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Section separation ── */
+        .sections-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .section-block {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(255,255,255,0.28);
+            border-radius: 20px;
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            opacity: 0.55;
+            padding-left: 4px;
+        }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+        }
+        .divider-line {
+            flex: 1;
+            height: 1.5px;
+            background: rgba(255,255,255,0.18);
+        }
+        .divider-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* override btn to fill width inside blocks */
+        .section-block .btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
     <!-- i luv parallax<3 -->
@@ -45,30 +92,51 @@
     <div class="container">
         <header class="hero">
             <h1>Мөрөн зуучлал</h1>
-            <p class="subtitle">Энэ бол зөвхөн хэрэглэгч (хувь хүн)-нарыг бизнес эрхлэгч байгууллага мөн хүргэгчидтэй холвох сайт юм  </p>
+            <p class="subtitle">Энэ бол зөвхөн хэрэглэгч (хувь хүн)-нарыг бизнес эрхлэгч байгууллага мөн хүргэгчидтэй холвох сайт юм</p>
         </header>
-   
-            <a href="businesses.html" class="btn">
-    <span class="btn-icon">🏪</span>
-    Бизнес лавлах
-</a>
-             <main class="menu">
-            <a href="carriers.html" class="btn btn-user">
-                <span class="btn-icon">👤</span>
-                Хэрэглэгч
-            </a>
-            <a href="signup.html" class="btn btn-carrier">
-                <span class="btn-icon">🚚</span>
-                Хүргэгч
-            </a>
-        </main>
+
+        <div class="sections-wrap">
+
+            <!-- Block 1: Businesses (standalone) -->
+            <div class="section-block">
+                <span class="section-label">📋 Лавлагаа</span>
+                <a href="businesses.html" class="btn">
+                    <span class="btn-icon">🏪</span>
+                    Бизнес лавлах
+                </a>
+            </div>
+
+            <!-- Divider between the two blocks -->
+            <div class="section-divider">
+                <div class="divider-line"></div>
+                <div class="divider-dot"></div>
+                <div class="divider-line"></div>
+            </div>
+
+            <!-- Block 2: User & Carrier -->
+            <div class="section-block">
+                <span class="section-label">🚚 Хүргэлт</span>
+                <main class="menu" style="display:flex; flex-direction:column; gap:10px;">
+                    <a href="carriers.html" class="btn btn-user">
+                        <span class="btn-icon">👤</span>
+                        Хэрэглэгч
+                    </a>
+                    <a href="signup.html" class="btn btn-carrier">
+                        <span class="btn-icon">🚚</span>
+                        Хүргэгч
+                    </a>
+                </main>
+            </div>
+
+        </div>
+
         <footer>
             <p></p>
         </footer>
     </div>
 
     <script>
-        // parallax scroll 
+        // parallax scroll
         window.addEventListener('scroll', function() {
             var layers = document.querySelectorAll('.parallax-layer')
             var scrolled = window.pageYOffset
