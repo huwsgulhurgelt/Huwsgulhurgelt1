@@ -71,7 +71,7 @@
         .btn-map:hover { background: rgba(255,255,255,0.28); transform: translateY(-2px); }
         .no-data { grid-column: 1/-1; text-align: center; padding: 60px 20px; opacity: 0.6; font-size: 1.05rem; font-weight: 700; }
 
-        /* ─── Map modal ─── */
+        /* map model*/
         .map-overlay {
             display: none; position: fixed; inset: 0; z-index: 1500;
             background: rgba(0,0,0,0.3); backdrop-filter: blur(10px);
@@ -216,7 +216,7 @@
             return null;
         }
 
-        /* ── Map setup ─────────────────────────────────────────────────────── */
+        /* map setp*/
         var MORON = { lat: 49.6356, lng: 100.1614 };
         var bizMap = null, bizMarker = null, mapReady = false;
 
@@ -257,7 +257,7 @@
                         ).openPopup();
                     bizMap.setView([coords.lat, coords.lng], 16, { animate: false });
                 } else {
-                    // No coordinates — show city center + offer external link
+                
                     noCoordsBar.classList.add('visible');
                     extLink.href = mapUrl || '#';
                     extLink.style.display = mapUrl ? 'inline' : 'none';
@@ -283,18 +283,18 @@
         document.getElementById('mapOverlay').addEventListener('click', function(e) { if (e.target === this) closeBizMap(); });
         document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeBizMap(); });
 
-        /* ══════════════════════════════════════════════════════════════════════
+        /* 
            БИЗНЕС ЖАГСААЛТ — ЭНД ЗАСНА
 
            mapUrl-д Google Maps share link буулгана:
-             ▸ https://www.google.com/maps?q=49.6356,100.1614   ← координаттай
-             ▸ https://maps.app.goo.gl/abc123                   ← координатгүй (хотын төв харуулна)
-             ▸ ""                                               ← хоосон — хотын төв харуулна
+             ▸ https://www.google.com/maps?q=49.6356,100.1614   - координаттай
+             ▸ https://maps.app.goo.gl/abc123                  - координатгүй (хотын төв харуулна)
+             ▸ ""                                                -хоосон — хотын төв харуулна
 
            НЭМЭХ: {} блок нэмнэ   |   УСТГАХ: тухайн блокийг устгана
-        ══════════════════════════════════════════════════════════════════════ */
+         */
         var BUSINESSES = [
-            { name:"Эрдэнэ Зул Ресторан",  category:"restaurant", color:"#ff6b6b", description:"Монгол болон европ хоол. Захиалгаар хүргэлт хийнэ.", phone:"99001122", address:"Мөрөн хот, Төв зам 5",          mapUrl:"https://www.google.com/maps?q=49.6356,100.1614", photoUrl:"" },
+            { name:"yamarch muu iumgui mash sain restoran ",  category:"restaurant", color:"#ff6b6b", description:"mash sainaar buh ium hiine.", phone:"12341234", address:"murun hot golden dantelion",          mapUrl:"https://www.google.com/maps?q=49.6356,100.1614", photoUrl:"" },
             { name:"Тал Нутгийн Кафе",      category:"restaurant", color:"#f093fb", description:"Өглөөний цай, кофе, хөнгөн зууш. 08:00–22:00.",      phone:"88223344", address:"2-р хороо, Нийгмийн төв",       mapUrl:"", photoUrl:"" },
             { name:"Алтан Талх",            category:"bakery",     color:"#fee140", description:"Өдөр бүр шинэхэн талх, нарийн боов.",                phone:"99112233", address:"1-р хороо, Захын гудамж 12",    mapUrl:"", photoUrl:"" },
             { name:"Мөрөн Фитнесс",         category:"gym",        color:"#43e97b", description:"Дасгалын заал, персонал тренер. 06:00–22:00.",        phone:"99445566", address:"3-р хороо, Спортын зам",        mapUrl:"", photoUrl:"" },
@@ -355,7 +355,7 @@
                         '</div>' +
                     '</div>';
 
-                // Safe closure for map button
+                // safe exit
                 (function(n, c, u) {
                     card.querySelector('[data-idx]').addEventListener('click', function() { openMap(n, c, u); });
                 })(b.name, color, b.mapUrl || '');
