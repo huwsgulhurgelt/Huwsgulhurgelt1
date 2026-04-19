@@ -5,203 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Бизнес лавлах — Мөрөн</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        /* ── Category pills ── */
         .cat-bar {
             padding: 24px 40px 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
         }
         .cat-btn {
-            padding: 9px 18px;
-            border-radius: 50px;
+            padding: 9px 18px; border-radius: 50px;
             border: 1.5px solid rgba(255,255,255,0.3);
             background: rgba(255,255,255,0.15);
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.22s;
-            font-family: inherit;
-            color: inherit;
+            font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            transition: all 0.22s; font-family: inherit; color: inherit;
             backdrop-filter: blur(6px);
         }
-        .cat-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
+        .cat-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
         .cat-btn.active {
-            background: rgba(255,255,255,0.85);
-            color: #111;
-            border-color: transparent;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.85); color: #111;
+            border-color: transparent; box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
-
-        /* ── Search ── */
-        .search-section {
-            padding: 24px 40px 10px;
-        }
+        .search-section { padding: 24px 40px 10px; }
         .search-input {
-            width: 100%;
-            padding: 13px 18px;
+            width: 100%; padding: 13px 18px;
             background: rgba(255,255,255,0.2);
             border: 1.5px solid rgba(255,255,255,0.3);
-            border-radius: 50px;
-            font-size: 0.97rem;
-            font-family: inherit;
-            color: inherit;
-            transition: all 0.25s;
+            border-radius: 50px; font-size: 0.97rem;
+            font-family: inherit; color: inherit; transition: all 0.25s;
             backdrop-filter: blur(6px);
         }
         .search-input::placeholder { opacity: 0.6; }
-        .search-input:focus {
-            outline: none;
-            background: rgba(255,255,255,0.35);
-            border-color: rgba(255,255,255,0.6);
-        }
-        .search-stats {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            opacity: 0.6;
-            text-align: center;
-            height: 20px;
-        }
-
-        /* ── Grid ── */
+        .search-input:focus { outline: none; background: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.6); }
+        .search-stats { margin-top: 8px; font-size: 0.85rem; opacity: 0.6; text-align: center; height: 20px; }
         .biz-grid {
             padding: 28px 40px 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-            gap: 24px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 24px;
         }
-
-        /* ── Card ── */
         .biz-card {
-            background: rgba(255,255,255,0.18);
-            backdrop-filter: blur(16px);
-            border: 1.5px solid rgba(255,255,255,0.28);
-            border-radius: 20px;
-            overflow: hidden;
+            background: rgba(255,255,255,0.18); backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(255,255,255,0.28); border-radius: 20px; overflow: hidden;
             transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
         }
-        .biz-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 24px 50px rgba(0,0,0,0.18);
-        }
-
+        .biz-card:hover { transform: translateY(-8px); box-shadow: 0 24px 50px rgba(0,0,0,0.18); }
         .card-accent { height: 5px; }
-
-        .card-photo {
-            width: 100%; height: 175px; object-fit: cover; display: block;
-        }
-        .card-placeholder {
-            width: 100%; height: 110px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; background: rgba(255,255,255,0.07);
-        }
-
+        .card-photo { width: 100%; height: 175px; object-fit: cover; display: block; }
+        .card-placeholder { width: 100%; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: rgba(255,255,255,0.07); }
         .card-body { padding: 18px 20px 14px; }
-
-        .card-badge {
-            display: inline-block; padding: 4px 12px; border-radius: 50px;
-            font-size: 0.75rem; font-weight: 800; margin-bottom: 9px;
-            background: rgba(255,255,255,0.2); letter-spacing: 0.02em;
-        }
+        .card-badge { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; margin-bottom: 9px; background: rgba(255,255,255,0.2); }
         .card-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 7px; line-height: 1.2; }
         .card-desc { font-size: 0.88rem; opacity: 0.75; line-height: 1.6; margin-bottom: 12px; }
         .card-meta { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
         .meta-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; opacity: 0.8; }
-
         .card-actions { display: flex; gap: 8px; }
-
         .btn-call {
-            flex: 1; padding: 10px 14px;
-            background: rgba(255,255,255,0.85); color: #111;
+            flex: 1; padding: 10px 14px; background: rgba(255,255,255,0.85); color: #111;
             border: none; border-radius: 10px; font-size: 0.87rem; font-weight: 800;
             cursor: pointer; text-decoration: none; text-align: center;
-            transition: all 0.22s; display: flex; align-items: center; justify-content: center; gap: 6px;
-            font-family: inherit;
+            transition: all 0.22s; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit;
         }
         .btn-call:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
-
         .btn-map {
-            padding: 10px 13px;
-            background: rgba(255,255,255,0.15);
-            border: 1.5px solid rgba(255,255,255,0.3);
-            border-radius: 10px; font-size: 1rem;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.22s;
+            padding: 10px 13px; background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.3); border-radius: 10px; font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.22s;
         }
         .btn-map:hover { background: rgba(255,255,255,0.28); transform: translateY(-2px); }
+        .no-data { grid-column: 1/-1; text-align: center; padding: 60px 20px; opacity: 0.6; font-size: 1.05rem; font-weight: 700; }
 
-        /* ── Map modal ── */
-        .map-modal {
-            display: none;
-            position: fixed; inset: 0; z-index: 1000;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(6px);
-            align-items: center; justify-content: center;
-            padding: 20px;
+        /* ─── Map modal ─── */
+        .map-overlay {
+            display: none; position: fixed; inset: 0; z-index: 1500;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(10px);
+            align-items: center; justify-content: center; padding: 20px;
         }
-        .map-modal.open { display: flex; }
-        .map-box {
-            width: 100%; max-width: 700px;
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(20px);
-            border: 1.5px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.35);
-            animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        .map-overlay.active { display: flex; }
+        .map-panel {
+            width: 100%; max-width: 860px; height: min(580px, 85vh);
+            border-radius: 24px; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.55);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.18);
+            display: flex; flex-direction: column;
+            animation: panelIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+            background: rgba(255,255,255,0.88); backdrop-filter: blur(24px);
         }
-        @keyframes popIn {
-            from { transform: scale(0.88); opacity: 0; }
-            to   { transform: scale(1);    opacity: 1; }
+        @keyframes panelIn {
+            from { transform: translateY(40px) scale(0.95); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
         }
-        .map-header {
+        .map-panel-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 18px;
+            padding: 16px 22px; background: rgba(255,255,255,0.6);
+            border-bottom: 1.5px solid rgba(0,0,0,0.07); backdrop-filter: blur(8px); flex-shrink: 0;
         }
-        .map-title { font-size: 1rem; font-weight: 800; }
+        .map-panel-title { display: flex; align-items: center; gap: 9px; color: #1a1a2e; font-size: 1.05rem; font-weight: 800; }
         .map-close {
-            background: rgba(255,255,255,0.2); border: none;
-            border-radius: 50%; width: 32px; height: 32px;
-            font-size: 1.1rem; cursor: pointer; color: inherit;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
+            background: rgba(0,0,0,0.07); border: 1.5px solid rgba(0,0,0,0.1); color: #333;
+            width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.2s;
         }
-        .map-close:hover { background: rgba(255,255,255,0.4); }
-        .map-iframe {
-            width: 100%; height: 380px; border: none; display: block;
+        .map-close:hover { background: rgba(0,0,0,0.14); transform: rotate(90deg); }
+        .map-no-coords {
+            display: none; align-items: center; gap: 10px; padding: 10px 20px;
+            background: rgba(255,240,200,0.65); border-bottom: 1.5px solid rgba(220,180,60,0.25);
+            font-size: 0.82rem; color: #7a5c00; flex-shrink: 0;
         }
-        .map-open-link {
-            display: block; text-align: center;
-            padding: 12px; font-size: 0.85rem; font-weight: 700;
-            opacity: 0.65; text-decoration: none; transition: opacity 0.2s;
+        .map-no-coords.visible { display: flex; }
+        .map-no-coords a { color: #7a5c00; font-weight: 800; text-decoration: underline; }
+        #biz-map { flex: 1; width: 100%; min-height: 0; }
+        .map-hint {
+            padding: 9px 20px; background: rgba(255,255,255,0.55); color: #888;
+            font-size: 0.8rem; text-align: center; border-top: 1.5px solid rgba(0,0,0,0.06); flex-shrink: 0;
         }
-        .map-open-link:hover { opacity: 1; }
-
-        .no-data {
-            grid-column: 1/-1; text-align: center;
-            padding: 60px 20px; opacity: 0.6; font-size: 1.05rem; font-weight: 700;
-        }
+        .map-hint strong { color: #444; }
+        /* Light Leaflet */
+        .leaflet-container { background: #e8e4db !important; font-family: inherit; }
+        .leaflet-control-zoom a { background: rgba(255,255,255,0.92) !important; color: #333 !important; border-color: rgba(0,0,0,0.12) !important; font-weight: 700 !important; }
+        .leaflet-control-zoom a:hover { background: #fff !important; }
+        .leaflet-control-attribution { background: rgba(255,255,255,0.7) !important; color: #888 !important; font-size: 0.7rem !important; }
+        .leaflet-control-attribution a { color: #555 !important; }
+        .leaflet-popup-content-wrapper { border-radius: 14px !important; box-shadow: 0 8px 30px rgba(0,0,0,0.14) !important; border: 1.5px solid rgba(0,0,0,0.07) !important; }
+        .leaflet-popup-tip { background: white !important; }
 
         @media (max-width: 768px) {
             .cat-bar, .search-section { padding-left: 20px; padding-right: 20px; }
             .biz-grid { grid-template-columns: 1fr; padding: 20px; }
-            .map-iframe { height: 280px; }
+            .map-panel { height: min(500px, 88vh); border-radius: 18px; }
         }
     </style>
 </head>
 <body>
-
-    <!-- i luv parallax<3 -->
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div><div class="ball"></div>
-            <div class="ball"></div><div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div><div class="ball"></div>
         </div>
         <div class="parallax-layer layer-2" data-speed="0.5">
             <div class="ball"></div><div class="ball"></div><div class="ball"></div>
@@ -216,13 +150,10 @@
             <a href="index.html" class="back-link">← Буцах</a>
             <h1>Бизнес лавлах</h1>
         </header>
-
         <div class="search-section">
-            <input type="text" id="searchInput" class="search-input"
-                placeholder="🔍 Нэр, утас, хаягаар хайх..." autocomplete="off">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Нэр, утас, хаягаар хайх..." autocomplete="off">
             <div id="searchStats" class="search-stats"></div>
         </div>
-
         <div class="cat-bar">
             <button class="cat-btn active" data-cat="all">🏙️ Бүгд</button>
             <button class="cat-btn" data-cat="restaurant">🍽️ Ресторан</button>
@@ -234,324 +165,214 @@
             <button class="cat-btn" data-cat="shop">🏪 Дэлгүүр</button>
             <button class="cat-btn" data-cat="other">📦 Бусад</button>
         </div>
-
         <main id="bizGrid" class="biz-grid"></main>
-
         <footer><p>Мөрөн Хүргэлт • 2025</p></footer>
     </div>
 
     <!-- Map modal -->
-    <div class="map-modal" id="mapModal">
-        <div class="map-box">
-            <div class="map-header">
-                <span class="map-title" id="mapTitle"></span>
-                <button class="map-close" onclick="closeMap()">✕</button>
+    <div class="map-overlay" id="mapOverlay">
+        <div class="map-panel">
+            <div class="map-panel-header">
+                <div class="map-panel-title" id="mapTitle">🗺️ Байршил</div>
+                <button class="map-close" id="mapClose">✕</button>
             </div>
-            <iframe class="map-iframe" id="mapIframe" src="" loading="lazy"
-                allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-            <a class="map-open-link" id="mapOpenLink" target="_blank" rel="noopener">
-                🗺️ Google Maps-д нээх ↗
-            </a>
+            <div class="map-no-coords" id="mapNoCoordsBar">
+                💡 Яг байршил оруулаагүй — хотын төв харуулж байна.&nbsp;
+                <a id="mapExtLink" href="#" target="_blank" rel="noopener">Google Maps-д нээх ↗</a>
+            </div>
+            <div id="biz-map"></div>
+            <div class="map-hint">Хулгана эсвэл хуруугаараа <strong>гүйлгэж</strong> / <strong>томруулж</strong> үзэх боломжтой</div>
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // parallax scroll
+        // parallax
         window.addEventListener('scroll', function() {
-            var layers = document.querySelectorAll('.parallax-layer')
-            var scrolled = window.pageYOffset
-            for (var i = 0; i < layers.length; i++) {
-                var spd = layers[i].dataset.speed
-                layers[i].style.transform = 'translateY(' + (-scrolled * spd) + 'px)'
+            var layers = document.querySelectorAll('.parallax-layer'), s = window.pageYOffset;
+            for (var i = 0; i < layers.length; i++)
+                layers[i].style.transform = 'translateY(' + (-s * layers[i].dataset.speed) + 'px)';
+        });
+
+        /* ── Coordinate parser ─────────────────────────────────────────────────
+           Handles the most common Google Maps URL formats:
+             @lat,lng       — place/directions URLs
+             ?q=lat,lng     — search URLs
+             ll=lat,lng     — older format
+             /place/@lat,lng
+        ────────────────────────────────────────────────────────────────────── */
+        function parseLatLng(url) {
+            if (!url) return null;
+            var pats = [
+                /@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,
+                /[?&]q=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,
+                /[?&]ll=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,
+                /[?&]query=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,
+            ];
+            for (var i = 0; i < pats.length; i++) {
+                var m = url.match(pats[i]);
+                if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
             }
-        })
-    </script>
+            return null;
+        }
 
-    <script>
-/* ==========================================================
-   ╔══════════════════════════════════════════════════════╗
-   ║           БИЗНЕС ЖАГСААЛТ — ЗАСВАРЛАХ ХЭСЭГ         ║
-   ╚══════════════════════════════════════════════════════╝
+        /* ── Map setup ─────────────────────────────────────────────────────── */
+        var MORON = { lat: 49.6356, lng: 100.1614 };
+        var bizMap = null, bizMarker = null, mapReady = false;
 
-   НЭМЭХ: Доорх BUSINESSES массивт {} блок нэмнэ
-   УСТГАХ: Тухайн {} блокийг бүтнээр устгана
+        function initBizMap() {
+            if (mapReady) return;
+            mapReady = true;
+            bizMap = L.map('biz-map', { center: [MORON.lat, MORON.lng], zoom: 14, scrollWheelZoom: true });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 19,
+            }).addTo(bizMap);
+        }
 
-   ТАЛБАРУУД:
-     name:        "нэр"                        ← ЗААВАЛ
-     category:    "restaurant"                 ← ЗААВАЛ (доор жагсаасан)
-     color:       "#ff6b6b"                    ← картын зурвасын өнгө
-     description: "тайлбар"                   ← заавал биш
-     phone:       "99001122"                   ← заавал биш
-     address:     "хаяг"                       ← заавал биш
-     mapUrl:      "https://maps.google.com/…"  ← заавал биш (дотор дэлгэнэ)
-     photoUrl:    "https://…/photo.jpg"        ← заавал биш
+        function openMap(name, color, mapUrl) {
+            document.getElementById('mapTitle').textContent = '📍 ' + name;
+            document.getElementById('mapOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
 
-   АНГИЛАЛ утгууд:
-     "restaurant" "bakery" "gym" "carwash"
-     "carfix"     "salon"  "shop" "other"
+            setTimeout(function() {
+                initBizMap();
+                if (bizMarker) { bizMap.removeLayer(bizMarker); bizMarker = null; }
 
-   ӨНГӨ:  #ff6b6b #43e97b #4facfe #fee140
-          #fa709a #667eea #f093fb #1a1a2e
-   ══════════════════════════════════════════════════════ */
+                var coords      = parseLatLng(mapUrl);
+                var noCoordsBar = document.getElementById('mapNoCoordsBar');
+                var extLink     = document.getElementById('mapExtLink');
 
-const BUSINESSES = [
+                if (coords) {
+                    noCoordsBar.classList.remove('visible');
+                    var dot = '<div style="width:22px;height:22px;background:' + color + ';border-radius:50%;border:3px solid #fff;box-shadow:0 3px 14px rgba(0,0,0,0.3);"></div>';
+                    var icon = L.divIcon({ className:'', html: dot, iconSize:[22,22], iconAnchor:[11,11] });
+                    bizMarker = L.marker([coords.lat, coords.lng], { icon: icon })
+                        .addTo(bizMap)
+                        .bindPopup(
+                            '<div style="text-align:center;padding:4px;">' +
+                            '<strong>' + name + '</strong>' +
+                            (mapUrl ? '<br><a href="' + mapUrl + '" target="_blank" style="font-size:0.78rem;color:#555;">Google Maps-д нээх ↗</a>' : '') +
+                            '</div>'
+                        ).openPopup();
+                    bizMap.setView([coords.lat, coords.lng], 16, { animate: false });
+                } else {
+                    // No coordinates — show city center + offer external link
+                    noCoordsBar.classList.add('visible');
+                    extLink.href = mapUrl || '#';
+                    extLink.style.display = mapUrl ? 'inline' : 'none';
 
-  /* ── РЕСТОРАН ── */
-  {
-    name:        "Эрдэнэ Зул Ресторан",
-    category:    "restaurant",
-    color:       "#ff6b6b",
-    description: "Монгол болон европ хоол. Захиалгаар хүргэлт хийнэ.",
-    phone:       "99001122",
-    address:     "Мөрөн хот, Төв зам 5",
-    mapUrl:      "https://maps.google.com",
-    photoUrl:    "",
-  },
-  {
-    name:        "Тал Нутгийн Кафе",
-    category:    "restaurant",
-    color:       "#f093fb",
-    description: "Өглөөний цай, кофе, хөнгөн зууш. 08:00–22:00.",
-    phone:       "88223344",
-    address:     "2-р хороо, Нийгмийн төв",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+                    var dot2 = '<div style="width:18px;height:18px;background:#888;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.2);"></div>';
+                    var icon2 = L.divIcon({ className:'', html: dot2, iconSize:[18,18], iconAnchor:[9,9] });
+                    bizMarker = L.marker([MORON.lat, MORON.lng], { icon: icon2 })
+                        .addTo(bizMap)
+                        .bindPopup('<div style="text-align:center;padding:4px;"><strong>Мөрөн хот</strong><br><span style="font-size:0.78rem;color:#666;">Яг байршил оруулаагүй</span></div>')
+                        .openPopup();
+                    bizMap.setView([MORON.lat, MORON.lng], 14, { animate: false });
+                }
 
-  /* ── НАРИЙН БООВ ── */
-  {
-    name:        "Алтан Талх",
-    category:    "bakery",
-    color:       "#fee140",
-    description: "Өдөр бүр шинэхэн талх, нарийн боов.",
-    phone:       "99112233",
-    address:     "1-р хороо, Захын гудамж 12",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+                setTimeout(function() { bizMap.invalidateSize(); }, 120);
+            }, 60);
+        }
 
-  /* ── ФИТНЕСС ── */
-  {
-    name:        "Мөрөн Фитнесс",
-    category:    "gym",
-    color:       "#43e97b",
-    description: "Дасгалын заал, персонал тренер. 06:00–22:00.",
-    phone:       "99445566",
-    address:     "3-р хороо, Спортын зам",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+        function closeBizMap() {
+            document.getElementById('mapOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        document.getElementById('mapClose').addEventListener('click', closeBizMap);
+        document.getElementById('mapOverlay').addEventListener('click', function(e) { if (e.target === this) closeBizMap(); });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeBizMap(); });
 
-  /* ── АВТО УГААЛГА ── */
-  {
-    name:        "Хурдан Авто Угаалга",
-    category:    "carwash",
-    color:       "#4facfe",
-    description: "Гар болон машинаар угаалга. Дотор цэвэрлэгээ.",
-    phone:       "88556677",
-    address:     "4-р хороо, Замын хажуу",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+        /* ══════════════════════════════════════════════════════════════════════
+           БИЗНЕС ЖАГСААЛТ — ЭНД ЗАСНА
 
-  /* ── АВТО ЗАСВАР ── */
-  {
-    name:        "Эрдэнэ Авто Засвар",
-    category:    "carfix",
-    color:       "#c0864a",
-    description: "Бүх төрлийн машины засвар, ТО үйлчилгээ.",
-    phone:       "99778899",
-    address:     "5-р хороо, Аж үйлдвэрийн бүс",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+           mapUrl-д Google Maps share link буулгана:
+             ▸ https://www.google.com/maps?q=49.6356,100.1614   ← координаттай
+             ▸ https://maps.app.goo.gl/abc123                   ← координатгүй (хотын төв харуулна)
+             ▸ ""                                               ← хоосон — хотын төв харуулна
 
-  /* ── ГОО САЙХАН ── */
-  {
-    name:        "Гоёл Салон",
-    category:    "salon",
-    color:       "#fa709a",
-    description: "Үс засалт, маникюр, арьс арчилгаа. Захиалгаар.",
-    phone:       "88990011",
-    address:     "1-р хороо, Төвийн гудамж",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+           НЭМЭХ: {} блок нэмнэ   |   УСТГАХ: тухайн блокийг устгана
+        ══════════════════════════════════════════════════════════════════════ */
+        var BUSINESSES = [
+            { name:"Эрдэнэ Зул Ресторан",  category:"restaurant", color:"#ff6b6b", description:"Монгол болон европ хоол. Захиалгаар хүргэлт хийнэ.", phone:"99001122", address:"Мөрөн хот, Төв зам 5",          mapUrl:"https://www.google.com/maps?q=49.6356,100.1614", photoUrl:"" },
+            { name:"Тал Нутгийн Кафе",      category:"restaurant", color:"#f093fb", description:"Өглөөний цай, кофе, хөнгөн зууш. 08:00–22:00.",      phone:"88223344", address:"2-р хороо, Нийгмийн төв",       mapUrl:"", photoUrl:"" },
+            { name:"Алтан Талх",            category:"bakery",     color:"#fee140", description:"Өдөр бүр шинэхэн талх, нарийн боов.",                phone:"99112233", address:"1-р хороо, Захын гудамж 12",    mapUrl:"", photoUrl:"" },
+            { name:"Мөрөн Фитнесс",         category:"gym",        color:"#43e97b", description:"Дасгалын заал, персонал тренер. 06:00–22:00.",        phone:"99445566", address:"3-р хороо, Спортын зам",        mapUrl:"", photoUrl:"" },
+            { name:"Хурдан Авто Угаалга",   category:"carwash",    color:"#4facfe", description:"Гар болон машинаар угаалга. Дотор цэвэрлэгээ.",      phone:"88556677", address:"4-р хороо, Замын хажуу",        mapUrl:"", photoUrl:"" },
+            { name:"Эрдэнэ Авто Засвар",    category:"carfix",     color:"#c0864a", description:"Бүх төрлийн машины засвар, ТО үйлчилгээ.",           phone:"99778899", address:"5-р хороо, Аж үйлдвэрийн бүс", mapUrl:"", photoUrl:"" },
+            { name:"Гоёл Салон",            category:"salon",      color:"#fa709a", description:"Үс засалт, маникюр, арьс арчилгаа. Захиалгаар.",     phone:"88990011", address:"1-р хороо, Төвийн гудамж",      mapUrl:"", photoUrl:"" },
+            { name:"Мөнх Дэлгүүр",          category:"shop",       color:"#667eea", description:"Хүнсний болон ахуйн бараа. 08:00–23:00 нээлттэй.",   phone:"99001234", address:"2-р хороо, Зах",                mapUrl:"", photoUrl:"" },
+            { name:"Хурдан Хүргэлт",        category:"other",      color:"#1a1a2e", description:"Хот доторх хурдан хүргэлт. 24/7 ажилладаг.",        phone:"88007799", address:"Мөрөн хот",                     mapUrl:"", photoUrl:"" },
+            /*
+            { name:"", category:"", color:"#667eea", description:"", phone:"", address:"", mapUrl:"", photoUrl:"" },
+            */
+        ];
 
-  /* ── ДЭЛГҮҮР ── */
-  {
-    name:        "Мөнх Дэлгүүр",
-    category:    "shop",
-    color:       "#667eea",
-    description: "Хүнсний болон ахуйн бараа. 08:00–23:00 нээлттэй.",
-    phone:       "99001234",
-    address:     "2-р хороо, Зах",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+        var CAT_LABELS = { restaurant:'🍽️ Ресторан', bakery:'🍞 Нарийн боов', gym:'💪 Фитнесс', carwash:'🚿 Авто угаалга', carfix:'🔧 Авто засвар', salon:'💈 Гоо сайхан', shop:'🏪 Дэлгүүр', other:'📦 Бусад' };
+        var CAT_ICONS  = { restaurant:'🍽️', bakery:'🍞', gym:'💪', carwash:'🚿', carfix:'🔧', salon:'💈', shop:'🏪', other:'📦' };
 
-  /* ── БУСАД ── */
-  {
-    name:        "Хурдан Хүргэлт",
-    category:    "other",
-    color:       "#1a1a2e",
-    description: "Хот доторх хурдан хүргэлт. 24/7 ажилладаг.",
-    phone:       "88007799",
-    address:     "Мөрөн хот",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+        function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  /*
-  ── ШИНЭ БИЗНЕС НЭМЭХ ─────────────────────────────────
+        var activeCat = 'all', searchTerm = '';
+        var grid = document.getElementById('bizGrid'), statsEl = document.getElementById('searchStats');
 
-  {
-    name:        "",
-    category:    "",
-    color:       "#667eea",
-    description: "",
-    phone:       "",
-    address:     "",
-    mapUrl:      "",
-    photoUrl:    "",
-  },
+        function renderGrid() {
+            var filtered = BUSINESSES.filter(function(b) {
+                var mc = activeCat === 'all' || b.category === activeCat;
+                var mt = !searchTerm ||
+                    b.name.toLowerCase().indexOf(searchTerm) > -1 ||
+                    (b.description||'').toLowerCase().indexOf(searchTerm) > -1 ||
+                    (b.phone||'').indexOf(searchTerm) > -1 ||
+                    (b.address||'').toLowerCase().indexOf(searchTerm) > -1;
+                return mc && mt;
+            });
 
-  ──────────────────────────────────────────────────────── */
+            statsEl.textContent = (searchTerm || activeCat !== 'all')
+                ? filtered.length + ' бизнес олдлоо (нийт ' + BUSINESSES.length + ')'
+                : 'Нийт ' + BUSINESSES.length + ' бизнес';
 
-];
+            if (!filtered.length) { grid.innerHTML = '<div class="no-data">🔍 Хайлтад тохирох бизнес олдсонгүй</div>'; return; }
 
-/* ── helpers ── */
-const CAT_LABELS = {
-    restaurant:'🍽️ Ресторан', bakery:'🍞 Нарийн боов',
-    gym:'💪 Фитнесс',         carwash:'🚿 Авто угаалга',
-    carfix:'🔧 Авто засвар',  salon:'💈 Гоо сайхан',
-    shop:'🏪 Дэлгүүр',        other:'📦 Бусад',
-};
-const CAT_ICONS = {
-    restaurant:'🍽️', bakery:'🍞', gym:'💪', carwash:'🚿',
-    carfix:'🔧', salon:'💈', shop:'🏪', other:'📦'
-};
+            grid.innerHTML = '';
+            filtered.forEach(function(b) {
+                var color = b.color || '#667eea';
+                var card  = document.createElement('div');
+                card.className = 'biz-card';
+                card.innerHTML =
+                    '<div class="card-accent" style="background:' + esc(color) + ';"></div>' +
+                    (b.photoUrl ? '<img class="card-photo" src="' + esc(b.photoUrl) + '" loading="lazy" onerror="this.style.display=\'none\'">' : '<div class="card-placeholder">' + (CAT_ICONS[b.category]||'📦') + '</div>') +
+                    '<div class="card-body">' +
+                        '<div class="card-badge">' + (CAT_LABELS[b.category]||'📦 Бусад') + '</div>' +
+                        '<div class="card-name">' + esc(b.name) + '</div>' +
+                        (b.description ? '<div class="card-desc">' + esc(b.description) + '</div>' : '') +
+                        '<div class="card-meta">' +
+                            (b.phone   ? '<div class="meta-row">📞 ' + esc(b.phone)   + '</div>' : '') +
+                            (b.address ? '<div class="meta-row">📍 ' + esc(b.address) + '</div>' : '') +
+                        '</div>' +
+                        '<div class="card-actions">' +
+                            (b.phone ? '<a href="tel:' + esc(b.phone) + '" class="btn-call">📞 Залгах</a>' : '<div style="flex:1"></div>') +
+                            '<button class="btn-map" data-idx>🗺️</button>' +
+                        '</div>' +
+                    '</div>';
 
-function esc(s) {
-    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+                // Safe closure for map button
+                (function(n, c, u) {
+                    card.querySelector('[data-idx]').addEventListener('click', function() { openMap(n, c, u); });
+                })(b.name, color, b.mapUrl || '');
 
-// Convert a Google Maps share/place URL → embed URL
-function toEmbedUrl(url) {
-    if (!url) return '';
-    // Already an embed
-    if (url.includes('/embed')) return url;
-    // maps.app.goo.gl short links → just pass as q param
-    if (url.includes('goo.gl') || url.includes('maps.app')) {
-        return 'https://maps.google.com/maps?output=embed&q=' + encodeURIComponent(url);
-    }
-    // maps.google.com?q=… or @lat,lng
-    try {
-        const u = new URL(url);
-        const q = u.searchParams.get('q') || u.hash;
-        if (q) return 'https://maps.google.com/maps?output=embed&q=' + encodeURIComponent(q);
-        // has @lat,lng,zoom
-        const m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-        if (m) return `https://maps.google.com/maps?output=embed&q=${m[1]},${m[2]}`;
-    } catch(e) {}
-    // Fallback: wrap whole URL
-    return 'https://maps.google.com/maps?output=embed&q=' + encodeURIComponent(url);
-}
+                grid.appendChild(card);
+            });
+        }
 
-/* ── Map modal ── */
-function openMap(name, mapUrl) {
-    document.getElementById('mapTitle').textContent = '📍 ' + name;
-    document.getElementById('mapIframe').src = toEmbedUrl(mapUrl);
-    document.getElementById('mapOpenLink').href = mapUrl;
-    document.getElementById('mapModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-window.closeMap = function() {
-    document.getElementById('mapModal').classList.remove('open');
-    document.getElementById('mapIframe').src = '';
-    document.body.style.overflow = '';
-};
-document.getElementById('mapModal').addEventListener('click', function(e) {
-    if (e.target === this) window.closeMap();
-});
+        document.getElementById('searchInput').addEventListener('input', function(e) { searchTerm = e.target.value.toLowerCase().trim(); renderGrid(); });
+        document.querySelectorAll('.cat-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active'); activeCat = btn.dataset.cat; renderGrid();
+            });
+        });
 
-/* ── Render ── */
-let activeCat  = 'all';
-let searchTerm = '';
-const grid    = document.getElementById('bizGrid');
-const statsEl = document.getElementById('searchStats');
-
-function renderGrid() {
-    const filtered = BUSINESSES.filter(b => {
-        const matchCat  = activeCat === 'all' || b.category === activeCat;
-        const matchText = !searchTerm ||
-            (b.name||'').toLowerCase().includes(searchTerm) ||
-            (b.description||'').toLowerCase().includes(searchTerm) ||
-            (b.phone||'').includes(searchTerm) ||
-            (b.address||'').toLowerCase().includes(searchTerm);
-        return matchCat && matchText;
-    });
-
-    statsEl.textContent = (searchTerm || activeCat !== 'all')
-        ? `${filtered.length} бизнес олдлоо (нийт ${BUSINESSES.length})`
-        : `Нийт ${BUSINESSES.length} бизнес`;
-
-    if (!filtered.length) {
-        grid.innerHTML = '<div class="no-data">🔍 Хайлтад тохирох бизнес олдсонгүй</div>';
-        return;
-    }
-
-    grid.innerHTML = '';
-    filtered.forEach((b, i) => {
-        const color = b.color || '#667eea';
-        const card  = document.createElement('div');
-        card.className = 'biz-card';
-        card.innerHTML = `
-            <div class="card-accent" style="background:${esc(color)};"></div>
-            ${b.photoUrl
-                ? `<img class="card-photo" src="${esc(b.photoUrl)}" alt="${esc(b.name)}" loading="lazy" onerror="this.style.display='none'">`
-                : `<div class="card-placeholder">${CAT_ICONS[b.category]||'📦'}</div>`
-            }
-            <div class="card-body">
-                <div class="card-badge">${CAT_LABELS[b.category]||'📦 Бусад'}</div>
-                <div class="card-name">${esc(b.name)}</div>
-                ${b.description ? `<div class="card-desc">${esc(b.description)}</div>` : ''}
-                <div class="card-meta">
-                    ${b.phone   ? `<div class="meta-row">📞 ${esc(b.phone)}</div>` : ''}
-                    ${b.address ? `<div class="meta-row">📍 ${esc(b.address)}</div>` : ''}
-                </div>
-                <div class="card-actions">
-                    ${b.phone
-                        ? `<a href="tel:${esc(b.phone)}" class="btn-call">📞 Залгах</a>`
-                        : '<div style="flex:1"></div>'
-                    }
-                    ${b.mapUrl
-                        ? `<button class="btn-map" onclick="openMap(${JSON.stringify(b.name)}, ${JSON.stringify(b.mapUrl)})">🗺️</button>`
-                        : ''
-                    }
-                </div>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-document.getElementById('searchInput').addEventListener('input', function(e) {
-    searchTerm = e.target.value.toLowerCase().trim();
-    renderGrid();
-});
-
-document.querySelectorAll('.cat-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        activeCat = btn.dataset.cat;
         renderGrid();
-    });
-});
-
-renderGrid();
     </script>
 </body>
 </html>
