@@ -6,232 +6,72 @@
     <title>Боломжит хүргэгчид - Мөрөн Хүргэлт</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
     <style>
         .carrier-plate {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #f0a500;
-            margin-bottom: 10px;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
+            font-size: 1.1rem; font-weight: 700; color: #f0a500;
+            margin-bottom: 10px; font-family: 'Courier New', monospace; letter-spacing: 2px;
         }
-
-        /* ─── Floating map button ─── */
+        /* ─── Map FAB ─── */
         .map-fab {
-            position: fixed;
-            bottom: 36px;
-            right: 36px;
-            z-index: 999;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.75);
-            backdrop-filter: blur(12px);
-            border: 2px solid rgba(255,255,255,0.6);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.14);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                        box-shadow 0.3s ease;
+            position: fixed; bottom: 36px; right: 36px; z-index: 999;
+            width: 64px; height: 64px; border-radius: 50%;
+            background: rgba(255,255,255,0.75); backdrop-filter: blur(12px);
+            border: 2px solid rgba(255,255,255,0.6); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; box-shadow: 0 8px 30px rgba(0,0,0,0.14);
+            transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.3s;
         }
-        .map-fab:hover {
-            transform: scale(1.12) translateY(-3px);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.2);
-            background: rgba(255,255,255,0.95);
-        }
+        .map-fab:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.2); background: rgba(255,255,255,0.95); }
         .map-fab:active { transform: scale(0.96); }
-        .map-fab::after {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            border: 2px solid rgba(0,0,0,0.1);
-            animation: fab-pulse 2.5s ease-out infinite;
-        }
-        @keyframes fab-pulse {
-            0%   { transform: scale(1);    opacity: 0.8; }
-            70%  { transform: scale(1.35); opacity: 0;   }
-            100% { transform: scale(1.35); opacity: 0;   }
-        }
+        .map-fab::after { content:''; position:absolute; inset:-4px; border-radius:50%; border:2px solid rgba(0,0,0,0.1); animation: fab-pulse 2.5s ease-out infinite; }
+        @keyframes fab-pulse { 0%{transform:scale(1);opacity:.8} 70%{transform:scale(1.35);opacity:0} 100%{transform:scale(1.35);opacity:0} }
 
         /* ─── Map overlay ─── */
-        .map-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 1500;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .map-overlay.active { display: flex; }
-
+        .map-overlay { display:none; position:fixed; inset:0; z-index:1500; background:rgba(0,0,0,0.3); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:20px; }
+        .map-overlay.active { display:flex; }
         .map-panel {
-            width: 100%;
-            max-width: 860px;
-            height: min(600px, 85vh);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.55);
-            box-shadow: 0 30px 80px rgba(0,0,0,0.18);
-            display: flex;
-            flex-direction: column;
-            animation: panelIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: rgba(255,255,255,0.82);
-            backdrop-filter: blur(24px);
+            width:100%; max-width:860px; height:min(600px,85vh); border-radius:24px; overflow:hidden;
+            border:2px solid rgba(255,255,255,0.55); box-shadow:0 30px 80px rgba(0,0,0,0.18);
+            display:flex; flex-direction:column;
+            animation:panelIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+            background:rgba(255,255,255,0.88); backdrop-filter:blur(24px);
         }
-        @keyframes panelIn {
-            from { transform: translateY(40px) scale(0.95); opacity: 0; }
-            to   { transform: translateY(0) scale(1);       opacity: 1; }
-        }
+        @keyframes panelIn { from{transform:translateY(40px) scale(0.95);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
+        .map-panel-header { display:flex; align-items:center; justify-content:space-between; padding:16px 22px; background:rgba(255,255,255,0.6); border-bottom:1.5px solid rgba(0,0,0,0.07); backdrop-filter:blur(8px); flex-shrink:0; }
+        .map-panel-title { display:flex; align-items:center; gap:9px; color:#1a1a2e; font-size:1.1rem; font-weight:800; }
+        .map-close { background:rgba(0,0,0,0.07); border:1.5px solid rgba(0,0,0,0.1); color:#333; width:34px; height:34px; border-radius:50%; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s,transform .2s; }
+        .map-close:hover { background:rgba(0,0,0,0.14); transform:rotate(90deg); }
+        .map-locate-btn { background:rgba(0,0,0,0.07); border:1.5px solid rgba(0,0,0,0.12); color:#333; padding:7px 14px; border-radius:20px; font-size:.82rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; transition:background .2s,transform .2s; white-space:nowrap; }
+        .map-locate-btn:hover { background:rgba(0,0,0,0.13); transform:translateY(-1px); }
+        .location-banner { display:none; align-items:center; gap:10px; padding:10px 20px; background:rgba(255,240,200,0.6); border-bottom:1.5px solid rgba(220,180,60,0.25); font-size:.82rem; color:#7a5c00; flex-shrink:0; }
+        .location-banner.visible { display:flex; }
+        .location-banner span { flex:1; line-height:1.4; }
+        .banner-dismiss { background:none; border:none; color:#7a5c00; cursor:pointer; font-size:1rem; padding:0 4px; opacity:.6; }
+        .banner-dismiss:hover { opacity:1; }
+        #moron-map { flex:1; width:100%; }
+        .map-hint { padding:9px 20px; background:rgba(255,255,255,0.55); color:#888; font-size:.8rem; text-align:center; border-top:1.5px solid rgba(0,0,0,0.06); flex-shrink:0; }
+        .map-hint strong { color:#444; }
+        .user-dot { width:16px; height:16px; background:#43b97b; border-radius:50%; border:3px solid white; box-shadow:0 0 0 5px rgba(67,185,123,0.25); }
+        /* Light Leaflet */
+        .leaflet-container { background:#e8e4db !important; font-family:inherit; }
+        .leaflet-control-zoom a { background:rgba(255,255,255,0.92) !important; color:#333 !important; border-color:rgba(0,0,0,0.12) !important; font-weight:700 !important; }
+        .leaflet-control-zoom a:hover { background:#fff !important; }
+        .leaflet-control-attribution { background:rgba(255,255,255,0.7) !important; color:#888 !important; font-size:.7rem !important; }
+        .leaflet-control-attribution a { color:#555 !important; }
+        .leaflet-popup-content-wrapper { border-radius:14px !important; box-shadow:0 8px 30px rgba(0,0,0,0.14) !important; border:1.5px solid rgba(0,0,0,0.07) !important; }
+        .leaflet-popup-tip { background:white !important; }
 
-        /* Panel header */
-        .map-panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 22px;
-            background: rgba(255,255,255,0.6);
-            border-bottom: 1.5px solid rgba(0,0,0,0.07);
-            backdrop-filter: blur(8px);
-            flex-shrink: 0;
-        }
-        .map-panel-title {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            color: #1a1a2e;
-            font-size: 1.1rem;
-            font-weight: 800;
-        }
-        .map-close {
-            background: rgba(0,0,0,0.07);
-            border: 1.5px solid rgba(0,0,0,0.1);
-            color: #333;
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .map-close:hover { background: rgba(0,0,0,0.14); transform: rotate(90deg); }
-
-        /* Locate button */
-        .map-locate-btn {
-            background: rgba(0,0,0,0.07);
-            border: 1.5px solid rgba(0,0,0,0.12);
-            color: #333;
-            padding: 7px 14px;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
-            transition: background 0.2s, transform 0.2s;
-            white-space: nowrap;
-        }
-        .map-locate-btn:hover { background: rgba(0,0,0,0.13); transform: translateY(-1px); }
-
-        /* Location banner */
-        .location-banner {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            background: rgba(255,240,200,0.6);
-            border-bottom: 1.5px solid rgba(220,180,60,0.25);
-            font-size: 0.82rem;
-            color: #7a5c00;
-            flex-shrink: 0;
-        }
-        .location-banner.visible { display: flex; }
-        .location-banner span { flex: 1; line-height: 1.4; }
-        .location-banner-icon { font-size: 1.1rem; flex-shrink: 0; }
-        .banner-dismiss {
-            background: none; border: none; color: #7a5c00;
-            cursor: pointer; font-size: 1rem; padding: 0 4px; opacity: 0.6; flex-shrink: 0;
-        }
-        .banner-dismiss:hover { opacity: 1; }
-
-        /* Map itself */
-        #moron-map { flex: 1; width: 100%; }
-
-        /* Override Leaflet → light theme */
-        .leaflet-container {
-            background: #e8e4db !important;
-            font-family: inherit;
-        }
-        .leaflet-control-zoom a {
-            background: rgba(255,255,255,0.9) !important;
-            color: #333 !important;
-            border-color: rgba(0,0,0,0.12) !important;
-            font-weight: 700 !important;
-        }
-        .leaflet-control-zoom a:hover { background: #fff !important; }
-        .leaflet-control-attribution {
-            background: rgba(255,255,255,0.7) !important;
-            color: #888 !important;
-            font-size: 0.7rem !important;
-            backdrop-filter: blur(4px);
-        }
-        .leaflet-control-attribution a { color: #555 !important; }
-        .leaflet-popup-content-wrapper {
-            border-radius: 14px !important;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.14) !important;
-            border: 1.5px solid rgba(0,0,0,0.07) !important;
-            backdrop-filter: blur(8px);
-        }
-        .leaflet-popup-tip { background: white !important; }
-
-        /* Hint bar */
-        .map-hint {
-            padding: 9px 20px;
-            background: rgba(255,255,255,0.55);
-            color: #888;
-            font-size: 0.8rem;
-            text-align: center;
-            border-top: 1.5px solid rgba(0,0,0,0.06);
-            flex-shrink: 0;
-        }
-        .map-hint strong { color: #444; }
-
-        /* User dot */
-        .user-dot {
-            width: 16px; height: 16px;
-            background: #43b97b;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 0 5px rgba(67,185,123,0.25), 0 3px 12px rgba(67,185,123,0.4);
-        }
-
-        /* Mobile */
-        @media (max-width: 600px) {
-            .map-fab { bottom: 24px; right: 20px; width: 56px; height: 56px; font-size: 1.4rem; }
-            .map-panel { height: min(500px, 88vh); border-radius: 18px; }
-            .map-panel-header { padding: 13px 16px; }
+        @media (max-width:600px) {
+            .map-fab { bottom:24px; right:20px; width:56px; height:56px; font-size:1.4rem; }
+            .map-panel { height:min(500px,88vh); border-radius:18px; }
         }
     </style>
 </head>
 <body>
-
     <div class="parallax-bg">
-        <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div><div class="ball"></div>
-            <div class="ball"></div><div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
-        </div>
-        <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
-        </div>
+        <div class="parallax-layer layer-1" data-speed="0.2"><div class="ball"></div><div class="ball"></div><div class="ball"></div><div class="ball"></div></div>
+        <div class="parallax-layer layer-2" data-speed="0.5"><div class="ball"></div><div class="ball"></div><div class="ball"></div></div>
+        <div class="parallax-layer layer-3" data-speed="1"><div class="ball"></div><div class="ball"></div><div class="ball"></div></div>
     </div>
 
     <div class="container">
@@ -239,50 +79,36 @@
             <a href="index.html" class="back-link">← Буцах</a>
             <h1>Боломжит хүргэгчид</h1>
         </header>
-
         <div class="search-section">
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-input"
-                    placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..." autocomplete="off">
-                <div id="searchSuggestions" class="search-suggestions"></div>
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Утас, тайлбар, эсвэл өдрөөр хайх..." autocomplete="off">
             </div>
             <div id="searchStats" class="search-stats"></div>
         </div>
-
         <main id="carriersContainer" class="carriers-grid">
             <div class="loading">Уншиж байна...</div>
         </main>
-
         <footer><p>Сургуулийн төсөл • Prototype</p></footer>
     </div>
 
-    <!-- Floating map button -->
     <button class="map-fab" id="mapFab" title="Мөрөн хотын газрын зураг">📍</button>
 
-    <!-- Map overlay -->
     <div class="map-overlay" id="mapOverlay">
         <div class="map-panel">
             <div class="map-panel-header">
-                <div class="map-panel-title">
-                    <span>🗺️</span> Мөрөн хот — Газрын зураг
-                </div>
+                <div class="map-panel-title"><span>🗺️</span> Мөрөн хот — Газрын зураг</div>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <button class="map-locate-btn" id="locateBtn">📡 Байршил</button>
                     <button class="map-close" id="mapClose">✕</button>
                 </div>
             </div>
-
             <div class="location-banner" id="locationBanner">
                 <span class="location-banner-icon">💡</span>
                 <span>Байршил асаасан тохиолдолд таны бодит байршлыг харуулна</span>
                 <button class="banner-dismiss" id="bannerDismiss">✕</button>
             </div>
-
             <div id="moron-map"></div>
-
-            <div class="map-hint">
-                Хулгана эсвэл хуруугаараа <strong>гүйлгэж</strong> / <strong>томруулж</strong> үзэх боломжтой
-            </div>
+            <div class="map-hint">Хулгана эсвэл хуруугаараа <strong>гүйлгэж</strong> / <strong>томруулж</strong> үзэх боломжтой</div>
         </div>
     </div>
 
@@ -337,149 +163,59 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
-        // parallax
         window.addEventListener('scroll', function() {
-            var layers  = document.querySelectorAll('.parallax-layer');
-            var scrolled = window.pageYOffset;
-            for (var i = 0; i < layers.length; i++) {
-                layers[i].style.transform = 'translateY(' + (-scrolled * layers[i].dataset.speed) + 'px)';
-            }
+            var layers = document.querySelectorAll('.parallax-layer'), s = window.pageYOffset;
+            for (var i = 0; i < layers.length; i++)
+                layers[i].style.transform = 'translateY(' + (-s * layers[i].dataset.speed) + 'px)';
         });
 
-        // ─── Map ───
-        var mapInitialized = false;
-        var moronMap = null;
-        var userMarker = null;
-        var MORON = { lat: 49.6356, lng: 100.1614 };
+        var MORON = { lat:49.6356, lng:100.1614 };
+        var mapReady = false, moronMap = null, userMarker = null;
 
         function initMap() {
-            if (mapInitialized) return;
-            mapInitialized = true;
-
-            moronMap = L.map('moron-map', {
-                center: [MORON.lat, MORON.lng],
-                zoom: 14,
-                zoomControl: true,
-                scrollWheelZoom: true,
-            });
-
-            // Light tile layer
+            if (mapReady) return; mapReady = true;
+            moronMap = L.map('moron-map', { center:[MORON.lat,MORON.lng], zoom:14, scrollWheelZoom:true });
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                maxZoom: 19,
+                attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>', maxZoom:19
             }).addTo(moronMap);
-
-            // City center marker
-            var cityIcon = L.divIcon({
-                className: '',
-                html: '<div style="width:18px;height:18px;background:#555;border-radius:50%;border:3px solid white;box-shadow:0 2px 12px rgba(0,0,0,0.25);"></div>',
-                iconSize: [18, 18],
-                iconAnchor: [9, 9],
-            });
-
-            L.marker([MORON.lat, MORON.lng], { icon: cityIcon })
-                .addTo(moronMap)
-                .bindPopup(
-                    '<div style="font-family:inherit;text-align:center;padding:4px 2px;">' +
-                    '<div style="font-size:1.4rem;margin-bottom:4px;">🏙️</div>' +
-                    '<strong style="font-size:0.97rem;color:#111;">Мөрөн хот</strong><br>' +
-                    '<span style="font-size:0.78rem;color:#666;">Хөвсгөл аймгийн төв</span>' +
-                    '</div>'
-                )
+            var icon = L.divIcon({ className:'', html:'<div style="width:18px;height:18px;background:#555;border-radius:50%;border:3px solid white;box-shadow:0 2px 12px rgba(0,0,0,0.25);"></div>', iconSize:[18,18], iconAnchor:[9,9] });
+            L.marker([MORON.lat,MORON.lng],{icon:icon}).addTo(moronMap)
+                .bindPopup('<div style="text-align:center;padding:4px;"><div style="font-size:1.3rem;">🏙️</div><strong>Мөрөн хот</strong><br><span style="font-size:.78rem;color:#666;">Хөвсгөл аймгийн төв</span></div>')
                 .openPopup();
-
-            showLocationBanner();
-        }
-
-        function showLocationBanner() {
             document.getElementById('locationBanner').classList.add('visible');
         }
-        function hideLocationBanner() {
-            document.getElementById('locationBanner').classList.remove('visible');
-        }
 
-        document.getElementById('bannerDismiss').addEventListener('click', hideLocationBanner);
-        document.getElementById('locateBtn').addEventListener('click', locateUser);
+        document.getElementById('bannerDismiss').addEventListener('click', function() { document.getElementById('locationBanner').classList.remove('visible'); });
+        document.getElementById('locateBtn').addEventListener('click', function() {
+            if (!navigator.geolocation) { alert('Байршил дэмжигдэхгүй.'); return; }
+            var btn = this; btn.textContent = '⏳'; btn.disabled = true;
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                var lat = pos.coords.latitude, lng = pos.coords.longitude;
+                if (userMarker) moronMap.removeLayer(userMarker);
+                var uicon = L.divIcon({ className:'', html:'<div class="user-dot"></div>', iconSize:[16,16], iconAnchor:[8,8] });
+                userMarker = L.marker([lat,lng],{icon:uicon}).addTo(moronMap)
+                    .bindPopup('<div style="text-align:center;"><strong>Таны байршил</strong></div>').openPopup();
+                moronMap.setView([lat,lng],15,{animate:true});
+                document.getElementById('locationBanner').classList.remove('visible');
+                btn.innerHTML = '📡 Байршил'; btn.disabled = false;
+            }, function() { btn.innerHTML = '📡 Байршил'; btn.disabled = false; }, { enableHighAccuracy:true, timeout:10000 });
+        });
 
-        function locateUser() {
-            if (!navigator.geolocation) {
-                alert('Таны төхөөрөмж байршил тогтоохыг дэмждэггүй.');
-                return;
-            }
-            var btn = document.getElementById('locateBtn');
-            btn.innerHTML = '⏳ Хайж байна...';
-            btn.disabled = true;
-
-            navigator.geolocation.getCurrentPosition(
-                function(pos) {
-                    var lat = pos.coords.latitude;
-                    var lng = pos.coords.longitude;
-                    if (userMarker) moronMap.removeLayer(userMarker);
-                    var userIcon = L.divIcon({
-                        className: '',
-                        html: '<div class="user-dot"></div>',
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8],
-                    });
-                    userMarker = L.marker([lat, lng], { icon: userIcon })
-                        .addTo(moronMap)
-                        .bindPopup(
-                            '<div style="font-family:inherit;text-align:center;padding:4px;">' +
-                            '<strong>Таны байршил</strong><br>' +
-                            '<span style="font-size:0.75rem;color:#666;">' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</span>' +
-                            '</div>'
-                        )
-                        .openPopup();
-                    moronMap.setView([lat, lng], 15, { animate: true });
-                    hideLocationBanner();
-                    btn.innerHTML = '📡 Байршил';
-                    btn.disabled = false;
-                },
-                function(err) {
-                    btn.innerHTML = '📡 Байршил';
-                    btn.disabled = false;
-                    showLocationBanner();
-                    if (err.code !== err.PERMISSION_DENIED) {
-                        alert('Байршил тогтоох боломжгүй байна.');
-                    }
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        }
-
-        var mapFab     = document.getElementById('mapFab');
-        var mapOverlay = document.getElementById('mapOverlay');
-        var mapClose   = document.getElementById('mapClose');
-
-        mapFab.addEventListener('click', function() {
-            mapOverlay.classList.add('active');
+        document.getElementById('mapFab').addEventListener('click', function() {
+            document.getElementById('mapOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
             setTimeout(initMap, 60);
         });
-
-        function closeMap() {
-            mapOverlay.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        mapClose.addEventListener('click', closeMap);
-        mapOverlay.addEventListener('click', function(e) { if (e.target === mapOverlay) closeMap(); });
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMap(); });
+        function closeMap() { document.getElementById('mapOverlay').classList.remove('active'); document.body.style.overflow = 'auto'; }
+        document.getElementById('mapClose').addEventListener('click', closeMap);
+        document.getElementById('mapOverlay').addEventListener('click', function(e) { if (e.target===this) closeMap(); });
+        document.addEventListener('keydown', function(e) { if (e.key==='Escape') closeMap(); });
     </script>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-
-        async function sha256(message) {
-            const msgBuffer  = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
-        }
-
-        const MASTER_PIN_HASH = "cb1ddeb68a770c93b6a91023d1e4aab32e0d5c2037fbac639f425fdac2162522";
 
         const app = initializeApp({
             apiKey:            "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
@@ -491,7 +227,7 @@
             appId:             "1:457877716370:web:5bc6e08801e36010c3d54b"
         });
 
-        const database          = getDatabase(app);
+        const db                = getDatabase(app);
         const carriersContainer = document.getElementById('carriersContainer');
         const searchInput       = document.getElementById('searchInput');
         const searchStats       = document.getElementById('searchStats');
@@ -500,59 +236,41 @@
         const editWeightSlider  = document.getElementById('editWeight');
         const editWeightValue   = document.getElementById('editWeightValue');
 
-        let allCarriers = {};
-        let filteredCarriers = {};
-        let currentEditId = null;
+        let allCarriers = {}, filteredCarriers = {}, currentEditId = null;
 
-        editWeightSlider.addEventListener('input', e => {
-            editWeightValue.textContent = e.target.value;
-        });
+        editWeightSlider.addEventListener('input', e => { editWeightValue.textContent = e.target.value; });
+        document.getElementById('editCarLetters').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g,'').slice(0,3); });
+        document.getElementById('editCarNumber').addEventListener('input',  e => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,4); });
 
-        document.getElementById('editCarLetters').addEventListener('input', e => {
-            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g,'').slice(0,3);
-        });
-        document.getElementById('editCarNumber').addEventListener('input', e => {
-            e.target.value = e.target.value.replace(/\D/g,'').slice(0,4);
-        });
-
-        onValue(ref(database, 'carriers'), snapshot => {
-            if (!snapshot.exists()) {
+        onValue(ref(db,'carriers'), snap => {
+            if (!snap.exists()) {
                 carriersContainer.innerHTML = '<div class="no-data">Одоогоор хүргэгч байхгүй байна.</div>';
-                allCarriers = {}; filteredCarriers = {};
-                updateSearchStats(); return;
+                allCarriers = {}; filteredCarriers = {}; updateStats(); return;
             }
-            allCarriers = snapshot.val();
+            allCarriers = snap.val();
             filteredCarriers = { ...allCarriers };
-            displayCarriers(filteredCarriers);
-            updateSearchStats();
+            renderCarriers(filteredCarriers);
+            updateStats();
         });
 
         searchInput.addEventListener('input', e => {
-            const term = e.target.value.toLowerCase().trim();
-            if (!term) {
-                filteredCarriers = { ...allCarriers };
-            } else {
-                filteredCarriers = {};
-                Object.keys(allCarriers).forEach(key => {
-                    const c = allCarriers[key];
-                    if (
-                        c.phone.toLowerCase().includes(term) ||
-                        c.description.toLowerCase().includes(term) ||
-                        (c.days && c.days.join(' ').toLowerCase().includes(term))
-                    ) filteredCarriers[key] = c;
-                });
-            }
-            displayCarriers(filteredCarriers);
-            updateSearchStats();
+            const t = e.target.value.toLowerCase().trim();
+            filteredCarriers = !t ? { ...allCarriers } : Object.fromEntries(
+                Object.entries(allCarriers).filter(([,c]) =>
+                    c.phone.toLowerCase().includes(t) ||
+                    c.description.toLowerCase().includes(t) ||
+                    (c.days||[]).join(' ').toLowerCase().includes(t)
+                )
+            );
+            renderCarriers(filteredCarriers);
+            updateStats();
         });
 
-        function displayCarriers(carriers) {
+        function renderCarriers(carriers) {
             carriersContainer.innerHTML = '';
-            if (!Object.keys(carriers).length) {
-                carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
-                return;
-            }
-            Object.keys(carriers).forEach(id => {
+            const keys = Object.keys(carriers);
+            if (!keys.length) { carriersContainer.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>'; return; }
+            keys.forEach(id => {
                 const c = carriers[id];
                 const card = document.createElement('div');
                 card.className = 'carrier-card';
@@ -567,65 +285,49 @@
                         </div>
                     </div>
                     <div class="card-actions">
-                        <button class="btn-small btn-edit"   onclick="window.editCarrier('${id}')">Засах</button>
-                        <button class="btn-small btn-delete" onclick="window.deleteCarrier('${id}')">Устгах</button>
-                    </div>
-                `;
+                        <button class="btn-small btn-edit"   onclick="window.editCarrier('${id}')">✏️ Засах</button>
+                        <button class="btn-small btn-delete" onclick="window.deleteCarrier('${id}')">🗑️ Устгах</button>
+                    </div>`;
                 carriersContainer.appendChild(card);
             });
         }
 
-        function updateSearchStats() {
-            const total   = Object.keys(allCarriers).length;
-            const showing = Object.keys(filteredCarriers).length;
-            searchStats.innerHTML = searchInput.value.trim()
-                ? `${showing} хүргэгч олдлоо (Нийт: ${total})`
+        function updateStats() {
+            const total = Object.keys(allCarriers).length, shown = Object.keys(filteredCarriers).length;
+            searchStats.textContent = searchInput.value.trim()
+                ? `${shown} хүргэгч олдлоо (Нийт: ${total})`
                 : `Нийт ${total} хүргэгч`;
         }
 
-        window.editCarrier = async function(id) {
-            const pin = prompt('PIN код оруулна уу:');
-            if (!pin) return;
-            const enteredHash    = await sha256(pin);
-            const carrierPin     = allCarriers[id]?.pin;
-            const carrierPinHash = carrierPin ? await sha256(carrierPin) : null;
-            if (enteredHash === MASTER_PIN_HASH || (carrierPinHash && enteredHash === carrierPinHash)) {
-                openEditModel(id);
-            } else { alert('Буруу PIN код!'); }
-        };
-
-        window.deleteCarrier = async function(id) {
-            const pin = prompt('Устгахын тулд PIN код оруулна уу:');
-            if (!pin) return;
-            const enteredHash    = await sha256(pin);
-            const carrierPin     = allCarriers[id]?.pin;
-            const carrierPinHash = carrierPin ? await sha256(carrierPin) : null;
-            if (enteredHash !== MASTER_PIN_HASH && enteredHash !== carrierPinHash) {
-                alert('Буруу PIN код!'); return;
-            }
-            if (!confirm('Та устгахдаа итгэлтэй байна уу?')) return;
-            remove(ref(database, `carriers/${id}`))
-                .then(() => alert('Амжилттай устгалаа!'))
-                .catch(err => { console.error(err); alert('Алдаа гарлаа!'); });
-        };
-
-        function openEditModel(id) {
+        /* ── Edit & Delete — no PIN required ── */
+        window.editCarrier = function(id) {
             currentEditId = id;
             const c = allCarriers[id];
-            document.getElementById('editPhone').value       = c.phone;
-            document.getElementById('editDescription').value = c.description;
+            document.getElementById('editPhone').value       = c.phone       || '';
+            document.getElementById('editDescription').value = c.description || '';
             editWeightSlider.value      = c.maxWeight || 10;
             editWeightValue.textContent = c.maxWeight || 10;
             if (c.carPlate) {
                 document.getElementById('editCarNumber').value  = c.carPlate.match(/^\d+/)?.[0]             || '';
                 document.getElementById('editCarLetters').value = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
+            } else {
+                document.getElementById('editCarNumber').value  = '';
+                document.getElementById('editCarLetters').value = '';
             }
-            document.querySelectorAll('input[name="editDays"]').forEach(cb => {
-                cb.checked = c.days && c.days.includes(cb.value);
-            });
+            document.querySelectorAll('input[name="editDays"]').forEach(cb => { cb.checked = (c.days||[]).includes(cb.value); });
             editModel.style.display = 'block';
             document.body.style.overflow = 'hidden';
-        }
+        };
+
+        window.deleteCarrier = async function(id) {
+            const name = allCarriers[id]?.phone || 'энэ бичлэг';
+            if (!confirm(`"${name}"-г устгах уу?`)) return;
+            try {
+                await remove(ref(db, `carriers/${id}`));
+            } catch(err) {
+                alert('Алдаа гарлаа: ' + err.message);
+            }
+        };
 
         window.closeEditModel = function() {
             editModel.style.display = 'none';
@@ -633,10 +335,7 @@
             currentEditId = null;
             editForm.reset();
         };
-
-        window.addEventListener('click', e => {
-            if (e.target === editModel) window.closeEditModel();
-        });
+        window.addEventListener('click', e => { if (e.target === editModel) window.closeEditModel(); });
 
         editForm.addEventListener('submit', async e => {
             e.preventDefault();
@@ -648,13 +347,14 @@
             const carLetters = document.getElementById('editCarLetters').value.trim();
             if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
             try {
-                await update(ref(database, `carriers/${currentEditId}`), {
+                await update(ref(db, `carriers/${currentEditId}`), {
                     phone, description: desc, maxWeight: weight, days,
                     carPlate: carNumber + carLetters
                 });
-                alert('Амжилттай шинэчлэгдлээ!');
                 window.closeEditModel();
-            } catch(err) { console.error(err); alert('Алдаа гарлаа!'); }
+            } catch(err) {
+                alert('Алдаа гарлаа: ' + err.message);
+            }
         });
     </script>
 </body>
