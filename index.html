@@ -3,91 +3,81 @@
 <head>
     <title>мөрөн бизнес лавлах</title>
     <meta name="description" content="мөрөн суман доторх бизнес байгуулагуудын нэгдсэн сан">
-    <meta name="keywords" content="hurgelt, murun hurgelt, hovsgol hurgelt, хүргэлт, Мөрөн хүргэлт, Хөвсгөл хүргэлт, ачаа тээвэр, тээш, илгээмж, hurgelt dugaar, murun achaa, hiwgl, hugrlt, hovsgol hurgelt dugaar, moron hurgelt, hvwsgvl hvrgelt, хүргэлт мөрөн, хүргэлтийн дугаар">
+    <meta name="keywords" content="hurgelt, murun hurgelt, hovsgol hurgelt, хүргэлт, Мөрөн хүргэлт, Хөвсгөл хүргэлт, ачаа тээвэр, тээш, илгээмж">
     <link rel="canonical" href="https://huwsgulhurgelt1.vercel.app">
     <meta property="og:title" content="Мөрөн Хотын Хүргэлтийн Нэгдсэн Сан">
     <meta property="og:description" content="Хүргэгчдийн утасны дугаар, чиглэлийг эндээс харна уу.">
-    <meta property="og:url" content="https://чиний-сайтын-нэр.vercel.app/">
     <meta property="og:type" content="website">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ── Section separation ── */
         .sections-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            width: 100%;
-            max-width: 520px;
-            margin: 0 auto;
+            display: flex; flex-direction: column; gap: 0;
+            width: 100%; max-width: 520px; margin: 0 auto;
         }
-
         .section-block {
             background: rgba(255,255,255,0.18);
             backdrop-filter: blur(10px);
             border: 1.5px solid rgba(255,255,255,0.28);
-            border-radius: 20px;
-            padding: 22px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            border-radius: 20px; padding: 22px 24px;
+            display: flex; flex-direction: column; gap: 10px;
         }
-
         .section-label {
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            opacity: 0.55;
-            padding-left: 4px;
+            font-size: 0.72rem; font-weight: 800;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            opacity: 0.55; padding-left: 4px;
         }
+        .section-divider { display: flex; align-items: center; gap: 14px; padding: 10px 0; }
+        .divider-line { flex: 1; height: 1.5px; background: rgba(255,255,255,0.18); }
+        .divider-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.25); }
+        .section-block .btn { width: 100%; text-align: center; justify-content: center; }
 
-        .section-divider {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 10px 0;
+        /* ── Profile ball ── */
+        .profile-ball {
+            position: fixed; top: 20px; right: 20px; z-index: 999;
+            width: 46px; height: 46px; border-radius: 50%;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            cursor: pointer; text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; transition: all 0.25s;
+            overflow: hidden;
         }
-        .divider-line {
-            flex: 1;
-            height: 1.5px;
-            background: rgba(255,255,255,0.18);
-        }
-        .divider-dot {
-            width: 7px; height: 7px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-        }
+        .profile-ball:hover { transform: scale(1.1); box-shadow: 0 8px 28px rgba(0,0,0,0.18); background: rgba(255,255,255,0.92); }
+        .profile-ball img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
+        .profile-ball.has-photo img { display: block; }
+        .profile-ball.has-photo .profile-icon { display: none; }
 
-        /* override btn to fill width inside blocks */
-        .section-block .btn {
-            width: 100%;
-            text-align: center;
-            justify-content: center;
+        /* pulse ring when logged in */
+        .profile-ball.signed-in::after {
+            content: '';
+            position: absolute; bottom: 1px; right: 1px;
+            width: 11px; height: 11px; border-radius: 50%;
+            background: #43e97b; border: 2px solid white;
         }
     </style>
 </head>
 <body>
-    <!-- i luv parallax<3 -->
     <div class="parallax-bg">
         <div class="parallax-layer layer-1" data-speed="0.2">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div><div class="ball"></div>
         </div>
         <div class="parallax-layer layer-2" data-speed="0.5">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
         </div>
         <div class="parallax-layer layer-3" data-speed="1">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
+            <div class="ball"></div><div class="ball"></div><div class="ball"></div>
         </div>
     </div>
+
+    <!-- Profile ball — top right, links to account page -->
+    <a href="account.html" class="profile-ball" id="profileBall" title="Миний бүртгэл">
+        <img id="profilePhoto" src="" alt="">
+        <span class="profile-icon">👤</span>
+    </a>
 
     <div class="container">
         <header class="hero">
@@ -96,55 +86,65 @@
         </header>
 
         <div class="sections-wrap">
-
-            <!-- Block 1: Businesses (standalone) -->
             <div class="section-block">
                 <span class="section-label">📋 Лавлагаа</span>
-                <a href="businesses.html" class="btn">
-                    <span class="btn-icon">🏪</span>
-                    Бизнес лавлах
-                </a>
+                <a href="businesses.html" class="btn"><span class="btn-icon">🏪</span>Бизнес лавлах</a>
             </div>
 
-            <!-- Divider between the two blocks -->
             <div class="section-divider">
-                <div class="divider-line"></div>
-                <div class="divider-dot"></div>
-                <div class="divider-line"></div>
+                <div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div>
             </div>
 
-            <!-- Block 2: User & Carrier -->
             <div class="section-block">
                 <span class="section-label">🚚 Хүргэлт</span>
-                <main class="menu" style="display:flex; flex-direction:column; gap:10px;">
-                    <a href="carriers.html" class="btn btn-user">
-                        <span class="btn-icon">👤</span>
-                        Хэрэглэгч
-                    </a>
-                    <a href="signup.html" class="btn btn-carrier">
-                        <span class="btn-icon">🚚</span>
-                        Хүргэгч
-                    </a>
-                </main>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <a href="carriers.html" class="btn btn-user"><span class="btn-icon">👤</span>Хэрэглэгч</a>
+                    <a href="signup.html"   class="btn btn-carrier"><span class="btn-icon">🚚</span>Хүргэгч бүртгүүлэх</a>
+                </div>
             </div>
-
         </div>
 
-        <footer>
-            <p></p>
-        </footer>
+        <footer><p></p></footer>
     </div>
 
     <script>
-        // parallax scroll
         window.addEventListener('scroll', function() {
-            var layers = document.querySelectorAll('.parallax-layer')
-            var scrolled = window.pageYOffset
-            for (var i = 0; i < layers.length; i++) {
-                var spd = layers[i].dataset.speed
-                layers[i].style.transform = 'translateY(' + (-scrolled * spd) + 'px)'
+            var layers = document.querySelectorAll('.parallax-layer'), s = window.pageYOffset;
+            for (var i = 0; i < layers.length; i++)
+                layers[i].style.transform = 'translateY(' + (-s * layers[i].dataset.speed) + 'px)';
+        });
+    </script>
+
+    <!-- Show avatar if already signed in -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+        initializeApp({
+            apiKey:"AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+            authDomain:"huwsgul-hurgelt.firebaseapp.com",
+            databaseURL:"https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId:"huwsgul-hurgelt",
+            storageBucket:"huwsgul-hurgelt.firebasestorage.app",
+            messagingSenderId:"457877716370",
+            appId:"1:457877716370:web:5bc6e08801e36010c3d54b"
+        });
+
+        const auth = getAuth();
+        onAuthStateChanged(auth, user => {
+            const ball = document.getElementById('profileBall');
+            const photo = document.getElementById('profilePhoto');
+            if (user) {
+                ball.classList.add('signed-in');
+                if (user.photoURL) {
+                    photo.src = user.photoURL;
+                    ball.classList.add('has-photo');
+                } else {
+                    document.querySelector('.profile-icon').textContent =
+                        (user.displayName || user.email || '?')[0].toUpperCase();
+                }
             }
-        })
+        });
     </script>
 </body>
 </html>
