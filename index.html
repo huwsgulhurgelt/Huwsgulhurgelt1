@@ -33,7 +33,7 @@
         .divider-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.25); }
         .section-block .btn { width: 100%; text-align: center; justify-content: center; }
 
-        /* ── Profile ball ── */
+        /* Profile shape */
         .profile-ball {
             position: fixed; top: 20px; right: 20px; z-index: 999;
             width: 46px; height: 46px; border-radius: 50%;
@@ -51,7 +51,7 @@
         .profile-ball.has-photo img { display: block; }
         .profile-ball.has-photo .profile-icon { display: none; }
 
-        /* pulse ring when logged in */
+        /* anime pulse when logged */
         .profile-ball.signed-in::after {
             content: '';
             position: absolute; bottom: 1px; right: 1px;
@@ -73,7 +73,7 @@
         </div>
     </div>
 
-    <!-- Profile ball — top right, links to account page -->
+    <!-- Profile ball connect -->
     <a href="account.html" class="profile-ball" id="profileBall" title="Миний бүртгэл">
         <img id="profilePhoto" src="" alt="">
         <span class="profile-icon">👤</span>
@@ -115,7 +115,7 @@
         });
     </script>
 
-    <!-- Show avatar if already signed in -->
+    <!-- Show google or emaol acc icon -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';

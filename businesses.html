@@ -50,7 +50,7 @@
 
         .card-accent { height: 5px; }
 
-        /* ── Carousel ── */
+        /*carouse;*/
         .carousel {
             position: relative; width: 100%; height: 175px; overflow: hidden;
             background: rgba(255,255,255,0.07);
@@ -71,7 +71,7 @@
             font-size: 3rem;
         }
 
-        /* Prev / Next arrows */
+        /* umnuh daraah sumnuud */
         .carousel-btn {
             position: absolute; top: 50%; transform: translateY(-50%);
             width: 32px; height: 32px; border-radius: 50%;
@@ -87,7 +87,7 @@
         .carousel-btn:hover { background: rgba(255,255,255,0.95); transform: translateY(-50%) scale(1.1); }
         .carousel-btn.prev { left: 8px; }
         .carousel-btn.next { right: 8px; }
-        /* always show on touch devices */
+        /* touchdevice render alwaus */
         @media (hover: none) { .carousel-btn { opacity: 1; } }
 
         /* Dots */
@@ -106,7 +106,7 @@
             transform: scale(1.25);
         }
 
-        /* Counter badge (only when >1 photo) */
+        /* Counter badge ( >1 ) */
         .carousel-counter {
             position: absolute; top: 8px; right: 8px; z-index: 2;
             background: rgba(0,0,0,0.38); backdrop-filter: blur(4px);
@@ -227,7 +227,7 @@
                 layers[i].style.transform = 'translateY(' + (-s * layers[i].dataset.speed) + 'px)';
         });
 
-        /* ── Map ── */
+        /* Map*/
         function parseLatLng(url) {
             if (!url) return null;
             var pats = [/@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,/[?&]q=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,/[?&]ll=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,/[?&]query=(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/];
@@ -266,18 +266,18 @@
         document.getElementById('mapOverlay').addEventListener('click',function(e){if(e.target===this)closeBizMap();});
         document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBizMap();});
 
-        /* ══════════════════════════════════════════════════════════════════════
-           БИЗНЕС ЖАГСААЛТ — ЭНД ЗАСНА
+        /* 
+           biznes jagsaalyt zasah
 
-           photos талбар нь зургуудын массив:
-             photos: ["url1", "url2", "url3"]   ← олон зураг (carousel)
-             photos: ["url1"]                    ← нэг зураг
-             photos: []                          ← зураггүй (emoji харуулна)
+           photos tailbar zueguudiin massive:
+             photos: ["url1", "url2", "url3"]   ← olon zurag (carousel)
+             photos: ["url1"]                    ← neg zurag
+             photos: []                          ← zuraggyu (emoji haruulna)
 
-           Хуучин photoUrl талбар ч ажиллана (нэг зураг).
+           huucin photio url tailbar ajillan (gants zurag).
 
-           НЭМЭХ: {} блок нэмнэ   |   УСТГАХ: тухайн блокийг устгана
-        ══════════════════════════════════════════════════════════════════════ */
+           nemeh: {} block nemn   |   ustgah tuhain blockiig ustgana
+         */
         var BUSINESSES = [
             {
                 name: "yamarch muu iumgui mash sain restoran",
@@ -289,8 +289,7 @@
                 mapUrl: "https://www.google.com/maps?q=49.6356,100.1614",
                 photos: [
                     "Pictures/e25ff237663f4c0e1a03faa1e7bfc2c2.jpg",
-                    /* нэмэлт зураг байвал энд нэмнэ: */
-                    /* "Pictures/photo2.jpg", */
+                    
                 ],
             },
             {
@@ -303,12 +302,12 @@
                 mapUrl: "https://maps.app.goo.gl/s5cRkxPpe3dpwYU77",
                 photos: [
                     "Pictures/png-clipart-yellow-emoji-drawing-emoji-discord-meme-android-imgur-thinking-orange-people.png",
-                    /* "Pictures/photo2.jpg", */
+                    
                 ],
             },
 
             /*
-            ── ШИНЭ БИЗНЕС НЭМЭХ ──────────────────────────────────────────────
+            =========================================ШИНЭ БИЗНЕС НЭМЭХ =======================================================
             {
                 name: "",
                 category: "",        // restaurant / bakery / gym / carwash / carfix / salon / shop / other
@@ -323,10 +322,10 @@
                     "https://example.com/photo3.jpg",
                 ],
             },
-            ────────────────────────────────────────────────────────────────── */
+            ================================================================================================================*/
         ];
 
-        /* ── Carousel builder ── */
+        /* Carousel builder*/
         var AUTO_INTERVAL = 3500; // ms between auto-slides
 
         function buildCarousel(photos, catIcon) {
@@ -363,7 +362,7 @@
             counter.textContent = '1 / ' + imgs.length;
             el.appendChild(counter);
 
-            // Dots
+            // Duts
             var dotsWrap = document.createElement('div');
             dotsWrap.className = 'carousel-dots';
             var dots = [];
@@ -375,7 +374,7 @@
             });
             el.appendChild(dotsWrap);
 
-            // Prev / Next buttons
+            // Previous next butob
             var prevBtn = document.createElement('button');
             prevBtn.className = 'carousel-btn prev';
             prevBtn.innerHTML = '&#8249;'; // ‹
@@ -385,7 +384,7 @@
             el.appendChild(prevBtn);
             el.appendChild(nextBtn);
 
-            // State
+            // Stat
             var current = 0;
             var timer = null;
 
@@ -413,7 +412,7 @@
                 d.addEventListener('click', function(e){ e.stopPropagation(); goTo(i); resetAuto(); });
             });
 
-            // Touch swipe support
+            // swipe
             var touchStartX = 0;
             el.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
             el.addEventListener('touchend', function(e){
@@ -425,7 +424,7 @@
             return el;
         }
 
-        /* ── Render ── */
+        /*Render */
         var CAT_LABELS = { restaurant:'🍽️ Ресторан', bakery:'🍞 Нарийн боов', gym:'💪 Фитнесс', carwash:'🚿 Авто угаалга', carfix:'🔧 Авто засвар', salon:'💈 Гоо сайхан', shop:'🏪 Дэлгүүр', other:'📦 Бусад' };
         var CAT_ICONS  = { restaurant:'🍽️', bakery:'🍞', gym:'💪', carwash:'🚿', carfix:'🔧', salon:'💈', shop:'🏪', other:'📦' };
 
@@ -452,19 +451,19 @@
                 var color = b.color||'#667eea';
                 var icon  = CAT_ICONS[b.category]||'📦';
 
-                // Support both old photoUrl string and new photos array
+                // Support both old n new photos arreu
                 var photos = b.photos || (b.photoUrl ? [b.photoUrl] : []);
 
                 var card = document.createElement('div');
                 card.className = 'biz-card';
 
-                // Accent bar
+                // Accent bae
                 var accent = document.createElement('div');
                 accent.className = 'card-accent';
                 accent.style.background = color;
                 card.appendChild(accent);
 
-                // Carousel
+                //
                 card.appendChild(buildCarousel(photos, icon));
 
                 // Body
@@ -484,7 +483,7 @@
                     '</div>';
                 card.appendChild(body);
 
-                // Map button closure
+                // gazriin zurag towch haah
                 (function(n,c,u){ card.querySelector('[data-map]').addEventListener('click',function(){openMap(n,c,u);}); })(b.name,color,b.mapUrl||'');
 
                 grid.appendChild(card);

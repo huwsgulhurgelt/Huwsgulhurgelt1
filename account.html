@@ -254,8 +254,8 @@
             const listEl = document.getElementById('postsList');
             listEl.innerHTML = '<div class="posts-empty">Уншиж байна...</div>';
 
-            // With carriers/{uid} structure, just read the single node directly.
-            // No need for a query — uid IS the key.
+            
+            // No for a query uid IS the key.
             onValue(ref(db, 'carriers/' + uid), snap => {
                 if (!snap.exists()) {
                     listEl.innerHTML = '<div class="posts-empty">Одоогоор пост байхгүй байна.<br>Хүргэгч бүртгүүлэх хэсгээс нэмнэ үү.</div>';
@@ -279,7 +279,7 @@
                 `;
                 div.querySelector('.post-delete').addEventListener('click', async function() {
                     if (!confirm('Энэ постыг устгах уу?')) return;
-                    // Only ever delete the current user's own node
+                    // Only delete users node
                     const currentUser = auth.currentUser;
                     if (!currentUser) return;
                     await remove(ref(db, 'carriers/' + currentUser.uid));
@@ -288,7 +288,7 @@
             });
         }
 
-        // Sign out — optionally delete post first
+        // Sign outt option delete
         document.getElementById('signOutBtn').addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) return;
@@ -299,7 +299,7 @@
             await signOut(auth);
         });
 
-        // Google sign in
+        // Google signin
         document.getElementById('googleBtn').addEventListener('click', async function() {
             this.disabled = true;
             this.textContent = '⏳ Нэвтэрч байна...';
