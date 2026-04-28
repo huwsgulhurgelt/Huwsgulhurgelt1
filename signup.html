@@ -6,7 +6,6 @@
     <title>Хүргэгч бүртгэл - Мөрөн</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Auth wall */
         .auth-wall {
             max-width: 400px; margin: 0 auto;
             background: rgba(255,255,255,0.2);
@@ -25,12 +24,8 @@
             font-family: inherit; transition: all 0.22s;
         }
         .google-btn:hover { background: #fff; transform: translateY(-2px); }
-        .go-account {
-            font-size: 0.85rem; opacity: 0.6;
-        }
+        .go-account { font-size: 0.85rem; opacity: 0.6; }
         .go-account a { color: inherit; font-weight: 800; }
-
-        /* Signed-in bar */
         .user-bar {
             display: flex; align-items: center; gap: 12px;
             background: rgba(255,255,255,0.15);
@@ -54,8 +49,15 @@
             color: inherit; transition: background 0.2s;
         }
         .user-bar-signout:hover { background: rgba(255,80,80,0.15); border-color: rgba(255,80,80,0.3); color: #ff5050; }
-
         .hidden { display: none !important; }
+        /* existing post notice */
+        .existing-notice {
+            background: rgba(255,200,60,0.18);
+            border: 1.5px solid rgba(255,200,60,0.35);
+            border-radius: 12px; padding: 12px 16px;
+            font-size: 0.88rem; font-weight: 700;
+            margin-bottom: 10px; text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -99,11 +101,15 @@
         <!-- Actual form (shown when signed in) -->
         <div id="formWrap" class="hidden">
 
-            <!-- who's signed in -->
             <div class="user-bar">
                 <div class="user-bar-avatar" id="barAvatar">👤</div>
                 <div class="user-bar-name" id="barName">—</div>
                 <button class="user-bar-signout" id="barSignout">Гарах</button>
+            </div>
+
+            <!-- shown when user already has a post -->
+            <div id="existingNotice" class="existing-notice hidden">
+                ⚠️ Та аль хэдийн пост бүртгүүлсэн байна. Доорх маягтаар шинэчлэх боломжтой.
             </div>
 
             <main class="form-container">
@@ -123,11 +129,11 @@
                     </div>
                     <div class="form-group">
                         <label for="description">Юу хүргэж чадах вэ?</label>
-                        <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." required></textarea>
+                        <textarea id="description" rows="4" placeholder="Жишээ нь: Хүнс, эм, хувцас гэх мэт..." maxlength="500" required></textarea>
                     </div>
                     <div class="form-group">
                         <label>Хэдэн кг хүртэл? (<span id="weightValue">5</span> кг)</label>
-                        <input type="range" id="weight" min="1" max="100" value="5" class="weight-slider">
+                        <input type="range" id="weight" min="1" max="100" value="5" step="1" class="weight-slider">
                     </div>
                     <div class="form-group">
                         <label>Хүргэлт хийх боломжтой өдрүүд</label>
@@ -141,7 +147,7 @@
                             <label class="day-checkbox"><input type="checkbox" name="days" value="Ням"     checked><span>Ням</span></label>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-submit">Бүртгүүлэх</button>
+                    <button type="submit" class="btn btn-submit" id="submitBtn">Бүртгүүлэх</button>
                 </form>
             </main>
         </div>
@@ -158,47 +164,74 @@
         document.getElementById('weight').oninput = function() {
             document.getElementById('weightValue').textContent = this.value;
         };
-        var phoneInput = document.getElementById('phone');
-        phoneInput.addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g,'');
+        document.getElementById('phone').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
         });
         document.getElementById('carNumber').addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g,'').slice(0,4);
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
         });
         document.getElementById('carLetters').addEventListener('input', function(e) {
-            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g,'').slice(0,3);
+            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
         });
     </script>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut }
             from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
         const app = initializeApp({
-            apiKey:"AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-            authDomain:"huwsgul-hurgelt.firebaseapp.com",
-            databaseURL:"https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId:"huwsgul-hurgelt",
-            storageBucket:"huwsgul-hurgelt.firebasestorage.app",
-            messagingSenderId:"457877716370",
-            appId:"1:457877716370:web:5bc6e08801e36010c3d54b"
+            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+            authDomain: "huwsgul-hurgelt.firebaseapp.com",
+            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "huwsgul-hurgelt",
+            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+            messagingSenderId: "457877716370",
+            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
         });
 
         const auth     = getAuth(app);
         const db       = getDatabase(app);
         const provider = new GoogleAuthProvider();
 
-        onAuthStateChanged(auth, user => {
+        // Cooldown: prevent re-submitting within 10 seconds
+        let lastSubmit = 0;
+        const COOLDOWN_MS = 10000;
+
+        onAuthStateChanged(auth, async user => {
             if (user) {
                 document.getElementById('authWall').classList.add('hidden');
                 document.getElementById('formWrap').classList.remove('hidden');
-                // Fill user bar
                 document.getElementById('barName').textContent = user.displayName || user.email || 'Хэрэглэгч';
                 const av = document.getElementById('barAvatar');
                 if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}" alt="">`;
                 else av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
+
+                // Check if user already has a post and pre-fill the form
+                const snap = await get(ref(db, 'carriers/' + user.uid));
+                if (snap.exists()) {
+                    document.getElementById('existingNotice').classList.remove('hidden');
+                    document.getElementById('submitBtn').textContent = 'Шинэчлэх';
+                    const c = snap.val();
+                    if (c.phone) document.getElementById('phone').value = c.phone;
+                    if (c.description) document.getElementById('description').value = c.description;
+                    if (c.maxWeight) {
+                        document.getElementById('weight').value = c.maxWeight;
+                        document.getElementById('weightValue').textContent = c.maxWeight;
+                    }
+                    if (c.carPlate) {
+                        const numPart = c.carPlate.match(/^\d+/)?.[0] || '';
+                        const letPart = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
+                        document.getElementById('carNumber').value = numPart;
+                        document.getElementById('carLetters').value = letPart;
+                    }
+                    if (c.days && Array.isArray(c.days)) {
+                        document.querySelectorAll('input[name="days"]').forEach(cb => {
+                            cb.checked = c.days.includes(cb.value);
+                        });
+                    }
+                }
             } else {
                 document.getElementById('authWall').classList.remove('hidden');
                 document.getElementById('formWrap').classList.add('hidden');
@@ -216,40 +249,58 @@
 
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // Always read UID fresh from auth — never from a variable or input
             const user = auth.currentUser;
             if (!user) { alert('Эхлээд нэвтэрнэ үү!'); return; }
 
-            const phone  = document.getElementById('phone').value.trim();
-            const carNum = document.getElementById('carNumber').value.trim();
-            const carLet = document.getElementById('carLetters').value.trim();
-            const desc   = document.getElementById('description').value.trim();
-            const weight = Number(document.getElementById('weight').value);
+            // Cooldown check
+            const now = Date.now();
+            if (now - lastSubmit < COOLDOWN_MS) {
+                const wait = Math.ceil((COOLDOWN_MS - (now - lastSubmit)) / 1000);
+                alert(`${wait} секунд хүлээнэ үү.`);
+                return;
+            }
+
+            // Read and sanitize inputs
+            const phone  = document.getElementById('phone').value.trim().replace(/\D/g, '');
+            const carNum = document.getElementById('carNumber').value.trim().replace(/\D/g, '');
+            const carLet = document.getElementById('carLetters').value.trim().toUpperCase().replace(/[^А-ЯӨҮ]/g, '');
+            const desc   = document.getElementById('description').value.trim().slice(0, 500);
+            const weight = Math.min(100, Math.max(1, parseInt(document.getElementById('weight').value, 10)));
             const days   = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
 
+            // Validate
             if (!phone || !desc || !carNum || !carLet) { alert('Бүх талбарыг бөглөнө үү!'); return; }
-            if (phone.length  !== 8) { alert('Утасны дугаар 8 орон!'); return; }
-            if (carNum.length !== 4) { alert('Машины дугаар 4 орон!'); return; }
-            if (carLet.length !== 3) { alert('Машины үсэг 3 үсэг!'); return; }
-            if (!days.length)        { alert('Наад зах нь нэг өдөр сонго!'); return; }
+            if (phone.length  !== 8)  { alert('Утасны дугаар яг 8 орон байх ёстой!'); return; }
+            if (carNum.length !== 4)  { alert('Машины дугаар яг 4 цифр байх ёстой!'); return; }
+            if (carLet.length !== 3)  { alert('Машины үсэг яг 3 үсэг байх ёстой!'); return; }
+            if (!days.length)         { alert('Наад зах нь нэг өдөр сонго!'); return; }
 
             const btn = this.querySelector('button[type="submit"]');
-            btn.disabled = true; btn.textContent = 'Хадгалж байна...';
+            btn.disabled = true;
+            btn.textContent = 'Хадгалж байна...';
 
             try {
-                await push(ref(db, 'carriers'), {
-                    uid: user.uid,
-                    phone, carPlate: carNum + carLet,
-                    description: desc, maxWeight: weight,
-                    days, timestamp: Date.now()
+                // SECURITY: write to carriers/{uid} — path key IS the uid.
+                // The database rules enforce auth.uid === $uid, so UID tampering
+                // is impossible regardless of what the client sends.
+                await set(ref(db, 'carriers/' + user.uid), {
+                    phone,
+                    carPlate:    carNum + carLet,
+                    description: desc,
+                    maxWeight:   weight,
+                    days,
+                    timestamp:   Date.now()
                 });
-                alert('Амжилттай бүртгэгдлээ!');
-                this.reset();
-                document.getElementById('weightValue').textContent = 5;
-                document.querySelectorAll('input[name="days"]').forEach(cb => cb.checked = true);
+                lastSubmit = Date.now();
+                alert('Амжилттай хадгаллаа!');
             } catch(err) {
                 alert('Алдаа гарлаа: ' + err.message);
             } finally {
-                btn.disabled = false; btn.textContent = 'Бүртгүүлэх';
+                btn.disabled = false;
+                btn.textContent = document.getElementById('existingNotice').classList.contains('hidden')
+                    ? 'Бүртгүүлэх' : 'Шинэчлэх';
             }
         });
     </script>
