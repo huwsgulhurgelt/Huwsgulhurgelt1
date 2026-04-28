@@ -8,14 +8,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         .carrier-plate { font-size:1.1rem; font-weight:700; color:#f0a500; margin-bottom:10px; font-family:'Courier New',monospace; letter-spacing:2px; }
-
-        /* Map FAB */
         .map-fab { position:fixed; bottom:36px; right:36px; z-index:999; width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.75); backdrop-filter:blur(12px); border:2px solid rgba(255,255,255,0.6); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.6rem; box-shadow:0 8px 30px rgba(0,0,0,0.14); transition:transform .3s cubic-bezier(.175,.885,.32,1.275),box-shadow .3s; }
         .map-fab:hover { transform:scale(1.12) translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,0.2); background:rgba(255,255,255,0.95); }
         .map-fab::after { content:''; position:absolute; inset:-4px; border-radius:50%; border:2px solid rgba(0,0,0,0.1); animation:fab-pulse 2.5s ease-out infinite; }
         @keyframes fab-pulse { 0%{transform:scale(1);opacity:.8} 70%{transform:scale(1.35);opacity:0} 100%{transform:scale(1.35);opacity:0} }
-
-        /* Map overlay */
         .map-overlay { display:none; position:fixed; inset:0; z-index:1500; background:rgba(0,0,0,0.3); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:20px; }
         .map-overlay.active { display:flex; }
         .map-panel { width:100%; max-width:860px; height:min(600px,85vh); border-radius:24px; overflow:hidden; border:2px solid rgba(255,255,255,0.55); box-shadow:0 30px 80px rgba(0,0,0,0.18); display:flex; flex-direction:column; animation:panelIn .35s cubic-bezier(.175,.885,.32,1.275); background:rgba(255,255,255,0.88); backdrop-filter:blur(24px); }
@@ -35,7 +31,6 @@
         .map-hint { padding:9px 20px; background:rgba(255,255,255,0.55); color:#888; font-size:.8rem; text-align:center; border-top:1.5px solid rgba(0,0,0,0.06); flex-shrink:0; }
         .map-hint strong { color:#444; }
         .user-dot { width:16px; height:16px; background:#43b97b; border-radius:50%; border:3px solid white; box-shadow:0 0 0 5px rgba(67,185,123,0.25); }
-        /* Light Leaflet */
         .leaflet-container { background:#e8e4db !important; }
         .leaflet-control-zoom a { background:rgba(255,255,255,0.92) !important; color:#333 !important; border-color:rgba(0,0,0,0.12) !important; font-weight:700 !important; }
         .leaflet-control-zoom a:hover { background:#fff !important; }
@@ -43,20 +38,8 @@
         .leaflet-control-attribution a { color:#555 !important; }
         .leaflet-popup-content-wrapper { border-radius:14px !important; box-shadow:0 8px 30px rgba(0,0,0,0.14) !important; border:1.5px solid rgba(0,0,0,0.07) !important; }
         .leaflet-popup-tip { background:white !important; }
-
-        /* "Your post" badge */
-        .own-badge {
-            display: inline-block; font-size: 0.72rem; font-weight: 800;
-            background: rgba(67,185,123,0.2); color: #2a8a55;
-            border: 1px solid rgba(67,185,123,0.35);
-            border-radius: 20px; padding: 2px 9px; margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        @media (max-width:600px) {
-            .map-fab { bottom:24px; right:20px; width:56px; height:56px; font-size:1.4rem; }
-            .map-panel { height:min(500px,88vh); border-radius:18px; }
-        }
+        .own-badge { display:inline-block; font-size:0.72rem; font-weight:800; background:rgba(67,185,123,0.2); color:#2a8a55; border:1px solid rgba(67,185,123,0.35); border-radius:20px; padding:2px 9px; margin-left:8px; vertical-align:middle; }
+        @media (max-width:600px) { .map-fab { bottom:24px; right:20px; width:56px; height:56px; font-size:1.4rem; } .map-panel { height:min(500px,88vh); border-radius:18px; } }
     </style>
 </head>
 <body>
@@ -103,14 +86,14 @@
     </div>
 
     <!-- Edit Modal -->
-    <div id="editModel" class="model" style="display:none;">
+    <div id="editModal" class="model" style="display:none;">
         <div class="model-content">
             <div class="model-header">
                 <h2>Мэдээлэл засах</h2>
-                <span class="close-model" onclick="closeEditModel()">&times;</span>
+                <span class="close-model" onclick="closeEditModal()">&times;</span>
             </div>
             <form id="editForm">
-                <div class="form-group"><label>Утасны дугаар</label><input type="tel" id="editPhone" required></div>
+                <div class="form-group"><label>Утасны дугаар</label><input type="tel" id="editPhone" maxlength="8" required></div>
                 <div class="form-group">
                     <label>Машины дугаар</label>
                     <div class="car-number-container">
@@ -118,10 +101,10 @@
                         <input type="text" id="editCarLetters" class="car-letters-input" placeholder="ХӨВ" maxlength="3">
                     </div>
                 </div>
-                <div class="form-group"><label>Юу хүргэж чадах вэ?</label><textarea id="editDescription" rows="4" required></textarea></div>
+                <div class="form-group"><label>Юу хүргэж чадах вэ?</label><textarea id="editDescription" rows="4" maxlength="500" required></textarea></div>
                 <div class="form-group">
                     <label>Хэдэн кг хүртэл? (<span id="editWeightValue">10</span> кг)</label>
-                    <input type="range" id="editWeight" min="1" max="100" value="10" class="weight-slider">
+                    <input type="range" id="editWeight" min="1" max="100" value="10" step="1" class="weight-slider">
                 </div>
                 <div class="form-group">
                     <label>Хүргэлт хийх боломжтой өдрүүд</label>
@@ -136,7 +119,7 @@
                     </div>
                 </div>
                 <div class="model-actions">
-                    <button type="button" class="btn-cancel" onclick="closeEditModel()">Болих</button>
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Болих</button>
                     <button type="submit" class="btn-submit">Хадгалах</button>
                 </div>
             </form>
@@ -182,44 +165,55 @@
 
     <script type="module">
         import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getDatabase, ref, onValue, remove, set } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
         const app = initializeApp({
-            apiKey:"AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-            authDomain:"huwsgul-hurgelt.firebaseapp.com",
-            databaseURL:"https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId:"huwsgul-hurgelt",
-            storageBucket:"huwsgul-hurgelt.firebasestorage.app",
-            messagingSenderId:"457877716370",
-            appId:"1:457877716370:web:5bc6e08801e36010c3d54b"
+            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+            authDomain: "huwsgul-hurgelt.firebaseapp.com",
+            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "huwsgul-hurgelt",
+            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+            messagingSenderId: "457877716370",
+            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
         });
 
         const db   = getDatabase(app);
         const auth = getAuth(app);
 
         let currentUid = null;
-        let allCarriers = {}, filteredCarriers = {}, currentEditId = null;
+        let allCarriers = {}, filteredCarriers = {};
 
-        const container    = document.getElementById('carriersContainer');
-        const searchInput  = document.getElementById('searchInput');
-        const searchStats  = document.getElementById('searchStats');
-        const editModel    = document.getElementById('editModel');
-        const editForm     = document.getElementById('editForm');
+        const container   = document.getElementById('carriersContainer');
+        const searchInput = document.getElementById('searchInput');
+        const searchStats = document.getElementById('searchStats');
+        const editModal   = document.getElementById('editModal');
+        const editForm    = document.getElementById('editForm');
         const weightSlider = document.getElementById('editWeight');
         const weightValue  = document.getElementById('editWeightValue');
 
-        weightSlider.addEventListener('input', e => { weightValue.textContent = e.target.value; });
-        document.getElementById('editCarLetters').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g,'').slice(0,3); });
-        document.getElementById('editCarNumber').addEventListener('input',  e => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,4); });
+        // Cooldown for edit saves
+        let lastSave = 0;
+        const COOLDOWN_MS = 5000;
 
-        // Track auth state — re-render cards when user signs in/out
+        weightSlider.addEventListener('input', e => { weightValue.textContent = e.target.value; });
+        document.getElementById('editCarLetters').addEventListener('input', e => {
+            e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
+        });
+        document.getElementById('editCarNumber').addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+        });
+        document.getElementById('editPhone').addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
         onAuthStateChanged(auth, user => {
             currentUid = user ? user.uid : null;
             renderCarriers(filteredCarriers);
         });
 
-        onValue(ref(db,'carriers'), snap => {
+        // carriers/{uid} — each key in the snapshot IS the owner's uid
+        onValue(ref(db, 'carriers'), snap => {
             allCarriers = snap.exists() ? snap.val() : {};
             applyFilter();
         });
@@ -229,10 +223,10 @@
         function applyFilter(term) {
             term = term || searchInput.value.toLowerCase().trim();
             filteredCarriers = !term ? { ...allCarriers } : Object.fromEntries(
-                Object.entries(allCarriers).filter(([,c]) =>
-                    (c.phone||'').toLowerCase().includes(term) ||
-                    (c.description||'').toLowerCase().includes(term) ||
-                    (c.days||[]).join(' ').toLowerCase().includes(term)
+                Object.entries(allCarriers).filter(([, c]) =>
+                    (c.phone || '').toLowerCase().includes(term) ||
+                    (c.description || '').toLowerCase().includes(term) ||
+                    (c.days || []).join(' ').toLowerCase().includes(term)
                 )
             );
             renderCarriers(filteredCarriers);
@@ -242,80 +236,126 @@
                 : `Нийт ${total} хүргэгч`;
         }
 
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
         function renderCarriers(carriers) {
             container.innerHTML = '';
             const keys = Object.keys(carriers);
-            if (!keys.length) { container.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>'; return; }
-            keys.forEach(id => {
-                const c   = carriers[id];
-                const own = currentUid && c.uid === currentUid;
+            if (!keys.length) {
+                container.innerHTML = '<div class="no-data">Хайлтад тохирох хүргэгч олдсонгүй</div>';
+                return;
+            }
+            keys.forEach(uid => {
+                const c   = carriers[uid];
+                // The key IS the uid — no uid field needed in the data
+                const own = currentUid && uid === currentUid;
                 const card = document.createElement('div');
                 card.className = 'carrier-card';
                 card.innerHTML = `
                     <div class="card-content">
                         <div class="carrier-phone">
-                            ${c.phone}
+                            ${escapeHtml(c.phone)}
                             ${own ? '<span class="own-badge">✓ Миний пост</span>' : ''}
                         </div>
-                        ${c.carPlate ? `<div class="carrier-plate">🚗 ${c.carPlate}</div>` : ''}
-                        <div class="carrier-description">${c.description}</div>
+                        ${c.carPlate ? `<div class="carrier-plate">🚗 ${escapeHtml(c.carPlate)}</div>` : ''}
+                        <div class="carrier-description">${escapeHtml(c.description)}</div>
                         <div class="carrier-meta">
-                            <span class="carrier-days">📅 ${(c.days||[]).join(', ') || '—'}</span>
-                            ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${c.maxWeight} кг</span>` : ''}
+                            <span class="carrier-days">📅 ${(c.days || []).map(escapeHtml).join(', ') || '—'}</span>
+                            ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${escapeHtml(String(c.maxWeight))} кг</span>` : ''}
                         </div>
                     </div>
                     ${own ? `
                     <div class="card-actions">
-                        <button class="btn-small btn-edit"   onclick="window._edit('${id}')">✏️ Засах</button>
-                        <button class="btn-small btn-delete" onclick="window._delete('${id}')">🗑️ Устгах</button>
+                        <button class="btn-small btn-edit"   data-uid="${escapeHtml(uid)}">✏️ Засах</button>
+                        <button class="btn-small btn-delete" data-uid="${escapeHtml(uid)}">🗑️ Устгах</button>
                     </div>` : ''}
                 `;
+                if (own) {
+                    card.querySelector('.btn-edit').addEventListener('click',   () => openEdit(uid));
+                    card.querySelector('.btn-delete').addEventListener('click', () => deletePost(uid));
+                }
                 container.appendChild(card);
             });
         }
 
-        window._edit = function(id) {
-            if (!currentUid || allCarriers[id]?.uid !== currentUid) return;
-            currentEditId = id;
-            const c = allCarriers[id];
+        function openEdit(uid) {
+            // Double-check ownership before opening
+            if (!currentUid || uid !== currentUid) return;
+            const c = allCarriers[uid];
+            if (!c) return;
             document.getElementById('editPhone').value       = c.phone || '';
             document.getElementById('editDescription').value = c.description || '';
             weightSlider.value      = c.maxWeight || 10;
             weightValue.textContent = c.maxWeight || 10;
-            document.getElementById('editCarNumber').value  = (c.carPlate||'').match(/^\d+/)?.[0]             || '';
-            document.getElementById('editCarLetters').value = (c.carPlate||'').match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
-            document.querySelectorAll('input[name="editDays"]').forEach(cb => { cb.checked = (c.days||[]).includes(cb.value); });
-            editModel.style.display = 'block';
+            document.getElementById('editCarNumber').value  = (c.carPlate || '').match(/^\d+/)?.[0]             || '';
+            document.getElementById('editCarLetters').value = (c.carPlate || '').match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
+            document.querySelectorAll('input[name="editDays"]').forEach(cb => {
+                cb.checked = (c.days || []).includes(cb.value);
+            });
+            editModal.style.display = 'block';
             document.body.style.overflow = 'hidden';
-        };
+        }
 
-        window._delete = async function(id) {
-            if (!currentUid || allCarriers[id]?.uid !== currentUid) return;
+        async function deletePost(uid) {
+            // Ownership check — also enforced server-side by rules
+            if (!currentUid || uid !== currentUid) return;
             if (!confirm('Энэ постыг устгах уу?')) return;
-            await remove(ref(db, 'carriers/' + id));
-        };
+            await remove(ref(db, 'carriers/' + uid));
+        }
 
-        window.closeEditModel = function() {
-            editModel.style.display = 'none';
+        window.closeEditModal = function() {
+            editModal.style.display = 'none';
             document.body.style.overflow = 'auto';
-            currentEditId = null;
             editForm.reset();
         };
-        window.addEventListener('click', e => { if (e.target === editModel) window.closeEditModel(); });
+        window.addEventListener('click', e => { if (e.target === editModal) window.closeEditModal(); });
 
         editForm.addEventListener('submit', async e => {
             e.preventDefault();
-            if (!currentEditId) return;
-            const days = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
-            if (!days.length) { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
-            await update(ref(db, 'carriers/' + currentEditId), {
-                phone:       document.getElementById('editPhone').value.trim(),
-                description: document.getElementById('editDescription').value.trim(),
-                maxWeight:   parseInt(weightSlider.value),
-                days,
-                carPlate:    document.getElementById('editCarNumber').value.trim() + document.getElementById('editCarLetters').value.trim()
-            });
-            window.closeEditModel();
+
+            // Always re-read auth state — never trust a cached id
+            const user = auth.currentUser;
+            if (!user) { alert('Нэвтэрнэ үү!'); return; }
+
+            // Cooldown
+            const now = Date.now();
+            if (now - lastSave < COOLDOWN_MS) {
+                const wait = Math.ceil((COOLDOWN_MS - (now - lastSave)) / 1000);
+                alert(`${wait} секунд хүлээнэ үү.`);
+                return;
+            }
+
+            // Validate and sanitize
+            const phone  = document.getElementById('editPhone').value.trim().replace(/\D/g, '');
+            const carNum = document.getElementById('editCarNumber').value.trim().replace(/\D/g, '');
+            const carLet = document.getElementById('editCarLetters').value.trim().toUpperCase().replace(/[^А-ЯӨҮ]/g, '');
+            const desc   = document.getElementById('editDescription').value.trim().slice(0, 500);
+            const weight = Math.min(100, Math.max(1, parseInt(weightSlider.value, 10)));
+            const days   = Array.from(document.querySelectorAll('input[name="editDays"]:checked')).map(cb => cb.value);
+
+            if (phone.length !== 8)  { alert('Утасны дугаар яг 8 орон байх ёстой!'); return; }
+            if (carNum.length !== 4) { alert('Машины дугаар яг 4 цифр байх ёстой!'); return; }
+            if (carLet.length !== 3) { alert('Машины үсэг яг 3 үсэг байх ёстой!'); return; }
+            if (!desc)               { alert('Тайлбар оруулна уу!'); return; }
+            if (!days.length)        { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
+
+            try {
+                // set() replaces the whole document — no partial uid-field injection possible
+                await set(ref(db, 'carriers/' + user.uid), {
+                    phone,
+                    carPlate:    carNum + carLet,
+                    description: desc,
+                    maxWeight:   weight,
+                    days,
+                    timestamp:   allCarriers[user.uid]?.timestamp || Date.now()
+                });
+                lastSave = Date.now();
+                window.closeEditModal();
+            } catch(err) {
+                alert('Алдаа: ' + err.message);
+            }
         });
     </script>
 </body>
