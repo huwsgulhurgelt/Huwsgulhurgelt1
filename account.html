@@ -6,7 +6,6 @@
     <title>Миний бүртгэл — Мөрөн</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ── Auth box (shown when signed out) ── */
         .auth-box {
             max-width: 400px; margin: 0 auto;
             background: rgba(255,255,255,0.22);
@@ -17,7 +16,6 @@
         }
         .auth-box h2 { font-size: 1.4rem; font-weight: 900; margin-bottom: 4px; }
         .auth-box p  { font-size: 0.9rem; opacity: 0.65; margin-bottom: 8px; }
-
         .google-btn {
             display: flex; align-items: center; justify-content: center; gap: 12px;
             padding: 13px 20px; background: rgba(255,255,255,0.88); color: #333;
@@ -28,15 +26,11 @@
         }
         .google-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,0,0,0.13); }
         .google-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
         .divider-or {
             display: flex; align-items: center; gap: 12px;
             font-size: 0.8rem; opacity: 0.45; font-weight: 700;
         }
-        .divider-or::before, .divider-or::after {
-            content:''; flex:1; height:1px; background: rgba(255,255,255,0.35);
-        }
-
+        .divider-or::before, .divider-or::after { content:''; flex:1; height:1px; background: rgba(255,255,255,0.35); }
         .auth-input {
             width: 100%; padding: 12px 14px;
             background: rgba(255,255,255,0.25);
@@ -46,34 +40,20 @@
         }
         .auth-input::placeholder { opacity: 0.5; }
         .auth-input:focus { outline: none; background: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.7); }
-
         .auth-submit {
             padding: 12px; background: rgba(255,255,255,0.85); color: #111;
             border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 800;
             cursor: pointer; font-family: inherit; transition: all 0.22s;
         }
         .auth-submit:hover { background: #fff; transform: translateY(-2px); }
-
-        .auth-toggle {
-            text-align: center; font-size: 0.85rem; opacity: 0.65;
-        }
+        .auth-toggle { text-align: center; font-size: 0.85rem; opacity: 0.65; }
         .auth-toggle button {
             background: none; border: none; font-weight: 800;
             cursor: pointer; font-family: inherit; color: inherit; opacity: 1;
             text-decoration: underline;
         }
-
-        .auth-err {
-            font-size: 0.82rem; color: #ff6b6b; font-weight: 700;
-            text-align: center; min-height: 18px;
-        }
-
-        /* ── Profile box (shown when signed in) ── */
-        .profile-box {
-            max-width: 480px; margin: 0 auto;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
+        .auth-err { font-size: 0.82rem; color: #ff6b6b; font-weight: 700; text-align: center; min-height: 18px; }
+        .profile-box { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
         .profile-card {
             background: rgba(255,255,255,0.22);
             backdrop-filter: blur(16px);
@@ -90,9 +70,8 @@
         }
         .profile-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
         .profile-info { flex: 1; min-width: 0; }
-        .profile-name { font-size: 1.15rem; font-weight: 900; margin-bottom: 4px; }
+        .profile-name  { font-size: 1.15rem; font-weight: 900; margin-bottom: 4px; }
         .profile-email { font-size: 0.82rem; opacity: 0.6; }
-
         .signout-btn {
             padding: 10px 18px; background: rgba(255,80,80,0.18);
             border: 1.5px solid rgba(255,80,80,0.3); color: #ff5050;
@@ -101,8 +80,6 @@
             white-space: nowrap; flex-shrink: 0;
         }
         .signout-btn:hover { background: rgba(255,80,80,0.28); transform: translateY(-1px); }
-
-        /* ── Posts section ── */
         .posts-section {
             background: rgba(255,255,255,0.16);
             backdrop-filter: blur(14px);
@@ -114,7 +91,6 @@
             letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55;
             border-bottom: 1.5px solid rgba(255,255,255,0.15);
         }
-
         .post-item {
             display: flex; align-items: center; gap: 14px;
             padding: 16px 22px;
@@ -123,12 +99,10 @@
         }
         .post-item:last-child { border-bottom: none; }
         .post-item:hover { background: rgba(255,255,255,0.08); }
-
         .post-icon { font-size: 1.5rem; flex-shrink: 0; }
         .post-info { flex: 1; min-width: 0; }
         .post-phone { font-size: 1rem; font-weight: 800; }
         .post-meta  { font-size: 0.8rem; opacity: 0.55; margin-top: 2px; }
-
         .post-delete {
             background: rgba(255,80,80,0.12); border: 1.5px solid rgba(255,80,80,0.25);
             color: #ff5050; padding: 7px 12px; border-radius: 8px;
@@ -136,15 +110,10 @@
             font-family: inherit; transition: all 0.2s; flex-shrink: 0;
         }
         .post-delete:hover { background: rgba(255,80,80,0.24); }
-
-        .posts-empty {
-            padding: 32px; text-align: center; opacity: 0.45; font-size: 0.9rem;
-        }
-
+        .posts-empty { padding: 32px; text-align: center; opacity: 0.45; font-size: 0.9rem; }
         .spinner-wrap { display: flex; justify-content: center; padding: 40px; opacity: 0.4; }
         .spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.3); border-top-color: rgba(255,255,255,0.9); border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .hidden { display: none !important; }
     </style>
 </head>
@@ -167,16 +136,12 @@
             <h1>Миний бүртгэл</h1>
         </header>
 
-        <!-- Loading -->
         <div id="loadingView" class="spinner-wrap"><div class="spinner"></div></div>
 
-        <!-- Signed OUT view -->
         <div id="signedOutView" class="hidden">
             <div class="auth-box">
                 <h2>Нэвтрэх</h2>
                 <p>Хүргэгч бүртгүүлэх болон постоо удирдахын тулд нэвтэрнэ үү.</p>
-
-                <!-- Google -->
                 <button class="google-btn" id="googleBtn">
                     <svg width="20" height="20" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -186,18 +151,14 @@
                     </svg>
                     Google-ээр нэвтрэх
                 </button>
-
                 <div class="divider-or">эсвэл и-мэйлээр</div>
-
-                <!-- Email form -->
                 <div id="emailForm" style="display:flex;flex-direction:column;gap:10px;">
                     <input class="auth-input" type="email"    id="authEmail"    placeholder="И-мэйл хаяг">
                     <input class="auth-input" type="password" id="authPassword" placeholder="Нууц үг">
                     <div class="auth-err" id="authErr"></div>
                     <button class="auth-submit" id="emailSignInBtn">Нэвтрэх</button>
-                    <button class="auth-submit" id="emailSignUpBtn" style="background:rgba(255,255,255,0.4);">Бүртгүүлэх</button>
+                    <button class="auth-submit" id="emailSignUpBtn" style="background:rgba(255,255,255,0.4);display:none;">Бүртгүүлэх</button>
                 </div>
-
                 <div class="auth-toggle">
                     <span id="toggleHint">Бүртгэл байхгүй юу? </span>
                     <button id="toggleMode">Бүртгүүлэх</button>
@@ -205,11 +166,8 @@
             </div>
         </div>
 
-        <!-- Signed IN view -->
         <div id="signedInView" class="hidden">
             <div class="profile-box">
-
-                <!-- Profile card -->
                 <div class="profile-card">
                     <div class="profile-avatar" id="avatarEl">👤</div>
                     <div class="profile-info">
@@ -218,13 +176,10 @@
                     </div>
                     <button class="signout-btn" id="signOutBtn">Гарах</button>
                 </div>
-
-                <!-- My posts -->
                 <div class="posts-section">
                     <div class="posts-header">🚚 Миний постууд</div>
                     <div id="postsList"><div class="posts-empty">Уншиж байна...</div></div>
                 </div>
-
             </div>
         </div>
 
@@ -241,7 +196,7 @@
 
     <script type="module">
         import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, remove, query, orderByChild, equalTo }
+        import { getDatabase, ref, onValue, remove }
             from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
         import {
             getAuth, onAuthStateChanged,
@@ -251,13 +206,13 @@
         } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
         const app = initializeApp({
-            apiKey:"AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
-            authDomain:"huwsgul-hurgelt.firebaseapp.com",
-            databaseURL:"https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId:"huwsgul-hurgelt",
-            storageBucket:"huwsgul-hurgelt.firebasestorage.app",
-            messagingSenderId:"457877716370",
-            appId:"1:457877716370:web:5bc6e08801e36010c3d54b"
+            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+            authDomain: "huwsgul-hurgelt.firebaseapp.com",
+            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "huwsgul-hurgelt",
+            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+            messagingSenderId: "457877716370",
+            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
         });
 
         const auth     = getAuth(app);
@@ -268,24 +223,22 @@
         const signedOutView = document.getElementById('signedOutView');
         const signedInView  = document.getElementById('signedInView');
 
-        function show(el)  { el.classList.remove('hidden'); }
-        function hide(el)  { el.classList.add('hidden'); }
+        function show(el) { el.classList.remove('hidden'); }
+        function hide(el) { el.classList.add('hidden'); }
 
-        // ── Auth state ──
         onAuthStateChanged(auth, user => {
             hide(loadingView);
             if (user) {
                 hide(signedOutView);
                 show(signedInView);
                 renderProfile(user);
-                loadMyPosts(user.uid);
+                loadMyPost(user.uid);
             } else {
                 hide(signedInView);
                 show(signedOutView);
             }
         });
 
-        // ── Render profile ──
         function renderProfile(user) {
             document.getElementById('profileName').textContent  = user.displayName || 'Хэрэглэгч';
             document.getElementById('profileEmail').textContent = user.email || '';
@@ -297,62 +250,56 @@
             }
         }
 
-        // ── Load user's own posts ──
-        function loadMyPosts(uid) {
+        function loadMyPost(uid) {
             const listEl = document.getElementById('postsList');
             listEl.innerHTML = '<div class="posts-empty">Уншиж байна...</div>';
 
-            const q = query(ref(db, 'carriers'), orderByChild('uid'), equalTo(uid));
-            onValue(q, snap => {
+            // With carriers/{uid} structure, just read the single node directly.
+            // No need for a query — uid IS the key.
+            onValue(ref(db, 'carriers/' + uid), snap => {
                 if (!snap.exists()) {
                     listEl.innerHTML = '<div class="posts-empty">Одоогоор пост байхгүй байна.<br>Хүргэгч бүртгүүлэх хэсгээс нэмнэ үү.</div>';
                     return;
                 }
+                const c = snap.val();
                 listEl.innerHTML = '';
-                snap.forEach(child => {
-                    const c  = child.val();
-                    const id = child.key;
-                    const div = document.createElement('div');
-                    div.className = 'post-item';
-                    div.innerHTML = `
-                        <div class="post-icon">🚚</div>
-                        <div class="post-info">
-                            <div class="post-phone">${c.phone || '—'}</div>
-                            <div class="post-meta">
-                                ${c.carPlate ? '🚗 ' + c.carPlate + ' · ' : ''}
-                                📅 ${(c.days||[]).join(', ') || '—'} ·
-                                ⚖️ ${c.maxWeight || '?'} кг
-                            </div>
+                const div = document.createElement('div');
+                div.className = 'post-item';
+                div.innerHTML = `
+                    <div class="post-icon">🚚</div>
+                    <div class="post-info">
+                        <div class="post-phone">${c.phone || '—'}</div>
+                        <div class="post-meta">
+                            ${c.carPlate ? '🚗 ' + c.carPlate + ' · ' : ''}
+                            📅 ${(c.days || []).join(', ') || '—'} ·
+                            ⚖️ ${c.maxWeight || '?'} кг
                         </div>
-                        <button class="post-delete" data-id="${id}">🗑️ Устгах</button>
-                    `;
-                    div.querySelector('.post-delete').addEventListener('click', async function() {
-                        const pid = this.dataset.id;
-                        if (!confirm('Энэ постыг устгах уу?')) return;
-                        await remove(ref(db, 'carriers/' + pid));
-                    });
-                    listEl.appendChild(div);
+                    </div>
+                    <button class="post-delete">🗑️ Устгах</button>
+                `;
+                div.querySelector('.post-delete').addEventListener('click', async function() {
+                    if (!confirm('Энэ постыг устгах уу?')) return;
+                    // Only ever delete the current user's own node
+                    const currentUser = auth.currentUser;
+                    if (!currentUser) return;
+                    await remove(ref(db, 'carriers/' + currentUser.uid));
                 });
+                listEl.appendChild(div);
             });
         }
 
-        // ── Sign out (deletes all user's posts first) ──
+        // Sign out — optionally delete post first
         document.getElementById('signOutBtn').addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) return;
-            const confirmed = confirm('Гарахад таны бүх пост устана. Үргэлжлүүлэх үү?');
-            if (!confirmed) return;
-
-            // Delete all posts by this user
-            const q = query(ref(db, 'carriers'), orderByChild('uid'), equalTo(user.uid));
-            const snap = await new Promise(res => onValue(q, res, { onlyOnce: true }));
-            const deletes = [];
-            snap.forEach(child => deletes.push(remove(ref(db, 'carriers/' + child.key))));
-            await Promise.all(deletes);
+            const deletePost = confirm('Гарахдаа постоо устгах уу?\n"Цуцлах" дарвал пост хадгалагдана.');
+            if (deletePost) {
+                await remove(ref(db, 'carriers/' + user.uid));
+            }
             await signOut(auth);
         });
 
-        // ── Google sign in ──
+        // Google sign in
         document.getElementById('googleBtn').addEventListener('click', async function() {
             this.disabled = true;
             this.textContent = '⏳ Нэвтэрч байна...';
@@ -367,14 +314,13 @@
             }
         });
 
-        // ── Email sign in / sign up ──
+        // Email auth
         let isSignUp = false;
         document.getElementById('toggleMode').addEventListener('click', () => {
             isSignUp = !isSignUp;
-            document.getElementById('toggleHint').textContent   = isSignUp ? 'Аль хэдийн бүртгэлтэй юу? ' : 'Бүртгэл байхгүй юу? ';
-            document.getElementById('toggleMode').textContent   = isSignUp ? 'Нэвтрэх' : 'Бүртгүүлэх';
-            document.getElementById('emailSignUpBtn').style.display = isSignUp ? 'block' : 'none';
-            document.getElementById('emailSignInBtn').textContent   = isSignUp ? 'Нэвтрэх' : 'Нэвтрэх';
+            document.getElementById('toggleHint').textContent         = isSignUp ? 'Аль хэдийн бүртгэлтэй юу? ' : 'Бүртгэл байхгүй юу? ';
+            document.getElementById('toggleMode').textContent         = isSignUp ? 'Нэвтрэх' : 'Бүртгүүлэх';
+            document.getElementById('emailSignUpBtn').style.display   = isSignUp ? 'block' : 'none';
             document.getElementById('authErr').textContent = '';
         });
 
@@ -404,9 +350,6 @@
 
         document.getElementById('emailSignInBtn').addEventListener('click', () => doEmailAuth(false));
         document.getElementById('emailSignUpBtn').addEventListener('click', () => doEmailAuth(true));
-
-        // hide sign-up button by default
-        document.getElementById('emailSignUpBtn').style.display = 'none';
     </script>
 </body>
 </html>
