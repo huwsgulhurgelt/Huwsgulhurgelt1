@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <!-- No link from any public page. Keep this URL private. -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f13;
+            color: #e8e8f0;
+            min-height: 100vh;
+        }
+
+        /* ── Screens ── */
+        .screen { display: none; min-height: 100vh; }
+        .screen.active { display: flex; flex-direction: column; }
+
+        /* Loading */
+        #loadingScreen {
+            align-items: center; justify-content: center; gap: 16px;
+        }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #6c63ff;
+            border-radius: 50%; animation: spin .7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Access denied */
+        #deniedScreen {
+            align-items: center; justify-content: center;
+            text-align: center; gap: 14px; padding: 40px;
+        }
+        #deniedScreen h2 { font-size: 1.6rem; color: #ff5050; }
+        #deniedScreen p  { opacity: 0.55; font-size: 0.9rem; max-width: 360px; line-height: 1.6; }
+        .uid-box {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px; padding: 12px 18px;
+            font-family: 'Courier New', monospace; font-size: 0.85rem;
+            word-break: break-all; color: #aaa; max-width: 420px;
+        }
+
+        /* Sign in screen */
+        #signInScreen {
+            align-items: center; justify-content: center; gap: 20px;
+        }
+        .sign-in-box {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 40px; text-align: center;
+            display: flex; flex-direction: column; gap: 16px; max-width: 360px; width: 100%;
+        }
+        .sign-in-box h2 { font-size: 1.2rem; font-weight: 800; }
+        .sign-in-box p  { font-size: 0.85rem; opacity: 0.5; }
+
+        /* Admin screen */
+        #adminScreen { flex-direction: column; }
+
+        /* Top bar */
+        .topbar {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 24px;
+            background: rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        .topbar-title { font-size: 1rem; font-weight: 800; color: #6c63ff; flex: 1; }
+        .topbar-user  { font-size: 0.82rem; opacity: 0.45; }
+        .topbar-signout {
+            padding: 6px 14px; border-radius: 8px;
+            border: 1px solid rgba(255,80,80,0.3);
+            background: rgba(255,80,80,0.1); color: #ff6060;
+            font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: inherit;
+            transition: background 0.2s;
+        }
+        .topbar-signout:hover { background: rgba(255,80,80,0.2); }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex; gap: 16px; padding: 16px 24px; flex-wrap: wrap;
+        }
+        .stat-chip {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 10px; padding: 10px 16px;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .stat-label { font-size: 0.7rem; opacity: 0.45; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+        .stat-value { font-size: 1.4rem; font-weight: 900; }
+        .stat-value.red    { color: #ff5050; }
+        .stat-value.orange { color: #ff9f43; }
+        .stat-value.green  { color: #43e97b; }
+
+        /* Tabs */
+        .tabs {
+            display: flex; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 24px;
+        }
+        .tab-btn {
+            padding: 12px 20px; font-size: 0.88rem; font-weight: 700;
+            border: none; background: none; color: rgba(255,255,255,0.4);
+            cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent;
+            transition: all 0.2s; margin-bottom: -1px;
+        }
+        .tab-btn.active { color: #6c63ff; border-bottom-color: #6c63ff; }
+        .tab-btn .badge {
+            display: inline-block; background: #ff5050; color: #fff;
+            font-size: 0.7rem; padding: 1px 6px; border-radius: 20px; margin-left: 6px;
+        }
+
+        /* Content area */
+        .tab-content { display: none; padding: 24px; flex: 1; overflow-y: auto; }
+        .tab-content.active { display: block; }
+
+        /* Flagged cards */
+        .flagged-list { display: flex; flex-direction: column; gap: 16px; max-width: 700px; }
+        .flagged-card {
+            background: rgba(255,80,80,0.06); border: 1px solid rgba(255,80,80,0.2);
+            border-radius: 16px; overflow: hidden;
+        }
+        .flagged-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px; background: rgba(255,80,80,0.08);
+            border-bottom: 1px solid rgba(255,80,80,0.15);
+        }
+        .flagged-uid { font-family: 'Courier New', monospace; font-size: 0.75rem; opacity: 0.45; }
+        .report-count {
+            background: #ff5050; color: white; padding: 3px 10px;
+            border-radius: 20px; font-size: 0.78rem; font-weight: 800;
+        }
+        .flagged-card-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+        .flagged-field { font-size: 0.88rem; }
+        .flagged-field span { opacity: 0.45; margin-right: 6px; }
+        .flagged-card-actions {
+            display: flex; gap: 10px; padding: 14px 18px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+        .btn-ban {
+            flex: 1; padding: 10px; border-radius: 10px;
+            background: rgba(255,50,50,0.18); border: 1px solid rgba(255,80,80,0.35);
+            color: #ff6060; font-size: 0.87rem; font-weight: 800;
+            cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .btn-ban:hover { background: rgba(255,50,50,0.3); }
+        .btn-dismiss {
+            flex: 1; padding: 10px; border-radius: 10px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.6); font-size: 0.87rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .btn-dismiss:hover { background: rgba(255,255,255,0.1); }
+
+        /* Bans tab */
+        .ban-list { display: flex; flex-direction: column; gap: 12px; max-width: 700px; }
+        .ban-card {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 14px; padding: 16px 18px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .ban-card-info { flex: 1; min-width: 0; }
+        .ban-card-uid  { font-family: 'Courier New', monospace; font-size: 0.78rem; opacity: 0.5; margin-bottom: 4px; }
+        .ban-card-until { font-size: 0.88rem; font-weight: 700; color: #ff9f43; }
+        .ban-card-remaining { font-size: 0.78rem; opacity: 0.45; margin-top: 2px; }
+        .btn-unban {
+            padding: 8px 16px; border-radius: 8px;
+            background: rgba(67,185,123,0.12); border: 1px solid rgba(67,185,123,0.3);
+            color: #43b97b; font-size: 0.82rem; font-weight: 800;
+            cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .btn-unban:hover { background: rgba(67,185,123,0.22); }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px;
+            opacity: 0.3; font-size: 0.95rem;
+        }
+
+        /* Google sign in button */
+        .google-btn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 13px 20px; background: rgba(255,255,255,0.92); color: #333;
+            border: none; border-radius: 12px; font-size: 0.97rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.22s; width: 100%;
+        }
+        .google-btn:hover { background: #fff; transform: translateY(-2px); }
+
+        @media (max-width: 600px) {
+            .stats-bar { padding: 12px 16px; gap: 10px; }
+            .tab-content { padding: 16px; }
+            .flagged-card-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading -->
+    <div id="loadingScreen" class="screen active">
+        <div class="spinner"></div>
+        <span style="opacity:.4;font-size:.9rem;">Шалгаж байна...</span>
+    </div>
+
+    <!-- Sign in (not authenticated at all) -->
+    <div id="signInScreen" class="screen">
+        <div class="sign-in-box">
+            <div style="font-size:2rem;">🔐</div>
+            <h2>Admin нэвтрэх</h2>
+            <p>Зөвхөн эрх бүхий бүртгэлээр нэвтрэх боломжтой.</p>
+            <button class="google-btn" id="googleSignInBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google-ээр нэвтрэх
+            </button>
+        </div>
+    </div>
+
+    <!-- Access Denied (authenticated but wrong account) -->
+    <div id="deniedScreen" class="screen">
+        <div style="font-size:3rem;">⛔</div>
+        <h2>Хандах эрхгүй</h2>
+        <p>Энэ хуудас зөвхөн тодорхой Google бүртгэлд нээлттэй. Та буруу бүртгэлээр нэвтэрсэн байна.</p>
+        <p style="font-size:.8rem;opacity:.4;">Таны UID:</p>
+        <div class="uid-box" id="deniedUidBox">—</div>
+        <p style="font-size:.78rem;opacity:.35;max-width:380px;line-height:1.6;">
+            Хэрэв энэ таны бүртгэл бол admin.html дотор <code>ADMIN_UID</code> хувьсагчид энэ UID-г тавина уу.
+        </p>
+        <button class="google-btn" id="deniedSignOutBtn" style="max-width:300px;margin-top:8px;">
+            Гарах
+        </button>
+    </div>
+
+    <!-- Admin dashboard -->
+    <div id="adminScreen" class="screen">
+        <div class="topbar">
+            <div class="topbar-title">🛡️ Admin Panel</div>
+            <div class="topbar-user" id="adminUserLabel">—</div>
+            <button class="topbar-signout" id="adminSignOut">Гарах</button>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-chip">
+                <div class="stat-label">Нийт пост</div>
+                <div class="stat-value" id="statTotal">—</div>
+            </div>
+            <div class="stat-chip">
+                <div class="stat-label">Шалгах шаардлагатай</div>
+                <div class="stat-value red" id="statFlagged">—</div>
+            </div>
+            <div class="stat-chip">
+                <div class="stat-label">Одоо хориглогдсон</div>
+                <div class="stat-value orange" id="statBanned">—</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="flagged">
+                🚩 Мэдэгдсэн постууд <span class="badge" id="flaggedBadge">0</span>
+            </button>
+            <button class="tab-btn" data-tab="bans">⛔ Хориглогдсон хэрэглэгчид</button>
+            <button class="tab-btn" data-tab="all">📋 Бүх постууд</button>
+        </div>
+
+        <div id="tab-flagged" class="tab-content active">
+            <div class="flagged-list" id="flaggedList">
+                <div class="empty-state">Уншиж байна...</div>
+            </div>
+        </div>
+
+        <div id="tab-bans" class="tab-content">
+            <div class="ban-list" id="banList">
+                <div class="empty-state">Уншиж байна...</div>
+            </div>
+        </div>
+
+        <div id="tab-all" class="tab-content">
+            <div class="flagged-list" id="allList">
+                <div class="empty-state">Уншиж байна...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, onValue, remove, set, get }
+            from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut }
+            from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+        // ══════════════════════════════════════════════════════
+        //  🔑  PUT YOUR GOOGLE ACCOUNT'S UID HERE
+        //      Find it: Firebase Console → Authentication → Users
+        //      Or sign in once and see it in the "Access Denied" screen below
+        // ══════════════════════════════════════════════════════
+        const ADMIN_UID = 'REPLACE_WITH_YOUR_ADMIN_UID';
+
+        const BAN_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+        const app = initializeApp({
+            apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
+            authDomain: "huwsgul-hurgelt.firebaseapp.com",
+            databaseURL: "https://huwsgul-hurgelt-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "huwsgul-hurgelt",
+            storageBucket: "huwsgul-hurgelt.firebasestorage.app",
+            messagingSenderId: "457877716370",
+            appId: "1:457877716370:web:5bc6e08801e36010c3d54b"
+        });
+
+        const db       = getDatabase(app);
+        const auth     = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // ── Screens ──
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ── Auth guard ──
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                showScreen('signInScreen');
+                return;
+            }
+            if (user.uid !== ADMIN_UID) {
+                document.getElementById('deniedUidBox').textContent = user.uid;
+                showScreen('deniedScreen');
+                return;
+            }
+            // ✅ Admin
+            document.getElementById('adminUserLabel').textContent = user.email || user.displayName || user.uid;
+            showScreen('adminScreen');
+            loadDashboard();
+        });
+
+        document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+            try { await signInWithPopup(auth, provider); }
+            catch(e) { if (e.code !== 'auth/popup-closed-by-user') alert(e.message); }
+        });
+
+        document.getElementById('deniedSignOutBtn').addEventListener('click', () => signOut(auth));
+        document.getElementById('adminSignOut').addEventListener('click', () => signOut(auth));
+
+        // ── Tabs ──
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ── Dashboard ──
+        function loadDashboard() {
+            // Stats
+            onValue(ref(db, 'carriers'), snap => {
+                document.getElementById('statTotal').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+                renderAllPosts(snap.exists() ? snap.val() : {});
+            });
+            onValue(ref(db, 'flagged'), snap => {
+                const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+                document.getElementById('statFlagged').textContent = count;
+                document.getElementById('flaggedBadge').textContent = count;
+                renderFlagged(snap.exists() ? snap.val() : {});
+            });
+            onValue(ref(db, 'bans'), snap => {
+                const bans = snap.exists() ? snap.val() : {};
+                const now  = Date.now();
+                const activeBans = Object.entries(bans).filter(([, b]) => b.until > now);
+                document.getElementById('statBanned').textContent = activeBans.length;
+                renderBans(bans);
+            });
+        }
+
+        // ── Render flagged posts ──
+        function renderFlagged(flagged) {
+            const list = document.getElementById('flaggedList');
+            const keys = Object.keys(flagged);
+            if (!keys.length) {
+                list.innerHTML = '<div class="empty-state">✅ Шалгах пост алга байна</div>';
+                return;
+            }
+            list.innerHTML = '';
+            keys.forEach(postUid => {
+                const f = flagged[postUid];
+                const card = document.createElement('div');
+                card.className = 'flagged-card';
+                card.innerHTML = `
+                    <div class="flagged-card-header">
+                        <span class="flagged-uid">UID: ${esc(postUid)}</span>
+                        <span class="report-count">⚑ ${f.reportCount || '5+'} мэдэгдэл</span>
+                    </div>
+                    <div class="flagged-card-body">
+                        <div class="flagged-field"><span>📞</span>${esc(f.phone || '—')}</div>
+                        <div class="flagged-field"><span>🚗</span>${esc(f.carPlate || '—')}</div>
+                        <div class="flagged-field"><span>📝</span>${esc(f.description || '—')}</div>
+                        <div class="flagged-field"><span>📅</span>${(f.days || []).map(esc).join(', ') || '—'}</div>
+                        <div class="flagged-field"><span>⚖️</span>${esc(String(f.maxWeight || '?'))} кг</div>
+                        <div class="flagged-field" style="opacity:.4;font-size:.78rem;">
+                            Мэдэгдсэн: ${f.flaggedAt ? new Date(f.flaggedAt).toLocaleString('mn-MN') : '—'}
+                        </div>
+                    </div>
+                    <div class="flagged-card-actions">
+                        <button class="btn-ban"     data-uid="${esc(postUid)}">🗑️ Устгаж 7 хоног хориглох</button>
+                        <button class="btn-dismiss" data-uid="${esc(postUid)}">✅ Татгалзах (хэвийн)</button>
+                    </div>
+                `;
+                card.querySelector('.btn-ban').addEventListener('click',     () => banUser(postUid));
+                card.querySelector('.btn-dismiss').addEventListener('click', () => dismissReport(postUid));
+                list.appendChild(card);
+            });
+        }
+
+        // ── Render bans list ──
+        function renderBans(bans) {
+            const list = document.getElementById('banList');
+            const keys = Object.keys(bans);
+            if (!keys.length) {
+                list.innerHTML = '<div class="empty-state">Хориглогдсон хэрэглэгч байхгүй байна</div>';
+                return;
+            }
+            list.innerHTML = '';
+            const now = Date.now();
+            keys.forEach(uid => {
+                const b = bans[uid];
+                const remaining = b.until - now;
+                const expired   = remaining <= 0;
+                const d  = Math.floor(Math.abs(remaining) / 86400000);
+                const h  = Math.floor((Math.abs(remaining) % 86400000) / 3600000);
+                const card = document.createElement('div');
+                card.className = 'ban-card';
+                card.innerHTML = `
+                    <div class="ban-card-info">
+                        <div class="ban-card-uid">${esc(uid)}</div>
+                        <div class="ban-card-until">Дуусах: ${new Date(b.until).toLocaleString('mn-MN')}</div>
+                        <div class="ban-card-remaining">
+                            ${expired ? '✅ Хугацаа дууссан' : `⏳ ${d} өдөр ${h} цаг үлдсэн`}
+                        </div>
+                    </div>
+                    <button class="btn-unban" data-uid="${esc(uid)}">
+                        ${expired ? '🗑️ Устгах' : '🔓 Эрт тайлах'}
+                    </button>
+                `;
+                card.querySelector('.btn-unban').addEventListener('click', () => unbanUser(uid));
+                list.appendChild(card);
+            });
+        }
+
+        // ── Render all posts ──
+        function renderAllPosts(carriers) {
+            const list = document.getElementById('allList');
+            const keys = Object.keys(carriers);
+            if (!keys.length) {
+                list.innerHTML = '<div class="empty-state">Пост байхгүй байна</div>';
+                return;
+            }
+            list.innerHTML = '';
+            keys.forEach(uid => {
+                const c = carriers[uid];
+                const card = document.createElement('div');
+                card.className = 'flagged-card';
+                card.style.borderColor = 'rgba(255,255,255,0.1)';
+                card.style.background  = 'rgba(255,255,255,0.03)';
+                card.innerHTML = `
+                    <div class="flagged-card-header" style="background:rgba(255,255,255,0.04);border-bottom-color:rgba(255,255,255,0.08)">
+                        <span class="flagged-uid">UID: ${esc(uid)}</span>
+                        <span style="font-size:.75rem;opacity:.4;">${c.timestamp ? new Date(c.timestamp).toLocaleDateString('mn-MN') : '—'}</span>
+                    </div>
+                    <div class="flagged-card-body">
+                        <div class="flagged-field"><span>📞</span>${esc(c.phone || '—')}</div>
+                        <div class="flagged-field"><span>🚗</span>${esc(c.carPlate || '—')}</div>
+                        <div class="flagged-field"><span>📝</span>${esc(c.description || '—')}</div>
+                    </div>
+                    <div class="flagged-card-actions">
+                        <button class="btn-ban"     data-uid="${esc(uid)}">🗑️ Устгаж хориглох</button>
+                        <button class="btn-dismiss" data-uid="${esc(uid)}" style="color:#ff7070;">🗑️ Зөвхөн устгах</button>
+                    </div>
+                `;
+                card.querySelector('.btn-ban').addEventListener('click',     () => banUser(uid));
+                card.querySelector('.btn-dismiss').addEventListener('click', () => deletePostOnly(uid));
+                list.appendChild(card);
+            });
+        }
+
+        // ── Actions ──
+
+        async function banUser(postUid) {
+            if (!confirm(`Энэ хэрэглэгчийн постыг устгаж, 7 хоног хориглох уу?\nUID: ${postUid}`)) return;
+            const until = Date.now() + BAN_DURATION_MS;
+            try {
+                await Promise.all([
+                    remove(ref(db, 'carriers/' + postUid)),     // delete their post
+                    remove(ref(db, 'reports/' + postUid)),      // clear reports
+                    remove(ref(db, 'flagged/' + postUid)),      // remove from flagged queue
+                    set(ref(db, 'bans/' + postUid), {           // write ban
+                        until,
+                        bannedAt: Date.now(),
+                        reason: 'Reported by users and confirmed by admin'
+                    })
+                ]);
+                alert('✅ Пост устгаж, хэрэглэгчийг 7 хоног хориглолоо.');
+            } catch(err) {
+                alert('Алдаа: ' + err.message);
+            }
+        }
+
+        async function dismissReport(postUid) {
+            if (!confirm('Энэ мэдэгдлийг татгалзах уу? Пост хэвийн хэвээр үлдэнэ.')) return;
+            try {
+                await Promise.all([
+                    remove(ref(db, 'flagged/' + postUid)),  // remove from flagged queue
+                    remove(ref(db, 'reports/' + postUid))   // clear all reports so they can start fresh
+                ]);
+                alert('✅ Мэдэгдлийг татгалзлаа.');
+            } catch(err) {
+                alert('Алдаа: ' + err.message);
+            }
+        }
+
+        async function deletePostOnly(postUid) {
+            if (!confirm(`Постыг устгах уу? (Хориглохгүй)\nUID: ${postUid}`)) return;
+            try {
+                await Promise.all([
+                    remove(ref(db, 'carriers/' + postUid)),
+                    remove(ref(db, 'reports/' + postUid))
+                ]);
+            } catch(err) {
+                alert('Алдаа: ' + err.message);
+            }
+        }
+
+        async function unbanUser(uid) {
+            if (!confirm('Хориглолтыг тайлах уу?')) return;
+            try {
+                await remove(ref(db, 'bans/' + uid));
+                alert('✅ Хориглолт тайлагдлаа.');
+            } catch(err) {
+                alert('Алдаа: ' + err.message);
+            }
+        }
+
+        function esc(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>
