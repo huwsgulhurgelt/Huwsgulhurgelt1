@@ -192,7 +192,7 @@
         const weightSlider = document.getElementById('editWeight');
         const weightValue  = document.getElementById('editWeightValue');
 
-        // slowmo
+        // Cooldown for edit saves
         let lastSave = 0;
         const COOLDOWN_MS = 5000;
 
@@ -212,7 +212,7 @@
             renderCarriers(filteredCarriers);
         });
 
-        // carriers uid 
+        // carriers/{uid} — each key in the snapshot IS the owner's uid
         onValue(ref(db, 'carriers'), snap => {
             allCarriers = snap.exists() ? snap.val() : {};
             applyFilter();
@@ -249,7 +249,7 @@
             }
             keys.forEach(uid => {
                 const c   = carriers[uid];
-                // key is the uid
+                // The key IS the uid — no uid field needed in the data
                 const own = currentUid && uid === currentUid;
                 const card = document.createElement('div');
                 card.className = 'carrier-card';
@@ -281,7 +281,7 @@
         }
 
         function openEdit(uid) {
-            // Double check behore open
+            // Double-check ownership before opening
             if (!currentUid || uid !== currentUid) return;
             const c = allCarriers[uid];
             if (!c) return;
@@ -299,7 +299,7 @@
         }
 
         async function deletePost(uid) {
-            // Ownership check
+            // Ownership check — also enforced server-side by rules
             if (!currentUid || uid !== currentUid) return;
             if (!confirm('Энэ постыг устгах уу?')) return;
             await remove(ref(db, 'carriers/' + uid));
@@ -315,7 +315,7 @@
         editForm.addEventListener('submit', async e => {
             e.preventDefault();
 
-            // Always re-read auth dont thust
+            // Always re-read auth state — never trust a cached id
             const user = auth.currentUser;
             if (!user) { alert('Нэвтэрнэ үү!'); return; }
 
@@ -327,7 +327,7 @@
                 return;
             }
 
-            // Validate n sanitize
+            // Validate and sanitize
             const phone  = document.getElementById('editPhone').value.trim().replace(/\D/g, '');
             const carNum = document.getElementById('editCarNumber').value.trim().replace(/\D/g, '');
             const carLet = document.getElementById('editCarLetters').value.trim().toUpperCase().replace(/[^А-ЯӨҮ]/g, '');
@@ -342,7 +342,7 @@
             if (!days.length)        { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
 
             try {
-                // set() replace whole document
+                // set() replaces the whole document — no partial uid-field injection possible
                 await set(ref(db, 'carriers/' + user.uid), {
                     phone,
                     carPlate:    carNum + carLet,
