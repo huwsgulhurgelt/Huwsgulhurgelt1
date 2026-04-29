@@ -8,11 +8,10 @@
     <style>
         .auth-wall {
             max-width: 400px; margin: 0 auto;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(14px);
-            border: 1.5px solid rgba(255,255,255,0.3);
-            border-radius: 22px; padding: 36px 30px;
-            text-align: center; display: flex; flex-direction: column; gap: 16px;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(14px);
+            border: 1.5px solid rgba(255,255,255,0.3); border-radius: 22px;
+            padding: 36px 30px; text-align: center;
+            display: flex; flex-direction: column; gap: 16px;
         }
         .auth-wall h2 { font-size: 1.3rem; font-weight: 900; }
         .auth-wall p  { font-size: 0.9rem; opacity: 0.65; }
@@ -28,11 +27,9 @@
         .go-account a { color: inherit; font-weight: 800; }
         .user-bar {
             display: flex; align-items: center; gap: 12px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border: 1.5px solid rgba(255,255,255,0.25);
-            border-radius: 14px; padding: 12px 18px;
-            margin-bottom: 4px; max-width: 560px; margin: 0 auto 16px;
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(255,255,255,0.25); border-radius: 14px;
+            padding: 12px 18px; max-width: 560px; margin: 0 auto 16px;
         }
         .user-bar-avatar {
             width: 36px; height: 36px; border-radius: 50%;
@@ -50,14 +47,29 @@
         }
         .user-bar-signout:hover { background: rgba(255,80,80,0.15); border-color: rgba(255,80,80,0.3); color: #ff5050; }
         .hidden { display: none !important; }
-        /* existing post notice */
         .existing-notice {
-            background: rgba(255,200,60,0.18);
-            border: 1.5px solid rgba(255,200,60,0.35);
-            border-radius: 12px; padding: 12px 16px;
-            font-size: 0.88rem; font-weight: 700;
+            background: rgba(255,200,60,0.18); border: 1.5px solid rgba(255,200,60,0.35);
+            border-radius: 12px; padding: 12px 16px; font-size: 0.88rem; font-weight: 700;
             margin-bottom: 10px; text-align: center;
         }
+
+        /* Ban wall */
+        .ban-wall {
+            max-width: 440px; margin: 0 auto;
+            background: rgba(255,50,50,0.12); backdrop-filter: blur(14px);
+            border: 1.5px solid rgba(255,80,80,0.3); border-radius: 22px;
+            padding: 36px 30px; text-align: center;
+            display: flex; flex-direction: column; gap: 14px; align-items: center;
+        }
+        .ban-wall h2 { font-size: 1.3rem; font-weight: 900; color: #ff5050; }
+        .ban-wall p  { font-size: 0.9rem; opacity: 0.75; }
+        .ban-timer {
+            font-size: 1.6rem; font-weight: 900; font-family: 'Courier New', monospace;
+            background: rgba(255,80,80,0.15); border: 1.5px solid rgba(255,80,80,0.3);
+            border-radius: 12px; padding: 12px 24px; letter-spacing: 2px;
+            color: #ff5050;
+        }
+        .ban-reason { font-size: 0.82rem; opacity: 0.55; }
     </style>
 </head>
 <body>
@@ -79,7 +91,7 @@
             <h1>Хүргэгч бүртгэл</h1>
         </header>
 
-        <!-- Auth wall (shown when signed out) -->
+        <!-- Auth wall -->
         <div id="authWall">
             <div class="auth-wall">
                 <div style="font-size:2.5rem;">🔐</div>
@@ -98,16 +110,25 @@
             </div>
         </div>
 
-        <!-- Actual form (shown when signed in) -->
-        <div id="formWrap" class="hidden">
+        <!-- Ban wall (shown when user is banned) -->
+        <div id="banWall" class="hidden">
+            <div class="ban-wall">
+                <div style="font-size:2.5rem;">🚫</div>
+                <h2>Түр хориглогдсон</h2>
+                <p>Таны пост зохисгүй агуулгатай гэж тодорхойлогдсон тул пост оруулах боломжгүй байна.</p>
+                <div class="ban-timer" id="banCountdown">--:--:--</div>
+                <p class="ban-reason">Дээрх хугацаа дуусмагц дахин бүртгүүлэх боломжтой болно.</p>
+            </div>
+        </div>
 
+        <!-- Actual form (shown when signed in and not banned) -->
+        <div id="formWrap" class="hidden">
             <div class="user-bar">
                 <div class="user-bar-avatar" id="barAvatar">👤</div>
                 <div class="user-bar-name" id="barName">—</div>
                 <button class="user-bar-signout" id="barSignout">Гарах</button>
             </div>
 
-            <!-- shown when user already has a post -->
             <div id="existingNotice" class="existing-notice hidden">
                 ⚠️ Та аль хэдийн пост бүртгүүлсэн байна. Доорх маягтаар шинэчлэх боломжтой.
             </div>
@@ -173,6 +194,28 @@
         document.getElementById('carLetters').addEventListener('input', function(e) {
             e.target.value = e.target.value.toUpperCase().replace(/[^А-ЯӨҮ]/g, '').slice(0, 3);
         });
+
+        // Ban countdown timer
+        let banInterval = null;
+        function startBanCountdown(until) {
+            const el = document.getElementById('banCountdown');
+            clearInterval(banInterval);
+            banInterval = setInterval(() => {
+                const remaining = until - Date.now();
+                if (remaining <= 0) {
+                    clearInterval(banInterval);
+                    el.textContent = 'Дуусав — хуудсыг шинэчлэнэ үү';
+                    return;
+                }
+                const d = Math.floor(remaining / 86400000);
+                const h = Math.floor((remaining % 86400000) / 3600000);
+                const m = Math.floor((remaining % 3600000) / 60000);
+                const s = Math.floor((remaining % 60000) / 1000);
+                el.textContent = d > 0
+                    ? `${d}өдөр ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+                    : `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            }, 1000);
+        }
     </script>
 
     <script type="module">
@@ -194,47 +237,67 @@
         const auth     = getAuth(app);
         const db       = getDatabase(app);
         const provider = new GoogleAuthProvider();
-
-        // Cooldown: prevent re-submitting within 10 seconds
         let lastSubmit = 0;
         const COOLDOWN_MS = 10000;
 
-        onAuthStateChanged(auth, async user => {
-            if (user) {
-                document.getElementById('authWall').classList.add('hidden');
-                document.getElementById('formWrap').classList.remove('hidden');
-                document.getElementById('barName').textContent = user.displayName || user.email || 'Хэрэглэгч';
-                const av = document.getElementById('barAvatar');
-                if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}" alt="">`;
-                else av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
+        const authWall  = document.getElementById('authWall');
+        const banWall   = document.getElementById('banWall');
+        const formWrap  = document.getElementById('formWrap');
 
-                // Check if user already has a post and pre-fill the form
-                const snap = await get(ref(db, 'carriers/' + user.uid));
-                if (snap.exists()) {
-                    document.getElementById('existingNotice').classList.remove('hidden');
-                    document.getElementById('submitBtn').textContent = 'Шинэчлэх';
-                    const c = snap.val();
-                    if (c.phone) document.getElementById('phone').value = c.phone;
-                    if (c.description) document.getElementById('description').value = c.description;
-                    if (c.maxWeight) {
-                        document.getElementById('weight').value = c.maxWeight;
-                        document.getElementById('weightValue').textContent = c.maxWeight;
-                    }
-                    if (c.carPlate) {
-                        const numPart = c.carPlate.match(/^\d+/)?.[0] || '';
-                        const letPart = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
-                        document.getElementById('carNumber').value = numPart;
-                        document.getElementById('carLetters').value = letPart;
-                    }
-                    if (c.days && Array.isArray(c.days)) {
-                        document.querySelectorAll('input[name="days"]').forEach(cb => {
-                            cb.checked = c.days.includes(cb.value);
-                        });
-                    }
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                authWall.classList.remove('hidden');
+                banWall.classList.add('hidden');
+                formWrap.classList.add('hidden');
+                return;
+            }
+
+            authWall.classList.add('hidden');
+
+            // ── Check ban ──
+            const banSnap = await get(ref(db, 'bans/' + user.uid));
+            if (banSnap.exists()) {
+                const ban = banSnap.val();
+                if (ban.until && ban.until > Date.now()) {
+                    // Still banned — show ban wall
+                    banWall.classList.remove('hidden');
+                    formWrap.classList.add('hidden');
+                    startBanCountdown(ban.until);
+                    return;
                 }
-            } else {
-                document.getElementById('authWall').classList.remove('hidden');
-                document.getElementById('formWrap').classList.add('hidden');
+                // Ban expired — fall through to show form
+            }
+
+            // Not banned — show form
+            banWall.classList.add('hidden');
+            formWrap.classList.remove('hidden');
+
+            document.getElementById('barName').textContent = user.displayName || user.email || 'Хэрэглэгч';
+            const av = document.getElementById('barAvatar');
+            if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}" alt="">`;
+            else av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
+
+            // Pre-fill if user already has a post
+            const snap = await get(ref(db, 'carriers/' + user.uid));
+            if (snap.exists()) {
+                document.getElementById('existingNotice').classList.remove('hidden');
+                document.getElementById('submitBtn').textContent = 'Шинэчлэх';
+                const c = snap.val();
+                if (c.phone)       document.getElementById('phone').value = c.phone;
+                if (c.description) document.getElementById('description').value = c.description;
+                if (c.maxWeight) {
+                    document.getElementById('weight').value = c.maxWeight;
+                    document.getElementById('weightValue').textContent = c.maxWeight;
+                }
+                if (c.carPlate) {
+                    document.getElementById('carNumber').value  = c.carPlate.match(/^\d+/)?.[0]             || '';
+                    document.getElementById('carLetters').value = c.carPlate.match(/[А-ЯӨҮa-zA-Z]+$/)?.[0] || '';
+                }
+                if (Array.isArray(c.days)) {
+                    document.querySelectorAll('input[name="days"]').forEach(cb => {
+                        cb.checked = c.days.includes(cb.value);
+                    });
+                }
             }
         });
 
@@ -249,12 +312,16 @@
 
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            // Always read UID fresh from auth — never from a variable or input
             const user = auth.currentUser;
             if (!user) { alert('Эхлээд нэвтэрнэ үү!'); return; }
 
-            // Cooldown check
+            // Re-check ban on every submit attempt
+            const banSnap = await get(ref(db, 'bans/' + user.uid));
+            if (banSnap.exists() && banSnap.val().until > Date.now()) {
+                alert('Та хориглогдсон байна. Хугацаа дуусаагүй байна.');
+                return;
+            }
+
             const now = Date.now();
             if (now - lastSubmit < COOLDOWN_MS) {
                 const wait = Math.ceil((COOLDOWN_MS - (now - lastSubmit)) / 1000);
@@ -262,7 +329,6 @@
                 return;
             }
 
-            // Read and sanitize inputs
             const phone  = document.getElementById('phone').value.trim().replace(/\D/g, '');
             const carNum = document.getElementById('carNumber').value.trim().replace(/\D/g, '');
             const carLet = document.getElementById('carLetters').value.trim().toUpperCase().replace(/[^А-ЯӨҮ]/g, '');
@@ -270,28 +336,20 @@
             const weight = Math.min(100, Math.max(1, parseInt(document.getElementById('weight').value, 10)));
             const days   = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
 
-            // Validate
             if (!phone || !desc || !carNum || !carLet) { alert('Бүх талбарыг бөглөнө үү!'); return; }
-            if (phone.length  !== 8)  { alert('Утасны дугаар яг 8 орон байх ёстой!'); return; }
-            if (carNum.length !== 4)  { alert('Машины дугаар яг 4 цифр байх ёстой!'); return; }
-            if (carLet.length !== 3)  { alert('Машины үсэг яг 3 үсэг байх ёстой!'); return; }
-            if (!days.length)         { alert('Наад зах нь нэг өдөр сонго!'); return; }
+            if (phone.length  !== 8) { alert('Утасны дугаар яг 8 орон байх ёстой!'); return; }
+            if (carNum.length !== 4) { alert('Машины дугаар яг 4 цифр байх ёстой!'); return; }
+            if (carLet.length !== 3) { alert('Машины үсэг яг 3 үсэг байх ёстой!'); return; }
+            if (!days.length)        { alert('Наад зах нь нэг өдөр сонго!'); return; }
 
             const btn = this.querySelector('button[type="submit"]');
             btn.disabled = true;
             btn.textContent = 'Хадгалж байна...';
 
             try {
-                // SECURITY: write to carriers/{uid} — path key IS the uid.
-                // The database rules enforce auth.uid === $uid, so UID tampering
-                // is impossible regardless of what the client sends.
                 await set(ref(db, 'carriers/' + user.uid), {
-                    phone,
-                    carPlate:    carNum + carLet,
-                    description: desc,
-                    maxWeight:   weight,
-                    days,
-                    timestamp:   Date.now()
+                    phone, carPlate: carNum + carLet, description: desc,
+                    maxWeight: weight, days, timestamp: Date.now()
                 });
                 lastSubmit = Date.now();
                 alert('Амжилттай хадгаллаа!');
