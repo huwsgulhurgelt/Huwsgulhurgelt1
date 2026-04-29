@@ -294,7 +294,7 @@
         //      Find it: Firebase Console → Authentication → Users
         //      Or sign in once and see it in the "Access Denied" screen below
         // ══════════════════════════════════════════════════════
-        const ADMIN_UID = '19aAmBytkfPVtdPwQkvGlNCt5Zj2';
+        const ADMIN_UID = 'REPLACE_WITH_YOUR_ADMIN_UID';
 
         const BAN_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -355,24 +355,71 @@
 
         // ── Dashboard ──
         function loadDashboard() {
-            // Stats
-            onValue(ref(db, 'carriers'), snap => {
-                document.getElementById('statTotal').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
-                renderAllPosts(snap.exists() ? snap.val() : {});
-            });
-            onValue(ref(db, 'flagged'), snap => {
-                const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-                document.getElementById('statFlagged').textContent = count;
-                document.getElementById('flaggedBadge').textContent = count;
-                renderFlagged(snap.exists() ? snap.val() : {});
-            });
-            onValue(ref(db, 'bans'), snap => {
-                const bans = snap.exists() ? snap.val() : {};
-                const now  = Date.now();
-                const activeBans = Object.entries(bans).filter(([, b]) => b.until > now);
-                document.getElementById('statBanned').textContent = activeBans.length;
-                renderBans(bans);
-            });
+
+            // Helper: show a permission error message in a list element
+            function permError(listId, statId) {
+                const el = document.getElementById(listId);
+                if (el) el.innerHTML = `
+                    <div class="empty-state" style="color:#ff9f43;">
+                        ⚠️ Эрх хүрэхгүй байна.<br>
+                        <span style="font-size:.78rem;opacity:.7;display:block;margin-top:8px;">
+                            rules.json дотор ADMIN_UID-г тохируулна уу, дараа нь Firebase Console-д deploy хийнэ үү.
+                        </span>
+                    </div>`;
+                const stat = document.getElementById(statId);
+                if (stat) stat.textContent = '!';
+            }
+
+            // Carriers (public read — should always work)
+            onValue(ref(db, 'carriers'),
+                snap => {
+                    document.getElementById('statTotal').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+                    renderAllPosts(snap.exists() ? snap.val() : {});
+                },
+                err => {
+                    console.error('carriers read error:', err.code);
+                    permError('allList', 'statTotal');
+                }
+            );
+
+            // Flagged (admin-only read — fails if ADMIN_UID not set in rules)
+            onValue(ref(db, 'flagged'),
+                snap => {
+                    const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+                    document.getElementById('statFlagged').textContent = count;
+                    document.getElementById('flaggedBadge').textContent = count;
+                    renderFlagged(snap.exists() ? snap.val() : {});
+                },
+                err => {
+                    console.error('flagged read error:', err.code);
+                    permError('flaggedList', 'statFlagged');
+                    document.getElementById('flaggedBadge').textContent = '!';
+                    // Most likely cause: ADMIN_UID not set in rules.json
+                    document.getElementById('flaggedList').innerHTML = `
+                        <div class="empty-state" style="color:#ff9f43;line-height:1.8;">
+                            ⚠️ Permission denied (${err.code})<br>
+                            <strong style="font-size:.85rem;">rules.json дотор ADMIN_UID-г тохируулж Firebase-д deploy хийсэн үү?</strong><br>
+                            <span style="font-size:.75rem;opacity:.6;">
+                                Firebase Console → Realtime Database → Rules → Publish
+                            </span>
+                        </div>`;
+                }
+            );
+
+            // Bans (admin-only read)
+            onValue(ref(db, 'bans'),
+                snap => {
+                    const bans = snap.exists() ? snap.val() : {};
+                    const now  = Date.now();
+                    const activeBans = Object.entries(bans).filter(([, b]) => b.until > now);
+                    document.getElementById('statBanned').textContent = activeBans.length;
+                    renderBans(bans);
+                },
+                err => {
+                    console.error('bans read error:', err.code);
+                    permError('banList', 'statBanned');
+                }
+            );
         }
 
         // ── Render flagged posts ──
