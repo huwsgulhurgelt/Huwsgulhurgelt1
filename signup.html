@@ -50,7 +50,7 @@
         }
         .user-bar-signout:hover { background: rgba(255,80,80,0.15); border-color: rgba(255,80,80,0.3); color: #ff5050; }
         .hidden { display: none !important; }
-        /* existing post notiece*/
+        /* existing post notice */
         .existing-notice {
             background: rgba(255,200,60,0.18);
             border: 1.5px solid rgba(255,200,60,0.35);
@@ -79,7 +79,7 @@
             <h1>Хүргэгч бүртгэл</h1>
         </header>
 
-        <!-- Auth wallshown when signed out -->
+        <!-- Auth wall (shown when signed out) -->
         <div id="authWall">
             <div class="auth-wall">
                 <div style="font-size:2.5rem;">🔐</div>
@@ -98,7 +98,7 @@
             </div>
         </div>
 
-        <!-- Actual formshown when signed in -->
+        <!-- Actual form (shown when signed in) -->
         <div id="formWrap" class="hidden">
 
             <div class="user-bar">
@@ -107,7 +107,7 @@
                 <button class="user-bar-signout" id="barSignout">Гарах</button>
             </div>
 
-            <!-- show if user have post -->
+            <!-- shown when user already has a post -->
             <div id="existingNotice" class="existing-notice hidden">
                 ⚠️ Та аль хэдийн пост бүртгүүлсэн байна. Доорх маягтаар шинэчлэх боломжтой.
             </div>
@@ -195,7 +195,7 @@
         const db       = getDatabase(app);
         const provider = new GoogleAuthProvider();
 
-        // Cooldown 10 secs
+        // Cooldown: prevent re-submitting within 10 seconds
         let lastSubmit = 0;
         const COOLDOWN_MS = 10000;
 
@@ -208,7 +208,7 @@
                 if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}" alt="">`;
                 else av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
 
-                // Check user post prefill
+                // Check if user already has a post and pre-fill the form
                 const snap = await get(ref(db, 'carriers/' + user.uid));
                 if (snap.exists()) {
                     document.getElementById('existingNotice').classList.remove('hidden');
@@ -250,11 +250,11 @@
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Always read UID fresh from auth
+            // Always read UID fresh from auth — never from a variable or input
             const user = auth.currentUser;
             if (!user) { alert('Эхлээд нэвтэрнэ үү!'); return; }
 
-            // Cooldown chck
+            // Cooldown check
             const now = Date.now();
             if (now - lastSubmit < COOLDOWN_MS) {
                 const wait = Math.ceil((COOLDOWN_MS - (now - lastSubmit)) / 1000);
@@ -262,7 +262,7 @@
                 return;
             }
 
-            // Read and sanitize 
+            // Read and sanitize inputs
             const phone  = document.getElementById('phone').value.trim().replace(/\D/g, '');
             const carNum = document.getElementById('carNumber').value.trim().replace(/\D/g, '');
             const carLet = document.getElementById('carLetters').value.trim().toUpperCase().replace(/[^А-ЯӨҮ]/g, '');
@@ -282,7 +282,9 @@
             btn.textContent = 'Хадгалж байна...';
 
             try {
-                // SECURITY: write to carriers uid reinforcement
+                // SECURITY: write to carriers/{uid} — path key IS the uid.
+                // The database rules enforce auth.uid === $uid, so UID tampering
+                // is impossible regardless of what the client sends.
                 await set(ref(db, 'carriers/' + user.uid), {
                     phone,
                     carPlate:    carNum + carLet,
