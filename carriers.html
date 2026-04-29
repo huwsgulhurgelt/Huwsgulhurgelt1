@@ -26,7 +26,6 @@
         .location-banner.visible { display:flex; }
         .location-banner span { flex:1; line-height:1.4; }
         .banner-dismiss { background:none; border:none; color:#7a5c00; cursor:pointer; font-size:1rem; padding:0 4px; opacity:.6; }
-        .banner-dismiss:hover { opacity:1; }
         #moron-map { flex:1; width:100%; }
         .map-hint { padding:9px 20px; background:rgba(255,255,255,0.55); color:#888; font-size:.8rem; text-align:center; border-top:1.5px solid rgba(0,0,0,0.06); flex-shrink:0; }
         .map-hint strong { color:#444; }
@@ -35,10 +34,28 @@
         .leaflet-control-zoom a { background:rgba(255,255,255,0.92) !important; color:#333 !important; border-color:rgba(0,0,0,0.12) !important; font-weight:700 !important; }
         .leaflet-control-zoom a:hover { background:#fff !important; }
         .leaflet-control-attribution { background:rgba(255,255,255,0.7) !important; color:#888 !important; font-size:.7rem !important; }
-        .leaflet-control-attribution a { color:#555 !important; }
         .leaflet-popup-content-wrapper { border-radius:14px !important; box-shadow:0 8px 30px rgba(0,0,0,0.14) !important; border:1.5px solid rgba(0,0,0,0.07) !important; }
         .leaflet-popup-tip { background:white !important; }
+
         .own-badge { display:inline-block; font-size:0.72rem; font-weight:800; background:rgba(67,185,123,0.2); color:#2a8a55; border:1px solid rgba(67,185,123,0.35); border-radius:20px; padding:2px 9px; margin-left:8px; vertical-align:middle; }
+
+        /* Report button */
+        .btn-report {
+            background: rgba(255,80,80,0.08);
+            border: 1.5px solid rgba(255,80,80,0.2);
+            color: rgba(255,80,80,0.7);
+            padding: 5px 10px; border-radius: 8px;
+            font-size: 0.75rem; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .btn-report:hover:not(:disabled) { background: rgba(255,80,80,0.18); border-color: rgba(255,80,80,0.4); color: #ff5050; }
+        .btn-report:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn-report.reported { background: rgba(255,150,0,0.1); border-color: rgba(255,150,0,0.3); color: rgba(200,120,0,0.8); }
+
+        /* Card actions row */
+        .card-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
         @media (max-width:600px) { .map-fab { bottom:24px; right:20px; width:56px; height:56px; font-size:1.4rem; } .map-panel { height:min(500px,88vh); border-radius:18px; } }
     </style>
 </head>
@@ -61,7 +78,7 @@
         <main id="carriersContainer" class="carriers-grid">
             <div class="loading">Уншиж байна...</div>
         </main>
-        <footer><p>Сургуулийн төсөл • Prototype</p></footer>
+        <footer><p>Мөрөн Хүргэлт • 2025</p></footer>
     </div>
 
     <button class="map-fab" id="mapFab">📍</button>
@@ -76,8 +93,7 @@
                 </div>
             </div>
             <div class="location-banner" id="locationBanner">
-                <span class="location-banner-icon">💡</span>
-                <span>Байршил асаасан тохиолдолд таны бодит байршлыг харуулна</span>
+                <span>💡 Байршил асаасан тохиолдолд таны бодит байршлыг харуулна</span>
                 <button class="banner-dismiss" id="bannerDismiss">✕</button>
             </div>
             <div id="moron-map"></div>
@@ -165,8 +181,10 @@
 
     <script type="module">
         import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, onValue, remove, set } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getDatabase, ref, onValue, remove, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+        const REPORT_THRESHOLD = 5; // reports needed to flag a post
 
         const app = initializeApp({
             apiKey: "AIzaSyArvfvF1FWfqNAJnzfNiyEq0Lm2qioPIas",
@@ -183,6 +201,8 @@
 
         let currentUid = null;
         let allCarriers = {}, filteredCarriers = {};
+        // Track which posts the current user has already reported: { postUid: true }
+        let myReports = {};
 
         const container   = document.getElementById('carriersContainer');
         const searchInput = document.getElementById('searchInput');
@@ -192,7 +212,6 @@
         const weightSlider = document.getElementById('editWeight');
         const weightValue  = document.getElementById('editWeightValue');
 
-        // Cooldown for edit saves
         let lastSave = 0;
         const COOLDOWN_MS = 5000;
 
@@ -207,12 +226,24 @@
             e.target.value = e.target.value.replace(/\D/g, '');
         });
 
-        onAuthStateChanged(auth, user => {
+        onAuthStateChanged(auth, async user => {
             currentUid = user ? user.uid : null;
+            myReports = {};
+
+            if (user) {
+                // Load this user's existing reports so we know which posts they already reported
+                const snap = await get(ref(db, 'reports'));
+                if (snap.exists()) {
+                    snap.forEach(postSnap => {
+                        if (postSnap.child(user.uid).exists()) {
+                            myReports[postSnap.key] = true;
+                        }
+                    });
+                }
+            }
             renderCarriers(filteredCarriers);
         });
 
-        // carriers/{uid} — each key in the snapshot IS the owner's uid
         onValue(ref(db, 'carriers'), snap => {
             allCarriers = snap.exists() ? snap.val() : {};
             applyFilter();
@@ -249,10 +280,32 @@
             }
             keys.forEach(uid => {
                 const c   = carriers[uid];
-                // The key IS the uid — no uid field needed in the data
                 const own = currentUid && uid === currentUid;
+                const alreadyReported = myReports[uid] === true;
+
                 const card = document.createElement('div');
                 card.className = 'carrier-card';
+
+                // Build actions row
+                let actionsHtml = '<div class="card-actions">';
+                if (own) {
+                    actionsHtml += `
+                        <button class="btn-small btn-edit"   data-uid="${escapeHtml(uid)}">✏️ Засах</button>
+                        <button class="btn-small btn-delete" data-uid="${escapeHtml(uid)}">🗑️ Устгах</button>
+                    `;
+                } else if (currentUid) {
+                    // Logged-in users who don't own the post can report it
+                    const reportLabel = alreadyReported ? '⚑ Мэдэгдсэн' : '⚑ Мэдэгдэх';
+                    actionsHtml += `
+                        <button class="btn-report ${alreadyReported ? 'reported' : ''}"
+                                data-uid="${escapeHtml(uid)}"
+                                ${alreadyReported ? 'disabled' : ''}>
+                            ${reportLabel}
+                        </button>
+                    `;
+                }
+                actionsHtml += '</div>';
+
                 card.innerHTML = `
                     <div class="card-content">
                         <div class="carrier-phone">
@@ -266,22 +319,61 @@
                             ${c.maxWeight ? `<span class="carrier-weight">⚖️ ${escapeHtml(String(c.maxWeight))} кг</span>` : ''}
                         </div>
                     </div>
-                    ${own ? `
-                    <div class="card-actions">
-                        <button class="btn-small btn-edit"   data-uid="${escapeHtml(uid)}">✏️ Засах</button>
-                        <button class="btn-small btn-delete" data-uid="${escapeHtml(uid)}">🗑️ Устгах</button>
-                    </div>` : ''}
+                    ${actionsHtml}
                 `;
+
                 if (own) {
                     card.querySelector('.btn-edit').addEventListener('click',   () => openEdit(uid));
                     card.querySelector('.btn-delete').addEventListener('click', () => deletePost(uid));
+                } else if (currentUid && !alreadyReported) {
+                    card.querySelector('.btn-report').addEventListener('click', () => reportPost(uid, card));
                 }
+
                 container.appendChild(card);
             });
         }
 
+        async function reportPost(postUid, card) {
+            const user = auth.currentUser;
+            if (!user) { alert('Мэдэгдэхийн тулд нэвтэрнэ үү!'); return; }
+            if (postUid === user.uid) return; // can't report yourself
+
+            const btn = card.querySelector('.btn-report');
+            btn.disabled = true;
+            btn.textContent = '⏳...';
+
+            try {
+                // Write this user's report — path enforces auth.uid === reporterUid
+                await set(ref(db, `reports/${postUid}/${user.uid}`), Date.now());
+
+                // Count total reports for this post
+                const reportsSnap = await get(ref(db, `reports/${postUid}`));
+                const reportCount = reportsSnap.exists() ? Object.keys(reportsSnap.val()).length : 0;
+
+                // If threshold hit, write to flagged so admin can review
+                if (reportCount >= REPORT_THRESHOLD) {
+                    const postSnap = await get(ref(db, `carriers/${postUid}`));
+                    if (postSnap.exists()) {
+                        await set(ref(db, `flagged/${postUid}`), {
+                            ...postSnap.val(),
+                            postUid,
+                            reportCount,
+                            flaggedAt: Date.now()
+                        });
+                    }
+                }
+
+                myReports[postUid] = true;
+                btn.textContent = '⚑ Мэдэгдсэн';
+                btn.classList.add('reported');
+            } catch(err) {
+                btn.disabled = false;
+                btn.textContent = '⚑ Мэдэгдэх';
+                alert('Алдаа: ' + err.message);
+            }
+        }
+
         function openEdit(uid) {
-            // Double-check ownership before opening
             if (!currentUid || uid !== currentUid) return;
             const c = allCarriers[uid];
             if (!c) return;
@@ -299,7 +391,6 @@
         }
 
         async function deletePost(uid) {
-            // Ownership check — also enforced server-side by rules
             if (!currentUid || uid !== currentUid) return;
             if (!confirm('Энэ постыг устгах уу?')) return;
             await remove(ref(db, 'carriers/' + uid));
@@ -314,12 +405,9 @@
 
         editForm.addEventListener('submit', async e => {
             e.preventDefault();
-
-            // Always re-read auth state — never trust a cached id
             const user = auth.currentUser;
             if (!user) { alert('Нэвтэрнэ үү!'); return; }
 
-            // Cooldown
             const now = Date.now();
             if (now - lastSave < COOLDOWN_MS) {
                 const wait = Math.ceil((COOLDOWN_MS - (now - lastSave)) / 1000);
@@ -327,7 +415,6 @@
                 return;
             }
 
-            // Validate and sanitize
             const phone  = document.getElementById('editPhone').value.trim().replace(/\D/g, '');
             const carNum = document.getElementById('editCarNumber').value.trim().replace(/\D/g, '');
             const carLet = document.getElementById('editCarLetters').value.trim().toUpperCase().replace(/[^А-ЯӨҮ]/g, '');
@@ -342,14 +429,10 @@
             if (!days.length)        { alert('Наад зах нь нэг өдөр сонгоно уу!'); return; }
 
             try {
-                // set() replaces the whole document — no partial uid-field injection possible
                 await set(ref(db, 'carriers/' + user.uid), {
-                    phone,
-                    carPlate:    carNum + carLet,
-                    description: desc,
-                    maxWeight:   weight,
-                    days,
-                    timestamp:   allCarriers[user.uid]?.timestamp || Date.now()
+                    phone, carPlate: carNum + carLet, description: desc,
+                    maxWeight: weight, days,
+                    timestamp: allCarriers[user.uid]?.timestamp || Date.now()
                 });
                 lastSave = Date.now();
                 window.closeEditModal();
